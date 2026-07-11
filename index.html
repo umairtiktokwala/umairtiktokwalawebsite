@@ -956,20 +956,20 @@ document.querySelectorAll('.reveal').forEach((el,i)=>{
 });
 
 /* ===================================================================
-   PROMPT BOOK — loads from your Google Sheet
+   PROMPT BOOK — loads from your published Google Sheet
    -------------------------------------------------------------------
-   TO CONNECT YOUR SHEET:
-   1. Make your Google Sheet public:
-        File > Share > Publish to web > Entire document > CSV > Publish
-   2. Copy the Sheet ID from its URL:
-        docs.google.com/spreadsheets/d/[THIS-PART-IS-THE-ID]/edit
-   3. Paste it below, replacing PASTE_SHEET_ID_HERE
-   Sheet columns must be, in this exact order:
+   TO CONNECT A SHEET:
+   1. In your Sheet:  File > Share > Publish to web
+                      Entire document  +  Comma-separated values (.csv)
+                      > Publish
+   2. Copy the link Google gives you (it ends in  /pub?output=csv )
+   3. Paste it below, replacing the whole SHEET_CSV value.
+
+   Sheet columns, in this exact order:
         Image URL | Title | Prompt | Category | Tool
-   Row 1 = headings. Add a new row = new prompt appears on the site.
+   Row 1 = headings. Add a new row = a new prompt appears on the site.
    =================================================================== */
-const SHEET_ID  = 'PASTE_SHEET_ID_HERE';
-const SHEET_TAB = 'Sheet1';
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
 const PER_PAGE  = 9;
 
 let ALL = [], filter = 'All', shown = 0;
@@ -1062,31 +1062,40 @@ function buildChips(){
   });
 }
 
+
+/* A Cloudinary URL can contain commas (f_auto,q_auto). If it was pasted into
+   the sheet unquoted, the CSV splits it across cells. Stitch it back. */
+function fixRow(r){
+  r = r.map(c => (c||'').trim());
+  if(r[0] && r[0].indexOf('http') === 0){
+    // pull following fragments back onto the URL until we hit a real next field
+    while(r.length > 5 && r[1] && !/\s/.test(r[1]) && !/^https?:/.test(r[1])
+          && (r[1].indexOf('/') > -1 || /^[a-z]_[a-z0-9]+$/i.test(r[1]))){
+      r[0] = r[0] + ',' + r[1];
+      r.splice(1,1);
+    }
+  }
+  return { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
+}
+
 async function loadPrompts(){
-  if(SHEET_ID === 'PASTE_SHEET_ID_HERE'){
-    $state.textContent = 'Prompt book not connected yet — add your Google Sheet ID in index.html.';
+  if(!SHEET_CSV || SHEET_CSV.indexOf('http') !== 0){
+    $state.textContent = 'Prompt book not connected yet — add your published Sheet CSV link in index.html.';
     return;
   }
   try{
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;
-    const res = await fetch(url);
+    const res = await fetch(SHEET_CSV);
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSV(await res.text()).slice(1);   // drop heading row
     ALL = rows
-      .filter(r => (r[2]||'').trim())                   // must have a prompt
-      .map(r => ({
-        img:    (r[0]||'').trim(),
-        title:  (r[1]||'').trim(),
-        prompt: (r[2]||'').trim(),
-        cat:    (r[3]||'').trim(),
-        tool:   (r[4]||'').trim(),
-      }))
+      .map(fixRow)
+      .filter(p => p.prompt)                            // must have a prompt
       .reverse();                                       // newest first
     if(!ALL.length){ $state.textContent = 'No prompts in the sheet yet.'; return; }
     buildChips();
     render(true);
   }catch(e){
-    $state.textContent = "Couldn't load the prompt book. Check that the sheet is published to the web.";
+    $state.textContent = "Couldn't load the prompt book. Check that the sheet is still published to the web as CSV.";
   }
 }
 $more.onclick = () => render(false);
