@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Portal — Umair TikTok Wala Academy</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0D14; --ink-2:#161A26;
+  --paper:#FAFAF8; --paper-2:#F1F1EE;
+  --muted:#6B7183; --line:#E2E2DE;
+  --blue:#2B4EFF; --purple:#8B31E8; --red:#F0333E;
+  --green:#16A34A;
+  --grad:linear-gradient(103deg,var(--blue) 0%,var(--purple) 52%,var(--red) 100%);
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+/* ---------- AUTH SCREEN ---------- */
+.auth{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.auth-brand{
+  background:var(--ink);color:#fff;padding:56px 48px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.auth-brand::before{
+  content:"";position:absolute;top:-140px;right:-120px;
+  width:420px;height:420px;border-radius:50%;
+  background:var(--grad);filter:blur(110px);opacity:.4;
+}
+.ab-in{position:relative;z-index:1}
+.ab-logo{display:flex;align-items:center;gap:11px;margin-bottom:56px}
+.ab-logo img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:50%}
+.ab-logo-t{font-family:var(--display);font-weight:800;font-size:17px;line-height:1.15}
+.ab-logo-t em{
+  display:block;font-family:var(--mono);font-style:normal;font-weight:500;
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#A78BFA;margin-top:2px;
+}
+.ab-h{font-family:var(--display);font-weight:800;font-size:38px;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
+.ab-p{color:#9AA1B4;font-size:15.5px;line-height:1.65;max-width:34ch}
+.ab-foot{position:relative;z-index:1;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#5C6377}
+
+.auth-form{display:flex;align-items:center;justify-content:center;padding:48px 40px}
+.af{width:100%;max-width:380px}
+.af h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.025em;margin-bottom:8px}
+.af-sub{color:var(--muted);font-size:14.5px;margin-bottom:32px}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.field input{
+  width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;
+  font-family:var(--body);font-size:15px;background:#fff;color:var(--ink);
+  transition:border-color .18s;
+}
+.field input:focus{outline:none;border-color:var(--purple)}
+.field .hint{font-size:12px;color:var(--muted);margin-top:5px}
+
+.btn{
+  width:100%;padding:14px;border:none;border-radius:99px;cursor:pointer;
+  background:var(--grad);color:#fff;font-family:var(--body);
+  font-weight:600;font-size:15px;margin-top:8px;
+  transition:transform .18s,opacity .18s;
+  box-shadow:0 6px 20px rgba(139,49,232,.26);
+}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+.switch{text-align:center;margin-top:22px;font-size:14px;color:var(--muted)}
+.switch button{
+  background:none;border:none;cursor:pointer;color:var(--purple);
+  font-family:var(--body);font-weight:600;font-size:14px;
+}
+.switch button:hover{text-decoration:underline}
+
+.note{
+  padding:13px 15px;border-radius:10px;font-size:13.5px;line-height:1.55;
+  margin-bottom:18px;display:none;
+}
+.note.show{display:block}
+.note.bad{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.note.good{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+.note a{color:inherit;text-decoration:underline;font-weight:600}
+
+@media(max-width:860px){
+  .auth{grid-template-columns:1fr}
+  .auth-brand{padding:32px 26px;min-height:auto}
+  .ab-logo{margin-bottom:28px}
+  .ab-h{font-size:27px}
+  .ab-p{font-size:14.5px}
+  .ab-foot{display:none}
+  .auth-form{padding:36px 26px}
+}
+
+/* ---------- APP ---------- */
+#app{display:none}
+.top{
+  position:sticky;top:0;z-index:50;background:rgba(250,250,248,.9);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+}
+.top-in{max-width:1040px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px}
+.top-logo{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.top-logo img{width:34px;height:34px;object-fit:contain}
+.top-logo-t{font-family:var(--display);font-weight:800;font-size:15px;line-height:1.15}
+.top-logo-t em{
+  display:block;font-family:var(--mono);font-style:normal;font-weight:500;
+  font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);
+}
+.top-user{font-size:13.5px;color:var(--muted);white-space:nowrap}
+.top-out{
+  background:none;border:1px solid var(--line);border-radius:99px;
+  padding:8px 15px;cursor:pointer;font-family:var(--body);
+  font-size:13px;font-weight:600;color:var(--ink-2);transition:all .18s;
+}
+.top-out:hover{border-color:var(--ink);background:#fff}
+@media(max-width:600px){.top-user{display:none}}
+
+.hero-l{padding:44px 0 30px}
+.hi{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,38px);letter-spacing:-.03em;margin-bottom:8px}
+.hi-sub{color:var(--muted);font-size:15.5px}
+
+/* progress */
+.prog-card{
+  background:var(--ink);color:#fff;border-radius:18px;padding:26px 28px;
+  margin:26px 0 36px;position:relative;overflow:hidden;
+}
+.prog-card::before{
+  content:"";position:absolute;top:-100px;right:-70px;width:280px;height:280px;
+  border-radius:50%;background:var(--grad);filter:blur(70px);opacity:.4;
+}
+.prog-in{position:relative;z-index:1}
+.prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:16px;flex-wrap:wrap}
+.prog-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#8B92A8}
+.prog-n{font-family:var(--display);font-weight:800;font-size:30px;letter-spacing:-.02em}
+.prog-n span{font-size:16px;color:#8B92A8;font-weight:600}
+.prog-bar{height:7px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:var(--grad);border-radius:99px;width:0;transition:width .6s cubic-bezier(.16,1,.3,1)}
+.prog-meta{display:flex;gap:22px;margin-top:16px;font-size:13px;color:#8B92A8;flex-wrap:wrap}
+
+/* course tabs */
+.tabs{display:flex;gap:8px;margin-bottom:26px;flex-wrap:wrap}
+.tab{
+  padding:10px 20px;border-radius:99px;border:1px solid var(--line);
+  background:transparent;cursor:pointer;font-family:var(--body);
+  font-weight:600;font-size:14px;color:var(--muted);transition:all .18s;
+}
+.tab:hover{border-color:var(--ink);color:var(--ink)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.tab.locked{opacity:.45;cursor:not-allowed}
+.tab.locked:hover{border-color:var(--line);color:var(--muted)}
+
+/* modules */
+.mod-g{display:flex;flex-direction:column;gap:14px;padding-bottom:60px}
+.module{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.mod-h{
+  padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:background .18s;
+}
+.mod-h:hover{background:var(--paper-2)}
+.mod-n{
+  font-family:var(--mono);font-size:12px;color:var(--purple);
+  width:26px;flex-shrink:0;font-weight:500;
+}
+.mod-t{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.01em;flex:1}
+.mod-c{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.mod-ic{
+  width:18px;height:18px;position:relative;flex-shrink:0;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.mod-ic::before,.mod-ic::after{
+  content:"";position:absolute;background:var(--ink);border-radius:2px;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.mod-ic::before{width:11px;height:1.7px}
+.mod-ic::after{width:1.7px;height:11px;transition:opacity .3s}
+.module.open .mod-ic::after{opacity:0}
+.module.open .mod-ic{transform:rotate(180deg)}
+
+.lessons{display:none;border-top:1px solid var(--line)}
+.module.open .lessons{display:block}
+.lesson{
+  padding:15px 20px 15px 60px;display:flex;align-items:center;gap:14px;
+  border-bottom:1px solid var(--paper-2);cursor:pointer;transition:background .18s;
+}
+.lesson:last-child{border-bottom:none}
+.lesson:hover{background:var(--paper-2)}
+.l-check{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--line);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:#fff;transition:all .2s;
+}
+.lesson.done .l-check{background:var(--green);border-color:var(--green)}
+.l-t{flex:1;font-size:14.5px;color:var(--ink-2)}
+.lesson.done .l-t{color:var(--muted)}
+.l-play{font-family:var(--mono);font-size:10.5px;color:var(--purple);letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:600px){.lesson{padding-left:20px}}
+
+.empty{
+  padding:60px 24px;text-align:center;color:var(--muted);
+  border:1px dashed var(--line);border-radius:14px;font-size:15px;
+}
+
+/* ---------- VIDEO MODAL ---------- */
+.modal{
+  position:fixed;inset:0;z-index:200;background:rgba(11,13,20,.86);
+  backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px;
+}
+.modal.open{display:flex}
+.mbox{width:100%;max-width:900px;background:var(--paper);border-radius:18px;overflow:hidden}
+.mtop{padding:16px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line)}
+.mtitle{font-family:var(--display);font-weight:600;font-size:17px;flex:1;letter-spacing:-.01em}
+.mx{
+  background:none;border:none;cursor:pointer;font-size:26px;line-height:1;
+  color:var(--muted);padding:2px 6px;border-radius:6px;transition:all .18s;
+}
+.mx:hover{color:var(--ink);background:var(--paper-2)}
+.mvid{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.mvid iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.mfoot{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.mtime{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.mdone{
+  padding:12px 26px;border:none;border-radius:99px;cursor:pointer;
+  background:var(--ink);color:#fff;font-family:var(--body);
+  font-weight:600;font-size:14px;transition:all .2s;
+}
+.mdone:hover{transform:translateY(-1px)}
+.mdone.done{background:var(--green)}
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH ============ -->
+<div class="auth" id="auth">
+  <div class="auth-brand">
+    <div class="ab-in">
+      <div class="ab-logo">
+        <img src="img/logo-mark.png" alt="">
+        <div class="ab-logo-t">Umair TikTok Wala<em>Academy</em></div>
+      </div>
+      <h1 class="ab-h">Your lessons, in one place.</h1>
+      <p class="ab-p">Sign in with the number you enrolled with. Your courses unlock automatically.</p>
+    </div>
+    <div class="ab-foot">Students only · Multan, Pakistan</div>
+  </div>
+
+  <div class="auth-form">
+    <div class="af">
+      <div class="note" id="note"></div>
+
+      <!-- LOGIN -->
+      <div id="loginView">
+        <h2>Welcome back.</h2>
+        <p class="af-sub">Apne number aur password se login karein.</p>
+        <div class="field">
+          <label for="liNum">WhatsApp number</label>
+          <input type="tel" id="liNum" placeholder="03001234567" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="liPw">Password</label>
+          <input type="password" id="liPw" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn" id="loginBtn">Log in</button>
+        <div class="switch">
+          Pehli baar aa rahe hain? <button id="toSignup">Account banayein</button>
+        </div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="signupView" style="display:none">
+        <h2>Create your account.</h2>
+        <p class="af-sub">Wahi number use karein jis se enroll kiya tha.</p>
+        <div class="field">
+          <label for="suNum">WhatsApp number</label>
+          <input type="tel" id="suNum" placeholder="03001234567" autocomplete="username">
+          <div class="hint">Jis number se payment ki thi</div>
+        </div>
+        <div class="field">
+          <label for="suPw">Password banayein</label>
+          <input type="password" id="suPw" placeholder="Kam se kam 6 characters" autocomplete="new-password">
+        </div>
+        <button class="btn" id="signupBtn">Verify &amp; create account</button>
+        <div class="switch">
+          Pehle se account hai? <button id="toLogin">Log in karein</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <div class="top">
+    <div class="top-in">
+      <div class="top-logo">
+        <img src="img/logo-mark.png" alt="">
+        <div class="top-logo-t">Umair TikTok Wala<em>Academy</em></div>
+      </div>
+      <div class="top-user" id="topUser"></div>
+      <button class="top-out" id="outBtn">Log out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero-l">
+      <h1 class="hi" id="hi">Assalam-o-Alaikum</h1>
+      <p class="hi-sub" id="hiSub">Chalo, wahin se shuru karte hain jahan chhoda tha.</p>
+    </div>
+
+    <div class="prog-card">
+      <div class="prog-in">
+        <div class="prog-top">
+          <div>
+            <div class="prog-lbl">Your progress</div>
+            <div class="prog-n" id="progN">0<span>%</span></div>
+          </div>
+          <div class="prog-meta">
+            <span id="progDone">0 lessons complete</span>
+            <span id="progLeft">—</span>
+          </div>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div class="mod-g" id="mods">
+      <div class="empty">Lessons load ho rahe hain…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VIDEO ============ -->
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="mtop">
+      <div class="mtitle" id="mTitle"></div>
+      <button class="mx" id="mX">&times;</button>
+    </div>
+    <div class="mvid"><iframe id="mFrame" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <div class="mfoot">
+      <div class="mtime" id="mTime"></div>
+      <button class="mdone" id="mDone">Mark complete</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+/* ============================================================
+   CONFIG
+   ------------------------------------------------------------
+   LESSONS_CSV — publish your Sheet's "Lessons" tab:
+       File > Share > Publish to web > Lessons > CSV > Publish
+   Columns must be:  Course | Module | Lesson Title | YouTube URL | Order
+   ============================================================ */
+const LESSONS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?output=csv';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
+  authDomain: "umair-tiktok-wala-academy.firebaseapp.com",
+  projectId: "umair-tiktok-wala-academy",
+  storageBucket: "umair-tiktok-wala-academy.firebasestorage.app",
+  messagingSenderId: "389127998917",
+  appId: "1:389127998917:web:a849ddb50e57f8787e4fac"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const note = $('note');
+
+function say(msg, good){
+  note.className = 'note show ' + (good ? 'good' : 'bad');
+  note.innerHTML = msg;
+}
+function clearNote(){ note.className = 'note'; }
+
+// A phone number is turned into a fake email so Firebase Auth can use it.
+function normalize(n){
+  n = String(n||'').replace(/\D/g,'');
+  if(n.startsWith('0')) n = '92' + n.slice(1);
+  if(n.startsWith('3') && n.length === 10) n = '92' + n;
+  return n;
+}
+const toEmail = n => normalize(n) + '@student.umairtiktokwala.com';
+
+function ytId(url){
+  const m = String(url||'').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+
+function parseCSV(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
+      else cell+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(cell); cell=''; }
+      else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+      else if(c!=='\r') cell+=c;
+    }
+  }
+  if(cell||row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+
+/* ---------- state ---------- */
+let ME = null;          // { uid, number, name, courses: [] }
+let LESSONS = [];       // [{course, module, title, url, order, id}]
+let DONE = new Set();   // lesson ids completed
+let TAB = null;         // current course
+let OPEN = null;        // lesson open in the modal
+let T0 = 0;             // when the modal opened
+
+/* ---------- auth screens ---------- */
+$('toSignup').onclick = () => {
+  clearNote();
+  $('loginView').style.display='none';
+  $('signupView').style.display='block';
+};
+$('toLogin').onclick = () => {
+  clearNote();
+  $('signupView').style.display='none';
+  $('loginView').style.display='block';
+};
+
+/* ---------- SIGNUP ---------- */
+$('signupBtn').onclick = async () => {
+  clearNote();
+  const num = normalize($('suNum').value);
+  const pw  = $('suPw').value;
+  const btn = $('signupBtn');
+
+  if(num.length < 11) return say('Number theek nahi lag raha. Poora number likhein.');
+  if(pw.length < 6)   return say('Password kam se kam 6 characters ka hona chahiye.');
+
+  btn.disabled = true; btn.textContent = 'Verify ho raha hai…';
+
+  try{
+    // 1. is this number on Umair's verified list?
+    const r = await fetch('/api/verify', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ number: num })
+    });
+    const v = await r.json();
+
+    if(v.error) throw new Error(v.error);
+
+    if(!v.verified){
+      btn.disabled=false; btn.textContent='Verify & create account';
+      return say(
+        'Ye number verified list mein nahi mila.<br><br>' +
+        'Agar aapne enroll kiya hai, to WhatsApp par rabta karein: ' +
+        '<a href="https://wa.me/923119637931" target="_blank">Message bhejein</a>'
+      );
+    }
+
+    // 2. create the Firebase account
+    const cred = await createUserWithEmailAndPassword(auth, toEmail(num), pw);
+
+    // 3. write their record. courses comes from the SERVER, not the browser.
+    await setDoc(doc(db,'students',cred.user.uid), {
+      number: num,
+      name: v.name || '',
+      courses: v.courses,
+      verified: true,
+      joined: serverTimestamp(),
+    });
+
+    // onAuthStateChanged takes over from here
+  }catch(e){
+    btn.disabled=false; btn.textContent='Verify & create account';
+    const m = String(e.message||e);
+    if(m.includes('email-already-in-use')){
+      say('Is number ka account pehle se hai. <b>Log in</b> karein.');
+    }else if(m.includes('weak-password')){
+      say('Password kamzor hai. Kam se kam 6 characters rakhein.');
+    }else{
+      say('Kuch masla ho gaya. Thori der baad try karein.');
+    }
+  }
+};
+
+/* ---------- LOGIN ---------- */
+$('loginBtn').onclick = async () => {
+  clearNote();
+  const num = normalize($('liNum').value);
+  const pw  = $('liPw').value;
+  const btn = $('loginBtn');
+
+  if(num.length < 11) return say('Number theek nahi lag raha.');
+  if(!pw)             return say('Password likhein.');
+
+  btn.disabled = true; btn.textContent = 'Log in ho raha hai…';
+  try{
+    await signInWithEmailAndPassword(auth, toEmail(num), pw);
+  }catch(e){
+    btn.disabled=false; btn.textContent='Log in';
+    const m = String(e.message||e);
+    if(m.includes('invalid-credential') || m.includes('wrong-password') || m.includes('user-not-found')){
+      say('Number ya password galat hai. Agar account nahi hai, pehle <b>account banayein</b>.');
+    }else{
+      say('Login nahi ho paya. Thori der baad try karein.');
+    }
+  }
+};
+
+$('outBtn').onclick = () => signOut(auth);
+
+/* enter key submits */
+['liNum','liPw'].forEach(id => $(id).addEventListener('keydown', e => {
+  if(e.key==='Enter') $('loginBtn').click();
+}));
+['suNum','suPw'].forEach(id => $(id).addEventListener('keydown', e => {
+  if(e.key==='Enter') $('signupBtn').click();
+}));
+
+/* ---------- AUTH STATE ---------- */
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    $('auth').style.display='grid';
+    $('app').style.display='none';
+    ME=null; DONE.clear();
+    return;
+  }
+
+  const snap = await getDoc(doc(db,'students',user.uid));
+  if(!snap.exists()){
+    // account exists in Auth but has no record — shouldn't happen, but be safe
+    await signOut(auth);
+    return say('Account record nahi mila. WhatsApp par rabta karein.');
+  }
+
+  const d = snap.data();
+  ME = { uid:user.uid, number:d.number, name:d.name, courses:d.courses||[] };
+
+  $('auth').style.display='none';
+  $('app').style.display='block';
+
+  const first = (ME.name||'').split(' ')[0];
+  $('hi').textContent = first ? ('Assalam-o-Alaikum, ' + first) : 'Assalam-o-Alaikum';
+  $('topUser').textContent = ME.name || ME.number;
+
+  await loadProgress();
+  await loadLessons();
+});
+
+/* ---------- PROGRESS ---------- */
+async function loadProgress(){
+  DONE.clear();
+  const snap = await getDocs(collection(db,'students',ME.uid,'progress'));
+  snap.forEach(d => DONE.add(d.id));
+}
+
+async function markDone(lessonId, seconds){
+  if(DONE.has(lessonId)){
+    await deleteDoc(doc(db,'students',ME.uid,'progress',lessonId));
+    DONE.delete(lessonId);
+  }else{
+    await setDoc(doc(db,'students',ME.uid,'progress',lessonId), {
+      done: true,
+      seconds: seconds || 0,
+      at: serverTimestamp(),
+    });
+    DONE.add(lessonId);
+  }
+  render();
+}
+
+/* ---------- LESSONS ---------- */
+async function loadLessons(){
+  if(!LESSONS_CSV || LESSONS_CSV.indexOf('http') !== 0){
+    $('mods').innerHTML = '<div class="empty">Lessons abhi add nahi hue. Sheet ka CSV link learn.html mein daalein.</div>';
+    return;
+  }
+  try{
+    const res  = await fetch(LESSONS_CSV);
+    const rows = parseCSV(await res.text()).slice(1);
+    LESSONS = rows
+      .filter(r => (r[0]||'').trim() && (r[2]||'').trim())
+      .map((r,i) => ({
+        course: (r[0]||'').trim().toLowerCase(),
+        module: (r[1]||'').trim() || 'Lessons',
+        title:  (r[2]||'').trim(),
+        url:    (r[3]||'').trim(),
+        order:  parseInt(r[4]) || (i+1),
+        id:     'L' + (i+1),
+      }))
+      .sort((a,b) => a.order - b.order);
+
+    if(!LESSONS.length){
+      $('mods').innerHTML = '<div class="empty">Sheet mein abhi koi lesson nahi hai.</div>';
+      return;
+    }
+    TAB = ME.courses[0] || null;
+    render();
+  }catch(e){
+    $('mods').innerHTML = '<div class="empty">Lessons load nahi ho paye. Check karein ke Sheet publish hui hai.</div>';
+  }
+}
+
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function render(){
+  // ---- tabs ----
+  const all = ['facebook','tiktok'];
+  $('tabs').innerHTML = all.map(c => {
+    const has  = ME.courses.includes(c);
+    const name = c==='facebook' ? 'Facebook' : 'TikTok';
+    return `<button class="tab ${c===TAB?'on':''} ${has?'':'locked'}" data-c="${c}" ${has?'':'disabled'}>
+      ${name}${has?'':' 🔒'}
+    </button>`;
+  }).join('');
+  $('tabs').querySelectorAll('.tab:not(.locked)').forEach(b => {
+    b.onclick = () => { TAB = b.dataset.c; render(); };
+  });
+
+  // ---- my lessons ----
+  const mine = LESSONS.filter(l => ME.courses.includes(l.course));
+  const shown = LESSONS.filter(l => l.course === TAB);
+
+  // ---- progress across everything unlocked ----
+  const total = mine.length;
+  const done  = mine.filter(l => DONE.has(l.id)).length;
+  const pct   = total ? Math.round(done/total*100) : 0;
+
+  $('progN').innerHTML = pct + '<span>%</span>';
+  $('progFill').style.width = pct + '%';
+  $('progDone').textContent = done + ' of ' + total + ' lessons complete';
+  $('progLeft').textContent = total - done > 0 ? (total - done) + ' to go' : 'All done!';
+
+  if(!ME.courses.length){
+    $('mods').innerHTML = '<div class="empty">Koi course unlock nahi hai. WhatsApp par rabta karein.</div>';
+    return;
+  }
+  if(!shown.length){
+    $('mods').innerHTML = '<div class="empty">Is course mein abhi lessons add nahi hue.</div>';
+    return;
+  }
+
+  // ---- group into modules ----
+  const mods = {};
+  shown.forEach(l => { (mods[l.module] = mods[l.module] || []).push(l); });
+
+  $('mods').innerHTML = Object.keys(mods).map((m,i) => {
+    const ls = mods[m];
+    const d  = ls.filter(l => DONE.has(l.id)).length;
+    const openNow = i === 0;
+    return `
+    <div class="module ${openNow?'open':''}" data-m="${i}">
+      <div class="mod-h">
+        <span class="mod-n">${String(i+1).padStart(2,'0')}</span>
+        <span class="mod-t">${esc(m)}</span>
+        <span class="mod-c">${d}/${ls.length}</span>
+        <span class="mod-ic"></span>
+      </div>
+      <div class="lessons">
+        ${ls.map(l => `
+          <div class="lesson ${DONE.has(l.id)?'done':''}" data-l="${l.id}">
+            <span class="l-check">✓</span>
+            <span class="l-t">${esc(l.title)}</span>
+            <span class="l-play">${DONE.has(l.id)?'Watch again':'Watch'}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  $('mods').querySelectorAll('.mod-h').forEach(h => {
+    h.onclick = () => h.parentElement.classList.toggle('open');
+  });
+  $('mods').querySelectorAll('.lesson').forEach(el => {
+    el.onclick = () => openLesson(el.dataset.l);
+  });
+}
+
+/* ---------- VIDEO MODAL ---------- */
+function openLesson(id){
+  const l = LESSONS.find(x => x.id === id);
+  if(!l) return;
+  OPEN = l;
+  T0 = Date.now();
+
+  const vid = ytId(l.url);
+  $('mTitle').textContent = l.title;
+  $('mFrame').src = vid
+    ? 'https://www.youtube.com/embed/' + vid + '?rel=0&modestbranding=1'
+    : '';
+  $('mTime').textContent = vid ? '' : 'Video link theek nahi lag raha.';
+
+  const btn = $('mDone');
+  const isDone = DONE.has(l.id);
+  btn.textContent = isDone ? '✓ Completed' : 'Mark complete';
+  btn.classList.toggle('done', isDone);
+
+  $('modal').classList.add('open');
+}
+
+function shutModal(){
+  $('modal').classList.remove('open');
+  $('mFrame').src = '';
+  OPEN = null;
+}
+
+$('mX').onclick = shutModal;
+$('modal').onclick = e => { if(e.target === $('modal')) shutModal(); };
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && $('modal').classList.contains('open')) shutModal();
+});
+
+$('mDone').onclick = async () => {
+  if(!OPEN) return;
+  const secs = Math.round((Date.now() - T0) / 1000);
+  const btn = $('mDone');
+  btn.disabled = true;
+  await markDone(OPEN.id, secs);
+  const nowDone = DONE.has(OPEN.id);
+  btn.textContent = nowDone ? '✓ Completed' : 'Mark complete';
+  btn.classList.toggle('done', nowDone);
+  btn.disabled = false;
+};
+</script>
+</body>
+</html>
