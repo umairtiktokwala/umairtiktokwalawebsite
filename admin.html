@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Umair TikTok Wala Academy</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0D14; --ink-2:#161A26;
+  --paper:#FAFAF8; --paper-2:#F1F1EE;
+  --muted:#6B7183; --line:#E2E2DE;
+  --blue:#2B4EFF; --purple:#8B31E8; --red:#F0333E;
+  --green:#16A34A; --amber:#D97706;
+  --grad:linear-gradient(103deg,var(--blue) 0%,var(--purple) 52%,var(--red) 100%);
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* ---------- LOGIN ---------- */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gbox{width:100%;max-width:370px}
+.glogo{display:flex;align-items:center;gap:11px;margin-bottom:34px}
+.glogo img{width:42px;height:42px;object-fit:contain}
+.glogo-t{font-family:var(--display);font-weight:800;font-size:16px;line-height:1.15}
+.glogo-t em{
+  display:block;font-family:var(--mono);font-style:normal;font-weight:500;
+  font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--purple);margin-top:2px;
+}
+.gbox h1{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.025em;margin-bottom:6px}
+.gsub{color:var(--muted);font-size:14px;margin-bottom:28px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.field input{
+  width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:10px;
+  font-family:var(--body);font-size:15px;background:#fff;
+}
+.field input:focus{outline:none;border-color:var(--purple)}
+.btn{
+  width:100%;padding:13px;border:none;border-radius:99px;cursor:pointer;
+  background:var(--grad);color:#fff;font-family:var(--body);
+  font-weight:600;font-size:15px;margin-top:6px;
+  box-shadow:0 6px 18px rgba(139,49,232,.24);transition:transform .18s,opacity .18s;
+}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.note{padding:12px 14px;border-radius:9px;font-size:13.5px;line-height:1.55;margin-bottom:16px;display:none}
+.note.show{display:block}
+.note.bad{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+
+/* ---------- APP ---------- */
+#panel{display:none}
+.top{position:sticky;top:0;z-index:40;background:rgba(250,250,248,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1080px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:16px}
+.top-l{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.top-l img{width:32px;height:32px;object-fit:contain}
+.top-t{font-family:var(--display);font-weight:800;font-size:14.5px;line-height:1.15}
+.top-t em{
+  display:block;font-family:var(--mono);font-style:normal;font-weight:500;
+  font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);
+}
+.top-who{font-size:13px;color:var(--muted);white-space:nowrap}
+.out{
+  background:none;border:1px solid var(--line);border-radius:99px;padding:7px 14px;
+  cursor:pointer;font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--ink-2);
+}
+.out:hover{border-color:var(--ink);background:#fff}
+@media(max-width:600px){.top-who{display:none}}
+
+h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.6vw,32px);letter-spacing:-.03em;margin:36px 0 6px}
+.h-sub{color:var(--muted);font-size:14.5px;margin-bottom:26px}
+
+/* counters */
+.cnt{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:30px}
+.c{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+.c-n{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.1}
+.c-l{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.c.hot .c-n{color:var(--amber)}
+@media(max-width:700px){.cnt{grid-template-columns:1fr 1fr}}
+
+/* view tabs */
+.vt{display:flex;gap:7px;margin-bottom:22px;flex-wrap:wrap}
+.v{
+  padding:9px 17px;border-radius:99px;border:1px solid var(--line);background:transparent;
+  cursor:pointer;font-family:var(--body);font-weight:600;font-size:13.5px;color:var(--muted);transition:all .18s;
+}
+.v:hover{border-color:var(--ink);color:var(--ink)}
+.v.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* submissions */
+.list{display:flex;flex-direction:column;gap:12px;padding-bottom:70px}
+.sub{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
+.sub.pending{border-left:3px solid var(--amber)}
+.sub.approved{border-left:3px solid var(--green)}
+.sub.rework{border-left:3px solid var(--red)}
+.s-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.s-av{
+  width:36px;height:36px;border-radius:50%;background:var(--grad);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:800;font-size:14px;color:#fff;
+}
+.s-who{flex:1;min-width:0}
+.s-nm{font-weight:600;font-size:14.5px}
+.s-meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:1px}
+.chip{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 9px;border-radius:5px;white-space:nowrap;
+}
+.chip.pending{background:#FEF3C7;color:#92400E}
+.chip.approved{background:#DCFCE7;color:#166534}
+.chip.rework{background:#FEE2E2;color:#991B1B}
+.chip.mod{background:var(--paper-2);color:var(--muted)}
+
+.s-link{
+  display:block;font-family:var(--mono);font-size:12.5px;color:var(--purple);
+  word-break:break-all;margin-bottom:8px;text-decoration:underline;
+}
+.s-text{
+  font-size:14px;color:var(--ink-2);line-height:1.6;background:var(--paper-2);
+  padding:11px 13px;border-radius:9px;margin-bottom:12px;white-space:pre-wrap;
+}
+.s-fb{
+  font-size:13.5px;color:var(--muted);line-height:1.55;
+  padding:10px 12px;background:var(--paper-2);border-radius:8px;margin-bottom:12px;
+}
+.s-fb b{
+  display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:4px;color:var(--ink-2);font-weight:500;
+}
+.s-act{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.s-act textarea{
+  flex:1;min-width:200px;min-height:44px;padding:11px 12px;border:1px solid var(--line);
+  border-radius:9px;font-family:var(--body);font-size:13.5px;background:#fff;resize:vertical;line-height:1.5;
+}
+.s-act textarea:focus{outline:none;border-color:var(--purple)}
+.ok,.no{
+  padding:11px 20px;border:none;border-radius:99px;cursor:pointer;
+  font-family:var(--body);font-weight:600;font-size:13px;white-space:nowrap;transition:all .18s;
+}
+.ok{background:var(--green);color:#fff}
+.no{background:#fff;border:1px solid var(--red);color:var(--red)}
+.ok:hover,.no:hover{transform:translateY(-1px)}
+.ok:disabled,.no:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* students */
+.st{
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.st.off{opacity:.55}
+.st-who{flex:1;min-width:160px}
+.st-nm{font-weight:600;font-size:14.5px}
+.st-meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:1px}
+.st-p{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.sus{
+  padding:8px 15px;border-radius:99px;cursor:pointer;border:1px solid var(--line);
+  background:transparent;font-family:var(--body);font-weight:600;font-size:12.5px;
+  color:var(--ink-2);transition:all .18s;white-space:nowrap;
+}
+.sus:hover{border-color:var(--red);color:var(--red)}
+.sus.on{background:var(--red);border-color:var(--red);color:#fff}
+
+.empty{padding:56px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;font-size:14.5px}
+</style>
+</head>
+<body>
+
+<!-- ======= LOGIN ======= -->
+<div class="gate" id="gate">
+  <div class="gbox">
+    <div class="glogo">
+      <img src="img/logo-mark.png" alt="">
+      <div class="glogo-t">Umair TikTok Wala<em>Admin</em></div>
+    </div>
+    <h1>Team login</h1>
+    <p class="gsub">Sirf team ke liye.</p>
+    <div class="note" id="note"></div>
+    <div class="field">
+      <label for="num">Number</label>
+      <input type="tel" id="num" placeholder="03001234567" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="pw">Password</label>
+      <input type="password" id="pw" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn" id="go">Log in</button>
+  </div>
+</div>
+
+<!-- ======= PANEL ======= -->
+<div id="panel">
+  <div class="top">
+    <div class="top-in">
+      <div class="top-l">
+        <img src="img/logo-mark.png" alt="">
+        <div class="top-t">Umair TikTok Wala<em>Admin</em></div>
+      </div>
+      <div class="top-who" id="who"></div>
+      <button class="out" id="out">Log out</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h2>Submissions</h2>
+    <p class="h-sub" id="hSub">Students ke tasks — review karein aur feedback dein.</p>
+
+    <div class="cnt">
+      <div class="c hot"><div class="c-n" id="cPend">0</div><div class="c-l">Review pending</div></div>
+      <div class="c"><div class="c-n" id="cOk">0</div><div class="c-l">Approved</div></div>
+      <div class="c"><div class="c-n" id="cRe">0</div><div class="c-l">Sent back</div></div>
+      <div class="c"><div class="c-n" id="cStu">0</div><div class="c-l">Students</div></div>
+    </div>
+
+    <div class="vt" id="vt">
+      <button class="v on" data-v="pending">Pending</button>
+      <button class="v" data-v="all">All submissions</button>
+      <button class="v" data-v="students">Students</button>
+    </div>
+
+    <div class="list" id="list">
+      <div class="empty">Load ho raha hai…</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  getFirestore, doc, getDoc, updateDoc, collection, getDocs, query, orderBy, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
+  authDomain: "umair-tiktok-wala-academy.firebaseapp.com",
+  projectId: "umair-tiktok-wala-academy",
+  storageBucket: "umair-tiktok-wala-academy.firebasestorage.app",
+  messagingSenderId: "389127998917",
+  appId: "1:389127998917:web:a849ddb50e57f8787e4fac"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+const note = $('note');
+
+function say(m){ note.className='note show bad'; note.innerHTML=m; }
+function clearNote(){ note.className='note'; }
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function normalize(n){
+  n = String(n||'').replace(/\D/g,'');
+  if(n.startsWith('0')) n = '92' + n.slice(1);
+  if(n.startsWith('3') && n.length === 10) n = '92' + n;
+  return n;
+}
+const toEmail = n => normalize(n) + '@student.umairtiktokwala.com';
+
+let SUBS = [], STUDENTS = [], VIEW = 'pending';
+
+/* ---------- login ---------- */
+$('go').onclick = async () => {
+  clearNote();
+  const num = normalize($('num').value);
+  const pw  = $('pw').value;
+  const b   = $('go');
+
+  if(num.length < 11) return say('Number theek nahi lag raha.');
+  if(!pw)             return say('Password likhein.');
+
+  b.disabled = true; b.textContent = 'Log in ho raha hai…';
+  try{
+    await signInWithEmailAndPassword(auth, toEmail(num), pw);
+  }catch(e){
+    b.disabled=false; b.textContent='Log in';
+    say('Number ya password galat hai.');
+  }
+};
+['num','pw'].forEach(id => $(id).addEventListener('keydown', e => {
+  if(e.key==='Enter') $('go').click();
+}));
+$('out').onclick = () => signOut(auth);
+
+/* ---------- gate ---------- */
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    $('gate').style.display='flex';
+    $('panel').style.display='none';
+    return;
+  }
+
+  // is this account on the admins list?
+  let isAdmin = false;
+  try{
+    const a = await getDoc(doc(db,'admins',user.uid));
+    isAdmin = a.exists();
+  }catch(e){ isAdmin = false; }
+
+  if(!isAdmin){
+    await signOut(auth);
+    $('go').disabled = false; $('go').textContent = 'Log in';
+    return say('Ye account admin nahi hai.');
+  }
+
+  const me = await getDoc(doc(db,'students',user.uid));
+  $('who').textContent = me.exists() ? (me.data().name || '') : '';
+
+  $('gate').style.display='none';
+  $('panel').style.display='block';
+  await loadAll();
+});
+
+/* ---------- data ---------- */
+async function loadAll(){
+  SUBS = []; STUDENTS = [];
+  try{
+    const s = await getDocs(collection(db,'submissions'));
+    s.forEach(d => SUBS.push({ id:d.id, ...d.data() }));
+    SUBS.sort((a,b) => (b.at?.seconds||0) - (a.at?.seconds||0));   // newest first
+
+    const st = await getDocs(collection(db,'students'));
+    st.forEach(d => STUDENTS.push({ uid:d.id, ...d.data() }));
+  }catch(e){
+    $('list').innerHTML = '<div class="empty">Data load nahi hua. Firestore rules check karein.</div>';
+    return;
+  }
+  render();
+}
+
+async function setStatus(id, status, feedback, btn){
+  btn.disabled = true;
+  try{
+    await updateDoc(doc(db,'submissions',id), {
+      status,
+      feedback: feedback || '',
+      reviewedAt: serverTimestamp(),
+    });
+    const s = SUBS.find(x => x.id === id);
+    if(s){ s.status = status; s.feedback = feedback || ''; }
+    render();
+  }catch(e){
+    btn.disabled = false;
+    alert('Update nahi hua. Dobara try karein.');
+  }
+}
+
+async function toggleSuspend(uid, now, btn){
+  btn.disabled = true;
+  try{
+    await updateDoc(doc(db,'students',uid), { suspended: !now });
+    const s = STUDENTS.find(x => x.uid === uid);
+    if(s) s.suspended = !now;
+    render();
+  }catch(e){
+    btn.disabled = false;
+    alert('Update nahi hua.');
+  }
+}
+
+/* ---------- render ---------- */
+$('vt').querySelectorAll('.v').forEach(b => {
+  b.onclick = () => {
+    $('vt').querySelectorAll('.v').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    VIEW = b.dataset.v;
+    render();
+  };
+});
+
+function render(){
+  const pend = SUBS.filter(s => s.status === 'pending');
+  $('cPend').textContent = pend.length;
+  $('cOk').textContent   = SUBS.filter(s => s.status === 'approved').length;
+  $('cRe').textContent   = SUBS.filter(s => s.status === 'rework').length;
+  $('cStu').textContent  = STUDENTS.length;
+
+  if(VIEW === 'students'){
+    $('hSub').textContent = 'Sab students — progress dekhein, access band karein.';
+    if(!STUDENTS.length){
+      $('list').innerHTML = '<div class="empty">Abhi koi student nahi.</div>';
+      return;
+    }
+    $('list').innerHTML = STUDENTS.map(s => {
+      const init = (s.name || s.number || 'U').charAt(0).toUpperCase();
+      const cs   = (s.courses || []).map(c => c === 'facebook' ? 'Facebook' : 'TikTok').join(' · ') || '—';
+      return `<div class="st ${s.suspended?'off':''}">
+        <div class="s-av">${esc(init)}</div>
+        <div class="st-who">
+          <div class="st-nm">${esc(s.name || 'Naam nahi')}</div>
+          <div class="st-meta">${esc(s.number || '')}</div>
+        </div>
+        <div class="st-p">${esc(cs)}</div>
+        <button class="sus ${s.suspended?'on':''}" data-sus="${esc(s.uid)}" data-now="${s.suspended?1:0}">
+          ${s.suspended ? 'Suspended' : 'Suspend'}
+        </button>
+      </div>`;
+    }).join('');
+
+    $('list').querySelectorAll('[data-sus]').forEach(b => {
+      b.onclick = () => {
+        const now = b.dataset.now === '1';
+        if(!now && !confirm('Is student ka access band kar dein?')) return;
+        toggleSuspend(b.dataset.sus, now, b);
+      };
+    });
+    return;
+  }
+
+  const show = VIEW === 'pending' ? pend : SUBS;
+  $('hSub').textContent = VIEW === 'pending'
+    ? 'Ye tasks review ka intezar kar rahe hain.'
+    : 'Sab submissions.';
+
+  if(!show.length){
+    $('list').innerHTML = `<div class="empty">${VIEW==='pending' ? 'Koi task review ke liye nahi hai.' : 'Abhi koi submission nahi.'}</div>`;
+    return;
+  }
+
+  $('list').innerHTML = show.map(s => {
+    const init = (s.name || s.number || 'U').charAt(0).toUpperCase();
+    const course = s.course === 'facebook' ? 'Facebook' : 'TikTok';
+    const chipT = s.status === 'pending' ? 'Review mein'
+                : s.status === 'approved' ? 'Approved' : 'Sent back';
+
+    const actions = s.status === 'pending' ? `
+      <div class="s-act">
+        <textarea placeholder="Feedback (agar galti hai to likhein)" data-fb="${esc(s.id)}"></textarea>
+        <button class="ok" data-ok="${esc(s.id)}">Approve</button>
+        <button class="no" data-no="${esc(s.id)}">Dobara karwayein</button>
+      </div>` : '';
+
+    const fb = s.feedback ? `<div class="s-fb"><b>Feedback</b>${esc(s.feedback)}</div>` : '';
+
+    return `<div class="sub ${esc(s.status)}">
+      <div class="s-top">
+        <div class="s-av">${esc(init)}</div>
+        <div class="s-who">
+          <div class="s-nm">${esc(s.name || 'Naam nahi')}</div>
+          <div class="s-meta">${esc(s.number || '')}</div>
+        </div>
+        <span class="chip mod">${esc(course)} · ${esc(s.module || '')}</span>
+        <span class="chip ${esc(s.status)}">${chipT}</span>
+      </div>
+      ${s.link ? `<a class="s-link" href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>` : ''}
+      ${s.text ? `<div class="s-text">${esc(s.text)}</div>` : ''}
+      ${fb}
+      ${actions}
+    </div>`;
+  }).join('');
+
+  $('list').querySelectorAll('[data-ok]').forEach(b => {
+    b.onclick = () => {
+      const id = b.dataset.ok;
+      const t  = $('list').querySelector(`[data-fb="${CSS.escape(id)}"]`);
+      setStatus(id, 'approved', t ? t.value.trim() : '', b);
+    };
+  });
+  $('list').querySelectorAll('[data-no]').forEach(b => {
+    b.onclick = () => {
+      const id = b.dataset.no;
+      const t  = $('list').querySelector(`[data-fb="${CSS.escape(id)}"]`);
+      const fb = t ? t.value.trim() : '';
+      if(!fb){ alert('Feedback likhein — student ko batana zaroori hai ke kya theek karna hai.'); return; }
+      setStatus(id, 'rework', fb, b);
+    };
+  });
+}
+</script>
+</body>
+</html>
