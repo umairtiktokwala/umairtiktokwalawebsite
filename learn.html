@@ -209,6 +209,89 @@ a{color:inherit;text-decoration:none}
   border:1px dashed var(--line);border-radius:14px;font-size:15px;
 }
 
+
+/* ---------- PROFILE STRIP ---------- */
+.me-strip{
+  display:flex;align-items:center;gap:14px;margin-bottom:8px;
+}
+.me-av{
+  width:52px;height:52px;border-radius:50%;background:var(--grad);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:var(--display);font-weight:800;font-size:20px;color:#fff;
+}
+.me-t{min-width:0}
+.me-name{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.03em;line-height:1.15}
+.me-num{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.05em;margin-top:2px}
+
+/* ---------- TIME STATS ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 32px}
+.stat{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;
+}
+.stat-n{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1.1}
+.stat-n span{font-size:14px;color:var(--muted);font-weight:600}
+.stat-l{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:14px 15px}
+  .stat-n{font-size:20px}
+}
+
+/* ---------- TASK ---------- */
+.task{
+  margin:16px 20px 20px 60px;padding:18px 20px;
+  background:var(--paper-2);border:1px solid var(--line);border-radius:12px;
+}
+@media(max-width:600px){.task{margin-left:20px}}
+.task-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.task-tag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  padding:4px 9px;border-radius:5px;background:var(--purple);color:#fff;
+}
+.task-st{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 9px;border-radius:5px;
+}
+.task-st.pending{background:#FEF3C7;color:#92400E}
+.task-st.approved{background:#DCFCE7;color:#166534}
+.task-st.rework{background:#FEE2E2;color:#991B1B}
+.task-t{font-size:14.5px;line-height:1.6;color:var(--ink-2);margin-bottom:6px}
+.task-w{font-size:13px;color:var(--muted);margin-bottom:14px}
+
+.fb{
+  padding:12px 14px;border-radius:9px;margin-bottom:14px;
+  font-size:13.5px;line-height:1.6;
+}
+.fb.approved{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+.fb.rework{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.fb b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;font-family:var(--mono);font-weight:500}
+
+.task-f input,.task-f textarea{
+  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;
+  font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);
+  margin-bottom:9px;
+}
+.task-f textarea{resize:vertical;min-height:74px;line-height:1.55}
+.task-f input:focus,.task-f textarea:focus{outline:none;border-color:var(--purple)}
+.task-btn{
+  padding:11px 24px;border:none;border-radius:99px;cursor:pointer;
+  background:var(--ink);color:#fff;font-family:var(--body);
+  font-weight:600;font-size:13.5px;transition:all .18s;
+}
+.task-btn:hover:not(:disabled){transform:translateY(-1px)}
+.task-btn:disabled{opacity:.5;cursor:not-allowed}
+.task-sent{
+  font-size:13px;color:var(--muted);padding:10px 0;
+  display:flex;align-items:center;gap:8px;
+}
+.task-sent a{color:var(--purple);text-decoration:underline;word-break:break-all}
+.task-again{
+  background:none;border:none;cursor:pointer;color:var(--purple);
+  font-family:var(--body);font-weight:600;font-size:13px;padding:0;
+}
+.task-again:hover{text-decoration:underline}
+
 /* ---------- VIDEO MODAL ---------- */
 .modal{
   position:fixed;inset:0;z-index:200;background:rgba(11,13,20,.86);
@@ -311,8 +394,29 @@ a{color:inherit;text-decoration:none}
 
   <div class="wrap">
     <div class="hero-l">
-      <h1 class="hi" id="hi">Assalam-o-Alaikum</h1>
+      <div class="me-strip">
+        <div class="me-av" id="meAv">U</div>
+        <div class="me-t">
+          <div class="me-name" id="hi">Assalam-o-Alaikum</div>
+          <div class="me-num" id="meNum"></div>
+        </div>
+      </div>
       <p class="hi-sub" id="hiSub">Chalo, wahin se shuru karte hain jahan chhoda tha.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-n" id="stTotal">0<span>m</span></div>
+        <div class="stat-l">Total time</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" id="stToday">0<span>m</span></div>
+        <div class="stat-l">Aaj</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" id="stStreak">0<span> din</span></div>
+        <div class="stat-l">Streak</div>
+      </div>
     </div>
 
     <div class="prog-card">
@@ -360,7 +464,8 @@ import {
   signOut, onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, serverTimestamp
+  getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, deleteDoc,
+  query, where, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 /* ============================================================
@@ -370,7 +475,11 @@ import {
        File > Share > Publish to web > Lessons > CSV > Publish
    Columns must be:  Course | Module | Lesson Title | YouTube URL | Order
    ============================================================ */
-const LESSONS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?output=csv';
+const LESSONS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=0&single=true&output=csv';
+
+/* TASKS — publish the "Tasks" tab of the same Sheet as CSV and paste the link.
+   Columns:  Course | Module | Task | What to submit          */
+const TASKS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=161942160&single=true&output=csv';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
@@ -427,6 +536,16 @@ function parseCSV(text){
   return rows;
 }
 
+/* ---------- time ---------- */
+const todayKey = () => new Date().toISOString().slice(0,10);   // YYYY-MM-DD
+
+function fmt(sec){
+  const m = Math.round((sec||0)/60);
+  if(m < 60) return [m, 'm'];
+  const hr = Math.floor(m/60), rm = m%60;
+  return [hr + 'h' + (rm ? ' ' + rm + 'm' : ''), ''];
+}
+
 /* ---------- state ---------- */
 let ME = null;          // { uid, number, name, courses: [] }
 let LESSONS = [];       // [{course, module, title, url, order, id}]
@@ -434,6 +553,9 @@ let DONE = new Set();   // lesson ids completed
 let TAB = null;         // current course
 let OPEN = null;        // lesson open in the modal
 let T0 = 0;             // when the modal opened
+let TASKS = [];         // [{course, module, task, submit}]
+let SUBS = {};          // moduleKey -> submission doc
+let SESSION = Date.now();
 
 /* ---------- auth screens ---------- */
 $('toSignup').onclick = () => {
@@ -556,6 +678,13 @@ onAuthStateChanged(auth, async user => {
   }
 
   const d = snap.data();
+
+  if(d.suspended){
+    await signOut(auth);
+    return say('Aapka access abhi band hai. WhatsApp par rabta karein: ' +
+               '<a href="https://wa.me/923119637931" target="_blank">Message bhejein</a>');
+  }
+
   ME = { uid:user.uid, number:d.number, name:d.name, courses:d.courses||[] };
 
   $('auth').style.display='none';
@@ -563,11 +692,80 @@ onAuthStateChanged(auth, async user => {
 
   const first = (ME.name||'').split(' ')[0];
   $('hi').textContent = first ? ('Assalam-o-Alaikum, ' + first) : 'Assalam-o-Alaikum';
+  $('meAv').textContent = (first || ME.number || 'U').charAt(0).toUpperCase();
+  $('meNum').textContent = ME.number || '';
   $('topUser').textContent = ME.name || ME.number;
 
+  SESSION = Date.now();
   await loadProgress();
+  await loadTime();
+  await loadSubs();
   await loadLessons();
+  await loadTasks();
+  render();
 });
+
+/* ---------- TIME ---------- */
+let DAYS = {};   // 'YYYY-MM-DD' -> seconds
+
+async function loadTime(){
+  DAYS = {};
+  const snap = await getDocs(collection(db,'students',ME.uid,'days'));
+  snap.forEach(d => { DAYS[d.id] = (d.data().seconds || 0); });
+  paintTime();
+}
+
+async function addTime(sec){
+  if(!ME || sec < 5) return;                 // ignore blips
+  sec = Math.min(sec, 2*60*60);              // cap a single burst at 2h
+  const k = todayKey();
+  DAYS[k] = (DAYS[k] || 0) + sec;
+  paintTime();
+  try{
+    await setDoc(doc(db,'students',ME.uid,'days',k), {
+      seconds: DAYS[k],
+      at: serverTimestamp(),
+    });
+  }catch(e){ /* offline — the number stays on screen anyway */ }
+}
+
+function streak(){
+  let n = 0;
+  const d = new Date();
+  // today doesn't have to count yet, so start from today and walk back
+  for(let i=0;i<400;i++){
+    const k = d.toISOString().slice(0,10);
+    if(DAYS[k] && DAYS[k] > 0){ n++; }
+    else if(i > 0){ break; }                 // a gap ends the streak
+    d.setDate(d.getDate() - 1);
+  }
+  return n;
+}
+
+function paintTime(){
+  const total = Object.values(DAYS).reduce((a,b)=>a+b, 0);
+  const today = DAYS[todayKey()] || 0;
+
+  const [tn,tu] = fmt(total);
+  $('stTotal').innerHTML = tn + '<span>' + tu + '</span>';
+
+  const [dn,du] = fmt(today);
+  $('stToday').innerHTML = dn + '<span>' + du + '</span>';
+
+  const s = streak();
+  $('stStreak').innerHTML = s + '<span> din</span>';
+}
+
+// bank the session time when they leave or hide the tab
+function bank(){
+  if(!ME) return;
+  const sec = Math.round((Date.now() - SESSION) / 1000);
+  SESSION = Date.now();
+  addTime(sec);
+}
+setInterval(bank, 60 * 1000);                          // every minute
+document.addEventListener('visibilitychange', () => { if(document.hidden) bank(); });
+window.addEventListener('pagehide', bank);
 
 /* ---------- PROGRESS ---------- */
 async function loadProgress(){
@@ -624,6 +822,129 @@ async function loadLessons(){
 }
 
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+/* ---------- TASKS ---------- */
+const modKey = (course, module) => course + '::' + module;
+
+async function loadTasks(){
+  if(!TASKS_CSV || TASKS_CSV.indexOf('http') !== 0){ TASKS = []; return; }
+  try{
+    const res  = await fetch(TASKS_CSV);
+    const rows = parseCSV(await res.text()).slice(1);
+    TASKS = rows
+      .filter(r => (r[0]||'').trim() && (r[2]||'').trim())
+      .map(r => ({
+        course: (r[0]||'').trim().toLowerCase(),
+        module: (r[1]||'').trim(),
+        task:   (r[2]||'').trim(),
+        submit: (r[3]||'').trim(),
+      }));
+  }catch(e){ TASKS = []; }
+}
+
+async function loadSubs(){
+  SUBS = {};
+  try{
+    const q = query(collection(db,'submissions'), where('uid','==',ME.uid));
+    const snap = await getDocs(q);
+    snap.forEach(d => { SUBS[d.data().key] = { id:d.id, ...d.data() }; });
+  }catch(e){ /* none yet */ }
+}
+
+async function submitTask(course, module, link, text, btn){
+  const key = modKey(course, module);
+  const existing = SUBS[key];
+
+  btn.disabled = true; btn.textContent = 'Bhej raha hai…';
+
+  const payload = {
+    uid: ME.uid,
+    key,
+    name: ME.name || '',
+    number: ME.number || '',
+    course,
+    module,
+    link: link || '',
+    text: text || '',
+    status: 'pending',
+    feedback: '',
+    at: serverTimestamp(),
+  };
+
+  try{
+    if(existing){
+      await updateDoc(doc(db,'submissions',existing.id), payload);
+      SUBS[key] = { id:existing.id, ...payload, status:'pending', feedback:'' };
+    }else{
+      const id = ME.uid + '_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+      await setDoc(doc(db,'submissions',id), payload);
+      SUBS[key] = { id, ...payload };
+    }
+    render();
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Submit karein';
+    alert('Submit nahi ho paya. Dobara try karein.');
+  }
+}
+
+function taskHTML(course, module){
+  const t = TASKS.find(x => x.course === course && x.module === module);
+  if(!t) return '';
+
+  const key = modKey(course, module);
+  const s   = SUBS[key];
+  const st  = s ? s.status : null;
+
+  let statusChip = '';
+  if(st === 'pending')  statusChip = '<span class="task-st pending">Review mein</span>';
+  if(st === 'approved') statusChip = '<span class="task-st approved">Approved</span>';
+  if(st === 'rework')   statusChip = '<span class="task-st rework">Dobara karein</span>';
+
+  let feedback = '';
+  if(s && s.feedback){
+    feedback = `<div class="fb ${st === 'approved' ? 'approved' : 'rework'}">
+      <b>Ustad ka feedback</b>${esc(s.feedback)}</div>`;
+  }
+
+  // approved -> just show what they sent
+  if(st === 'approved'){
+    return `<div class="task">
+      <div class="task-h"><span class="task-tag">Task</span>${statusChip}</div>
+      <div class="task-t">${esc(t.task)}</div>
+      ${feedback}
+      <div class="task-sent">
+        ${s.link ? `Aapka link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>` : 'Submit ho gaya'}
+      </div>
+    </div>`;
+  }
+
+  // pending -> show what they sent, let them replace it
+  if(st === 'pending'){
+    return `<div class="task">
+      <div class="task-h"><span class="task-tag">Task</span>${statusChip}</div>
+      <div class="task-t">${esc(t.task)}</div>
+      <div class="task-sent">
+        ${s.link ? `Aapka link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>` : 'Submit ho gaya'}
+      </div>
+      <button class="task-again" data-edit="${esc(key)}">Badalna hai?</button>
+    </div>`;
+  }
+
+  // nothing sent yet, or sent back for rework -> show the form
+  return `<div class="task">
+    <div class="task-h"><span class="task-tag">Task</span>${statusChip}</div>
+    <div class="task-t">${esc(t.task)}</div>
+    ${t.submit ? `<div class="task-w">${esc(t.submit)}</div>` : ''}
+    ${feedback}
+    <div class="task-f">
+      <input type="url" placeholder="Apni video ka link" data-link="${esc(key)}" value="${s ? esc(s.link) : ''}">
+      <textarea placeholder="Kuch batana hai? (optional)" data-text="${esc(key)}">${s ? esc(s.text) : ''}</textarea>
+      <button class="task-btn" data-send="${esc(key)}" data-c="${esc(course)}" data-m="${esc(module)}">
+        ${st === 'rework' ? 'Dobara submit karein' : 'Submit karein'}
+      </button>
+    </div>
+  </div>`;
+}
 
 function render(){
   // ---- tabs ----
@@ -685,6 +1006,7 @@ function render(){
             <span class="l-t">${esc(l.title)}</span>
             <span class="l-play">${DONE.has(l.id)?'Watch again':'Watch'}</span>
           </div>`).join('')}
+        ${taskHTML(TAB, m)}
       </div>
     </div>`;
   }).join('');
@@ -695,7 +1017,29 @@ function render(){
   $('mods').querySelectorAll('.lesson').forEach(el => {
     el.onclick = () => openLesson(el.dataset.l);
   });
+
+  // ---- task handlers ----
+  $('mods').querySelectorAll('.task').forEach(t => {
+    t.onclick = e => e.stopPropagation();          // keep clicks inside the task
+  });
+  $('mods').querySelectorAll('[data-send]').forEach(b => {
+    b.onclick = () => {
+      const key  = b.dataset.send;
+      const link = $('mods').querySelector('[data-link="' + CSS.escape(key) + '"]').value.trim();
+      const text = $('mods').querySelector('[data-text="' + CSS.escape(key) + '"]').value.trim();
+      if(!link && !text){ alert('Link ya kuch text zaroor likhein.'); return; }
+      submitTask(b.dataset.c, b.dataset.m, link, text, b);
+    };
+  });
+  $('mods').querySelectorAll('[data-edit]').forEach(b => {
+    b.onclick = () => {
+      const key = b.dataset.edit;
+      if(SUBS[key]) SUBS[key].status = 'rework';   // reopen the form locally
+      render();
+    };
+  });
 }
+
 
 /* ---------- VIDEO MODAL ---------- */
 function openLesson(id){
