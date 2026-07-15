@@ -8,9 +8,6 @@
 //   SHEET_SCRIPT_URL  = your Apps Script /exec URL
 //   SHEET_SECRET      = the SECRET string from your Apps Script
 
-const SCRIPT_URL = process.env.SHEET_SCRIPT_URL;
-const SECRET = process.env.SHEET_SECRET;
-
 // ---- rate limit: stop anyone brute-forcing numbers ----
 const HITS = new Map();
 const LIMIT = 20;              // checks
@@ -40,10 +37,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const SCRIPT_URL = process.env.SHEET_SCRIPT_URL;
+  const SECRET = process.env.SHEET_SECRET;
+
   if (!SCRIPT_URL || !SECRET) {
-    console.error('SHEET_SCRIPT_URL or SHEET_SECRET is missing');
     return res.status(503).json({
-      error: 'Verification abhi set nahi hui. WhatsApp par rabta karein.',
+      error: 'Setup missing: SHEET_SCRIPT_URL=' + (!!SCRIPT_URL) + ' SHEET_SECRET=' + (!!SECRET),
     });
   }
 
@@ -71,10 +70,16 @@ export default async function handler(req, res) {
       redirect: 'follow',
     });
 
-    if (!r.ok) throw new Error('script ' + r.status);
+    if (!r.ok) {
+      const body = await r.text();
+      throw new Error('script HTTP ' + r.status + ': ' + body.slice(0, 120));
+    }
 
-    const data = await r.json();
-    if (data.error) throw new Error(data.error);
+    const raw = await r.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(e){ throw new Error('script did not return JSON: ' + raw.slice(0, 120)); }
+    if (data.error) throw new Error('script says: ' + data.error);
 
     // Return the minimum: verified yes/no, their name, which batches they're in,
     // and what the current (latest) batch is.
@@ -85,9 +90,8 @@ export default async function handler(req, res) {
       current: String(data.current || '').slice(0, 40),
     });
   } catch (err) {
-    console.error('verify failed:', err.message);
     return res.status(502).json({
-      error: 'Verification abhi kaam nahi kar rahi. Thori der baad try karein.',
+      error: 'Verify error: ' + String(err.message || err),
     });
   }
 }
