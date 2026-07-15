@@ -152,6 +152,8 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.6vw,32px);l
 .ok:disabled,.no:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
 /* students */
+.search{width:100%;padding:12px 15px 12px 40px;border:1px solid var(--line);border-radius:12px;font-family:var(--body);font-size:14.5px;background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="%236B7183" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M13 13l4 4"/></svg>') no-repeat 13px center;margin-bottom:18px}
+.search:focus{outline:none;border-color:var(--purple)}
 .st{
   background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
@@ -184,15 +186,17 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.6vw,32px);l
     <h1>Team login</h1>
     <p class="gsub">Sirf team ke liye.</p>
     <div class="note" id="note"></div>
-    <div class="field">
-      <label for="num">Number</label>
-      <input type="tel" id="num" placeholder="03001234567" autocomplete="username">
-    </div>
-    <div class="field">
-      <label for="pw">Password</label>
-      <input type="password" id="pw" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="btn" id="go">Log in</button>
+    <form id="lform" autocomplete="on">
+      <div class="field">
+        <label for="num">Number</label>
+        <input type="tel" id="num" name="username" placeholder="03001234567" autocomplete="username" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="pw">Password</label>
+        <input type="password" id="pw" name="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn" id="go">Log in</button>
+    </form>
   </div>
 </div>
 
@@ -235,7 +239,8 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.6vw,32px);l
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  setPersistence, browserLocalPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, updateDoc, collection, getDocs, query, orderBy, serverTimestamp
@@ -254,6 +259,8 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
+setPersistence(auth, browserLocalPersistence).catch(() => {});
+
 const $ = id => document.getElementById(id);
 const note = $('note');
 
@@ -269,10 +276,11 @@ function normalize(n){
 }
 const toEmail = n => normalize(n) + '@student.umairtiktokwala.com';
 
-let SUBS = [], STUDENTS = [], VIEW = 'pending';
+let SUBS = [], STUDENTS = [], VIEW = 'pending', STUDENT_SEARCH = '';
 
 /* ---------- login ---------- */
-$('go').onclick = async () => {
+$('lform').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
   clearNote();
   const num = normalize($('num').value);
   const pw  = $('pw').value;
@@ -288,10 +296,7 @@ $('go').onclick = async () => {
     b.disabled=false; b.textContent='Log in';
     say('Number ya password galat hai.');
   }
-};
-['num','pw'].forEach(id => $(id).addEventListener('keydown', e => {
-  if(e.key==='Enter') $('go').click();
-}));
+});
 $('out').onclick = () => signOut(auth);
 
 /* ---------- gate ---------- */
@@ -388,26 +393,49 @@ function render(){
   $('cStu').textContent  = STUDENTS.length;
 
   if(VIEW === 'students'){
-    $('hSub').textContent = 'Sab students — progress dekhein, access band karein.';
+    $('hSub').textContent = 'Sab students — number ya naam se search karein.';
     if(!STUDENTS.length){
       $('list').innerHTML = '<div class="empty">Abhi koi student nahi.</div>';
       return;
     }
-    $('list').innerHTML = STUDENTS.map(s => {
+
+    const raw = (STUDENT_SEARCH || '').trim().toLowerCase();
+    let digits = raw.replace(/\D/g,'');
+    // normalise the query the same way numbers are stored (03xx -> 923xx)
+    if(digits.startsWith('0')) digits = '92' + digits.slice(1);
+    const filtered = !raw ? STUDENTS : STUDENTS.filter(s => {
+      const num = String(s.number||'').replace(/\D/g,'');
+      const nm  = String(s.name||'').toLowerCase();
+      const numMatch  = digits.length >= 3 && num.includes(digits);
+      const nameMatch = nm.includes(raw);
+      return numMatch || nameMatch;
+    });
+
+    const rows = filtered.map(s => {
       const init = (s.name || s.number || 'U').charAt(0).toUpperCase();
-      const cs   = (s.courses || []).map(c => c === 'facebook' ? 'Facebook' : 'TikTok').join(' · ') || '—';
+      const bs   = (s.batches || []).join(' · ') || '—';
       return `<div class="st ${s.suspended?'off':''}">
         <div class="s-av">${esc(init)}</div>
         <div class="st-who">
           <div class="st-nm">${esc(s.name || 'Naam nahi')}</div>
           <div class="st-meta">${esc(s.number || '')}</div>
         </div>
-        <div class="st-p">${esc(cs)}</div>
+        <div class="st-p">${esc(bs)}</div>
         <button class="sus ${s.suspended?'on':''}" data-sus="${esc(s.uid)}" data-now="${s.suspended?1:0}">
           ${s.suspended ? 'Suspended' : 'Suspend'}
         </button>
       </div>`;
     }).join('');
+
+    $('list').innerHTML =
+      `<input class="search" id="stSearch" type="search" placeholder="Number ya naam se dhoondein…" value="${esc(STUDENT_SEARCH||'')}">` +
+      (rows || '<div class="empty">Is search se koi student nahi mila.</div>');
+
+    const box = $('stSearch');
+    box.oninput = () => { STUDENT_SEARCH = box.value; render(); };
+    // keep focus + caret while typing
+    box.focus();
+    box.setSelectionRange(box.value.length, box.value.length);
 
     $('list').querySelectorAll('[data-sus]').forEach(b => {
       b.onclick = () => {

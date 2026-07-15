@@ -26,117 +26,92 @@ a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
 .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
 
-/* ---------- AUTH SCREEN ---------- */
+/* ---------- AUTH ---------- */
 .auth{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
-.auth-brand{
-  background:var(--ink);color:#fff;padding:56px 48px;
-  display:flex;flex-direction:column;justify-content:space-between;
-  position:relative;overflow:hidden;
-}
-.auth-brand::before{
-  content:"";position:absolute;top:-140px;right:-120px;
-  width:420px;height:420px;border-radius:50%;
-  background:var(--grad);filter:blur(110px);opacity:.4;
-}
+.auth-brand{background:var(--ink);color:#fff;padding:56px 48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.auth-brand::before{content:"";position:absolute;top:-140px;right:-120px;width:420px;height:420px;border-radius:50%;background:var(--grad);filter:blur(110px);opacity:.4}
 .ab-in{position:relative;z-index:1}
 .ab-logo{display:flex;align-items:center;gap:11px;margin-bottom:56px}
 .ab-logo img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:50%}
 .ab-logo-t{font-family:var(--display);font-weight:800;font-size:17px;line-height:1.15}
-.ab-logo-t em{
-  display:block;font-family:var(--mono);font-style:normal;font-weight:500;
-  font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#A78BFA;margin-top:2px;
-}
+.ab-logo-t em{display:block;font-family:var(--mono);font-style:normal;font-weight:500;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#A78BFA;margin-top:2px}
 .ab-h{font-family:var(--display);font-weight:800;font-size:38px;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
 .ab-p{color:#9AA1B4;font-size:15.5px;line-height:1.65;max-width:34ch}
 .ab-foot{position:relative;z-index:1;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#5C6377}
-
 .auth-form{display:flex;align-items:center;justify-content:center;padding:48px 40px}
 .af{width:100%;max-width:380px}
 .af h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.025em;margin-bottom:8px}
 .af-sub{color:var(--muted);font-size:14.5px;margin-bottom:32px}
-
 .field{margin-bottom:16px}
 .field label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
-.field input{
-  width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;
-  font-family:var(--body);font-size:15px;background:#fff;color:var(--ink);
-  transition:border-color .18s;
-}
+.field input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;font-family:var(--body);font-size:15px;background:#fff;color:var(--ink);transition:border-color .18s}
 .field input:focus{outline:none;border-color:var(--purple)}
 .field .hint{font-size:12px;color:var(--muted);margin-top:5px}
-
-.btn{
-  width:100%;padding:14px;border:none;border-radius:99px;cursor:pointer;
-  background:var(--grad);color:#fff;font-family:var(--body);
-  font-weight:600;font-size:15px;margin-top:8px;
-  transition:transform .18s,opacity .18s;
-  box-shadow:0 6px 20px rgba(139,49,232,.26);
-}
+.btn{width:100%;padding:14px;border:none;border-radius:99px;cursor:pointer;background:var(--grad);color:#fff;font-family:var(--body);font-weight:600;font-size:15px;margin-top:8px;transition:transform .18s,opacity .18s;box-shadow:0 6px 20px rgba(139,49,232,.26)}
 .btn:hover:not(:disabled){transform:translateY(-1px)}
 .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
-
 .switch{text-align:center;margin-top:22px;font-size:14px;color:var(--muted)}
-.switch button{
-  background:none;border:none;cursor:pointer;color:var(--purple);
-  font-family:var(--body);font-weight:600;font-size:14px;
-}
+.switch button{background:none;border:none;cursor:pointer;color:var(--purple);font-family:var(--body);font-weight:600;font-size:14px}
 .switch button:hover{text-decoration:underline}
-
-.note{
-  padding:13px 15px;border-radius:10px;font-size:13.5px;line-height:1.55;
-  margin-bottom:18px;display:none;
-}
+.note{padding:13px 15px;border-radius:10px;font-size:13.5px;line-height:1.55;margin-bottom:18px;display:none}
 .note.show{display:block}
 .note.bad{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
 .note.good{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
 .note a{color:inherit;text-decoration:underline;font-weight:600}
-
 @media(max-width:860px){
   .auth{grid-template-columns:1fr}
   .auth-brand{padding:32px 26px;min-height:auto}
-  .ab-logo{margin-bottom:28px}
-  .ab-h{font-size:27px}
-  .ab-p{font-size:14.5px}
-  .ab-foot{display:none}
+  .ab-logo{margin-bottom:28px}.ab-h{font-size:27px}.ab-p{font-size:14.5px}.ab-foot{display:none}
   .auth-form{padding:36px 26px}
 }
 
 /* ---------- APP ---------- */
 #app{display:none}
-.top{
-  position:sticky;top:0;z-index:50;background:rgba(250,250,248,.9);
-  backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
-}
+.top{position:sticky;top:0;z-index:50;background:rgba(250,250,248,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .top-in{max-width:1040px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px}
 .top-logo{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
 .top-logo img{width:34px;height:34px;object-fit:contain}
 .top-logo-t{font-family:var(--display);font-weight:800;font-size:15px;line-height:1.15}
-.top-logo-t em{
-  display:block;font-family:var(--mono);font-style:normal;font-weight:500;
-  font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);
-}
-.top-user{font-size:13.5px;color:var(--muted);white-space:nowrap}
-.top-out{
-  background:none;border:1px solid var(--line);border-radius:99px;
-  padding:8px 15px;cursor:pointer;font-family:var(--body);
-  font-size:13px;font-weight:600;color:var(--ink-2);transition:all .18s;
-}
+.top-logo-t em{display:block;font-family:var(--mono);font-style:normal;font-weight:500;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--purple)}
+.top-wa{background:none;border:1px solid var(--line);border-radius:99px;padding:8px 15px;cursor:pointer;font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink-2);transition:all .18s;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.top-wa:hover{border-color:var(--green);color:var(--green)}
+.top-out{background:none;border:1px solid var(--line);border-radius:99px;padding:8px 15px;cursor:pointer;font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink-2);transition:all .18s}
 .top-out:hover{border-color:var(--ink);background:#fff}
-@media(max-width:600px){.top-user{display:none}}
+@media(max-width:600px){.top-wa span{display:none}}
 
-.hero-l{padding:44px 0 30px}
-.hi{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,38px);letter-spacing:-.03em;margin-bottom:8px}
+.hero-l{padding:40px 0 20px}
+.me-strip{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.me-av{width:52px;height:52px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--display);font-weight:800;font-size:20px;color:#fff}
+.me-name{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.03em;line-height:1.15}
+.me-num{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.05em;margin-top:2px}
 .hi-sub{color:var(--muted);font-size:15.5px}
 
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 28px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.stat-n{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1.1}
+.stat-n span{font-size:14px;color:var(--muted);font-weight:600}
+.stat-l{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px 15px}.stat-n{font-size:20px}}
+
+/* section nav */
+.nav{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--line);overflow-x:auto}
+.nav button{padding:12px 4px;margin-right:16px;border:none;background:none;cursor:pointer;font-family:var(--body);font-weight:600;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:all .18s}
+.nav button:hover{color:var(--ink)}
+.nav button.on{color:var(--ink);border-bottom-color:var(--purple)}
+
+/* batch selector */
+.batches{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.batch{padding:14px 18px;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer;transition:all .18s;text-align:left;min-width:150px}
+.batch:hover{border-color:var(--ink)}
+.batch.on{border-color:var(--purple);background:#FAF5FF}
+.batch-n{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em}
+.batch-m{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.batch.on .batch-m{color:var(--purple)}
+
 /* progress */
-.prog-card{
-  background:var(--ink);color:#fff;border-radius:18px;padding:26px 28px;
-  margin:26px 0 36px;position:relative;overflow:hidden;
-}
-.prog-card::before{
-  content:"";position:absolute;top:-100px;right:-70px;width:280px;height:280px;
-  border-radius:50%;background:var(--grad);filter:blur(70px);opacity:.4;
-}
+.prog-card{background:var(--ink);color:#fff;border-radius:18px;padding:24px 26px;margin-bottom:26px;position:relative;overflow:hidden}
+.prog-card::before{content:"";position:absolute;top:-100px;right:-70px;width:280px;height:280px;border-radius:50%;background:var(--grad);filter:blur(70px);opacity:.4}
 .prog-in{position:relative;z-index:1}
 .prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:16px;flex-wrap:wrap}
 .prog-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#8B92A8}
@@ -144,179 +119,105 @@ a{color:inherit;text-decoration:none}
 .prog-n span{font-size:16px;color:#8B92A8;font-weight:600}
 .prog-bar{height:7px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden}
 .prog-fill{height:100%;background:var(--grad);border-radius:99px;width:0;transition:width .6s cubic-bezier(.16,1,.3,1)}
-.prog-meta{display:flex;gap:22px;margin-top:16px;font-size:13px;color:#8B92A8;flex-wrap:wrap}
+.prog-meta{display:flex;gap:22px;margin-top:14px;font-size:13px;color:#8B92A8;flex-wrap:wrap}
 
 /* course tabs */
-.tabs{display:flex;gap:8px;margin-bottom:26px;flex-wrap:wrap}
-.tab{
-  padding:10px 20px;border-radius:99px;border:1px solid var(--line);
-  background:transparent;cursor:pointer;font-family:var(--body);
-  font-weight:600;font-size:14px;color:var(--muted);transition:all .18s;
-}
+.tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 20px;border-radius:99px;border:1px solid var(--line);background:transparent;cursor:pointer;font-family:var(--body);font-weight:600;font-size:14px;color:var(--muted);transition:all .18s}
 .tab:hover{border-color:var(--ink);color:var(--ink)}
 .tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.tab.locked{opacity:.45;cursor:not-allowed}
-.tab.locked:hover{border-color:var(--line);color:var(--muted)}
 
 /* modules */
 .mod-g{display:flex;flex-direction:column;gap:14px;padding-bottom:60px}
 .module{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
-.mod-h{
-  padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
-  transition:background .18s;
-}
+.mod-h{padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .18s}
 .mod-h:hover{background:var(--paper-2)}
-.mod-n{
-  font-family:var(--mono);font-size:12px;color:var(--purple);
-  width:26px;flex-shrink:0;font-weight:500;
-}
+.mod-n{font-family:var(--mono);font-size:12px;color:var(--purple);width:26px;flex-shrink:0;font-weight:500}
 .mod-t{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.01em;flex:1}
 .mod-c{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-.mod-ic{
-  width:18px;height:18px;position:relative;flex-shrink:0;
-  transition:transform .3s cubic-bezier(.4,0,.2,1);
-}
-.mod-ic::before,.mod-ic::after{
-  content:"";position:absolute;background:var(--ink);border-radius:2px;
-  top:50%;left:50%;transform:translate(-50%,-50%);
-}
+.mod-ic{width:18px;height:18px;position:relative;flex-shrink:0;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.mod-ic::before,.mod-ic::after{content:"";position:absolute;background:var(--ink);border-radius:2px;top:50%;left:50%;transform:translate(-50%,-50%)}
 .mod-ic::before{width:11px;height:1.7px}
 .mod-ic::after{width:1.7px;height:11px;transition:opacity .3s}
 .module.open .mod-ic::after{opacity:0}
 .module.open .mod-ic{transform:rotate(180deg)}
-
 .lessons{display:none;border-top:1px solid var(--line)}
 .module.open .lessons{display:block}
-.lesson{
-  padding:15px 20px 15px 60px;display:flex;align-items:center;gap:14px;
-  border-bottom:1px solid var(--paper-2);cursor:pointer;transition:background .18s;
-}
+.lesson{padding:15px 20px 15px 60px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--paper-2);cursor:pointer;transition:background .18s}
 .lesson:last-child{border-bottom:none}
 .lesson:hover{background:var(--paper-2)}
-.l-check{
-  width:20px;height:20px;border-radius:50%;border:2px solid var(--line);
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  font-size:11px;color:#fff;transition:all .2s;
-}
+.l-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all .2s}
 .lesson.done .l-check{background:var(--green);border-color:var(--green)}
 .l-t{flex:1;font-size:14.5px;color:var(--ink-2)}
 .lesson.done .l-t{color:var(--muted)}
 .l-play{font-family:var(--mono);font-size:10.5px;color:var(--purple);letter-spacing:.08em;text-transform:uppercase}
 @media(max-width:600px){.lesson{padding-left:20px}}
+.empty{padding:56px 24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;font-size:15px}
 
-.empty{
-  padding:60px 24px;text-align:center;color:var(--muted);
-  border:1px dashed var(--line);border-radius:14px;font-size:15px;
-}
-
-
-/* ---------- PROFILE STRIP ---------- */
-.me-strip{
-  display:flex;align-items:center;gap:14px;margin-bottom:8px;
-}
-.me-av{
-  width:52px;height:52px;border-radius:50%;background:var(--grad);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  font-family:var(--display);font-weight:800;font-size:20px;color:#fff;
-}
-.me-t{min-width:0}
-.me-name{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.03em;line-height:1.15}
-.me-num{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.05em;margin-top:2px}
-
-/* ---------- TIME STATS ---------- */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 32px}
-.stat{
-  background:#fff;border:1px solid var(--line);border-radius:14px;
-  padding:18px 20px;
-}
-.stat-n{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1.1}
-.stat-n span{font-size:14px;color:var(--muted);font-weight:600}
-.stat-l{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px}
-@media(max-width:600px){
-  .stats{grid-template-columns:1fr 1fr;gap:10px}
-  .stat{padding:14px 15px}
-  .stat-n{font-size:20px}
-}
-
-/* ---------- TASK ---------- */
-.task{
-  margin:16px 20px 20px 60px;padding:18px 20px;
-  background:var(--paper-2);border:1px solid var(--line);border-radius:12px;
-}
+/* task */
+.task{margin:16px 20px 20px 60px;padding:18px 20px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px}
 @media(max-width:600px){.task{margin-left:20px}}
 .task-h{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.task-tag{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
-  padding:4px 9px;border-radius:5px;background:var(--purple);color:#fff;
-}
-.task-st{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
-  padding:4px 9px;border-radius:5px;
-}
+.task-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:5px;background:var(--purple);color:#fff}
+.task-st{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:5px}
 .task-st.pending{background:#FEF3C7;color:#92400E}
 .task-st.approved{background:#DCFCE7;color:#166534}
 .task-st.rework{background:#FEE2E2;color:#991B1B}
 .task-t{font-size:14.5px;line-height:1.6;color:var(--ink-2);margin-bottom:6px}
 .task-w{font-size:13px;color:var(--muted);margin-bottom:14px}
-
-.fb{
-  padding:12px 14px;border-radius:9px;margin-bottom:14px;
-  font-size:13.5px;line-height:1.6;
-}
+.fb{padding:12px 14px;border-radius:9px;margin-bottom:14px;font-size:13.5px;line-height:1.6}
 .fb.approved{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
 .fb.rework{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
 .fb b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;font-family:var(--mono);font-weight:500}
-
-.task-f input,.task-f textarea{
-  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;
-  font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);
-  margin-bottom:9px;
-}
+.task-f input,.task-f textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);margin-bottom:9px}
 .task-f textarea{resize:vertical;min-height:74px;line-height:1.55}
 .task-f input:focus,.task-f textarea:focus{outline:none;border-color:var(--purple)}
-.task-btn{
-  padding:11px 24px;border:none;border-radius:99px;cursor:pointer;
-  background:var(--ink);color:#fff;font-family:var(--body);
-  font-weight:600;font-size:13.5px;transition:all .18s;
-}
+.task-btn{padding:11px 24px;border:none;border-radius:99px;cursor:pointer;background:var(--ink);color:#fff;font-family:var(--body);font-weight:600;font-size:13.5px;transition:all .18s}
 .task-btn:hover:not(:disabled){transform:translateY(-1px)}
 .task-btn:disabled{opacity:.5;cursor:not-allowed}
-.task-sent{
-  font-size:13px;color:var(--muted);padding:10px 0;
-  display:flex;align-items:center;gap:8px;
-}
+.task-sent{font-size:13px;color:var(--muted);padding:10px 0;display:flex;align-items:center;gap:8px}
 .task-sent a{color:var(--purple);text-decoration:underline;word-break:break-all}
-.task-again{
-  background:none;border:none;cursor:pointer;color:var(--purple);
-  font-family:var(--body);font-weight:600;font-size:13px;padding:0;
-}
+.task-again{background:none;border:none;cursor:pointer;color:var(--purple);font-family:var(--body);font-weight:600;font-size:13px;padding:0}
 .task-again:hover{text-decoration:underline}
 
-/* ---------- VIDEO MODAL ---------- */
-.modal{
-  position:fixed;inset:0;z-index:200;background:rgba(11,13,20,.86);
-  backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px;
-}
+/* video modal — views hidden */
+.modal{position:fixed;inset:0;z-index:200;background:rgba(11,13,20,.88);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
 .modal.open{display:flex}
 .mbox{width:100%;max-width:900px;background:var(--paper);border-radius:18px;overflow:hidden}
 .mtop{padding:16px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line)}
 .mtitle{font-family:var(--display);font-weight:600;font-size:17px;flex:1;letter-spacing:-.01em}
-.mx{
-  background:none;border:none;cursor:pointer;font-size:26px;line-height:1;
-  color:var(--muted);padding:2px 6px;border-radius:6px;transition:all .18s;
-}
+.mx{background:none;border:none;cursor:pointer;font-size:26px;line-height:1;color:var(--muted);padding:2px 6px;border-radius:6px;transition:all .18s}
 .mx:hover{color:var(--ink);background:var(--paper-2)}
 .mvid{position:relative;width:100%;aspect-ratio:16/9;background:#000}
 .mvid iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+/* thin strip over the top-right of the player hides the title/views overlay area */
+.mvid .shield{position:absolute;top:0;right:0;height:56px;width:120px;background:transparent;pointer-events:none}
 .mfoot{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 .mtime{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-.mdone{
-  padding:12px 26px;border:none;border-radius:99px;cursor:pointer;
-  background:var(--ink);color:#fff;font-family:var(--body);
-  font-weight:600;font-size:14px;transition:all .2s;
-}
+.mdone{padding:12px 26px;border:none;border-radius:99px;cursor:pointer;background:var(--ink);color:#fff;font-family:var(--body);font-weight:600;font-size:14px;transition:all .2s}
 .mdone:hover{transform:translateY(-1px)}
 .mdone.done{background:var(--green)}
+
+/* notebook */
+.nb-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.nb-add{padding:11px 20px;border:none;border-radius:99px;cursor:pointer;background:var(--grad);color:#fff;font-family:var(--body);font-weight:600;font-size:13.5px;box-shadow:0 6px 18px rgba(139,49,232,.22);transition:transform .18s}
+.nb-add:hover{transform:translateY(-1px)}
+.nb-editor{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:20px;display:none}
+.nb-editor.open{display:block}
+.nb-editor input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-family:var(--body);font-size:15px;font-weight:600;margin-bottom:9px}
+.nb-editor textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-family:var(--body);font-size:14.5px;line-height:1.6;resize:vertical;min-height:120px}
+.nb-editor input:focus,.nb-editor textarea:focus{outline:none;border-color:var(--purple)}
+.nb-eb{display:flex;gap:9px;margin-top:11px}
+.nb-save{padding:10px 22px;border:none;border-radius:99px;cursor:pointer;background:var(--ink);color:#fff;font-family:var(--body);font-weight:600;font-size:13.5px}
+.nb-cancel{padding:10px 20px;border:1px solid var(--line);border-radius:99px;cursor:pointer;background:none;font-family:var(--body);font-weight:600;font-size:13.5px;color:var(--muted)}
+.nb-g{display:flex;flex-direction:column;gap:12px;padding-bottom:60px}
+.nb{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.nb-t{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.01em;margin-bottom:6px}
+.nb-body{font-size:14.5px;color:var(--ink-2);line-height:1.65;white-space:pre-wrap;word-wrap:break-word}
+.nb-meta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:12px}
+.nb-date{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.nb-del{background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--body);font-size:13px;font-weight:600;padding:4px 8px;border-radius:6px;transition:all .18s}
+.nb-del:hover{color:var(--red);background:#FEF2F2}
 </style>
 </head>
 <body>
@@ -330,7 +231,7 @@ a{color:inherit;text-decoration:none}
         <div class="ab-logo-t">Umair TikTok Wala<em>Academy</em></div>
       </div>
       <h1 class="ab-h">Your lessons, in one place.</h1>
-      <p class="ab-p">Sign in with the number you enrolled with. Your courses unlock automatically.</p>
+      <p class="ab-p">Sign in with the number you enrolled with. Your batch unlocks automatically.</p>
     </div>
     <div class="ab-foot">Students only · Multan, Pakistan</div>
   </div>
@@ -339,42 +240,44 @@ a{color:inherit;text-decoration:none}
     <div class="af">
       <div class="note" id="note"></div>
 
-      <!-- LOGIN -->
-      <div id="loginView">
+      <form id="loginView" autocomplete="on">
         <h2>Welcome back.</h2>
         <p class="af-sub">Apne number aur password se login karein.</p>
         <div class="field">
           <label for="liNum">WhatsApp number</label>
-          <input type="tel" id="liNum" placeholder="03001234567" autocomplete="username">
+          <input type="tel" id="liNum" name="username" placeholder="03001234567" autocomplete="username" inputmode="numeric">
         </div>
         <div class="field">
           <label for="liPw">Password</label>
-          <input type="password" id="liPw" placeholder="••••••••" autocomplete="current-password">
+          <input type="password" id="liPw" name="password" placeholder="••••••••" autocomplete="current-password">
         </div>
-        <button class="btn" id="loginBtn">Log in</button>
-        <div class="switch">
-          Pehli baar aa rahe hain? <button id="toSignup">Account banayein</button>
+        <button type="submit" class="btn" id="loginBtn">Log in</button>
+        <div class="switch">Pehli baar aa rahe hain? <button type="button" id="toSignup">Account banayein</button></div>
+        <div class="switch" style="margin-top:12px">
+          <button type="button" id="forgot" style="color:var(--muted);font-weight:500">Password bhool gaye?</button>
         </div>
-      </div>
+      </form>
 
-      <!-- SIGNUP -->
-      <div id="signupView" style="display:none">
+      <form id="signupView" style="display:none" autocomplete="on">
         <h2>Create your account.</h2>
         <p class="af-sub">Wahi number use karein jis se enroll kiya tha.</p>
         <div class="field">
           <label for="suNum">WhatsApp number</label>
-          <input type="tel" id="suNum" placeholder="03001234567" autocomplete="username">
+          <input type="tel" id="suNum" name="username" placeholder="03001234567" autocomplete="username" inputmode="numeric">
           <div class="hint">Jis number se payment ki thi</div>
         </div>
         <div class="field">
+          <label for="suEmail">Email</label>
+          <input type="email" id="suEmail" name="email" placeholder="aap@example.com" autocomplete="email">
+          <div class="hint">Password bhool jayein to isi par reset link aayega</div>
+        </div>
+        <div class="field">
           <label for="suPw">Password banayein</label>
-          <input type="password" id="suPw" placeholder="Kam se kam 6 characters" autocomplete="new-password">
+          <input type="password" id="suPw" name="new-password" placeholder="Kam se kam 6 characters" autocomplete="new-password">
         </div>
-        <button class="btn" id="signupBtn">Verify &amp; create account</button>
-        <div class="switch">
-          Pehle se account hai? <button id="toLogin">Log in karein</button>
-        </div>
-      </div>
+        <button type="submit" class="btn" id="signupBtn">Verify &amp; create account</button>
+        <div class="switch">Pehle se account hai? <button type="button" id="toLogin">Log in karein</button></div>
+      </form>
     </div>
   </div>
 </div>
@@ -387,7 +290,9 @@ a{color:inherit;text-decoration:none}
         <img src="img/logo-mark.png" alt="">
         <div class="top-logo-t">Umair TikTok Wala<em>Academy</em></div>
       </div>
-      <div class="top-user" id="topUser"></div>
+      <a class="top-wa" href="https://wa.me/923119637931" target="_blank" rel="noopener">
+        <span>Support</span> WhatsApp
+      </a>
       <button class="top-out" id="outBtn">Log out</button>
     </div>
   </div>
@@ -396,48 +301,62 @@ a{color:inherit;text-decoration:none}
     <div class="hero-l">
       <div class="me-strip">
         <div class="me-av" id="meAv">U</div>
-        <div class="me-t">
+        <div>
           <div class="me-name" id="hi">Assalam-o-Alaikum</div>
           <div class="me-num" id="meNum"></div>
         </div>
       </div>
-      <p class="hi-sub" id="hiSub">Chalo, wahin se shuru karte hain jahan chhoda tha.</p>
+      <p class="hi-sub">Chalo, wahin se shuru karte hain jahan chhoda tha.</p>
     </div>
 
     <div class="stats">
-      <div class="stat">
-        <div class="stat-n" id="stTotal">0<span>m</span></div>
-        <div class="stat-l">Total time</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n" id="stToday">0<span>m</span></div>
-        <div class="stat-l">Aaj</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n" id="stStreak">0<span> din</span></div>
-        <div class="stat-l">Streak</div>
-      </div>
+      <div class="stat"><div class="stat-n" id="stTotal">0<span>m</span></div><div class="stat-l">Total time</div></div>
+      <div class="stat"><div class="stat-n" id="stToday">0<span>m</span></div><div class="stat-l">Aaj</div></div>
+      <div class="stat"><div class="stat-n" id="stStreak">0<span> din</span></div><div class="stat-l">Streak</div></div>
     </div>
 
-    <div class="prog-card">
-      <div class="prog-in">
-        <div class="prog-top">
-          <div>
-            <div class="prog-lbl">Your progress</div>
-            <div class="prog-n" id="progN">0<span>%</span></div>
+    <div class="nav" id="nav">
+      <button data-s="learn" class="on">Lessons</button>
+      <button data-s="notes">Notebook</button>
+    </div>
+
+    <!-- LEARN SECTION -->
+    <div id="secLearn">
+      <div class="batches" id="batches"></div>
+      <div class="prog-card">
+        <div class="prog-in">
+          <div class="prog-top">
+            <div>
+              <div class="prog-lbl" id="progLbl">Your progress</div>
+              <div class="prog-n" id="progN">0<span>%</span></div>
+            </div>
+            <div class="prog-meta">
+              <span id="progDone">0 lessons complete</span>
+              <span id="progLeft">—</span>
+            </div>
           </div>
-          <div class="prog-meta">
-            <span id="progDone">0 lessons complete</span>
-            <span id="progLeft">—</span>
-          </div>
+          <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
         </div>
-        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
       </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="mod-g" id="mods"><div class="empty">Lessons load ho rahe hain…</div></div>
     </div>
 
-    <div class="tabs" id="tabs"></div>
-    <div class="mod-g" id="mods">
-      <div class="empty">Lessons load ho rahe hain…</div>
+    <!-- NOTEBOOK SECTION -->
+    <div id="secNotes" style="display:none">
+      <div class="nb-head">
+        <p class="hi-sub" style="margin:0">Apne notes aur sawal yahan save karein — sirf aap dekh sakte hain.</p>
+        <button class="nb-add" id="nbAdd">+ Naya note</button>
+      </div>
+      <div class="nb-editor" id="nbEditor">
+        <input type="text" id="nbTitle" placeholder="Note ka title" maxlength="120">
+        <textarea id="nbBody" placeholder="Yahan likhein… (notes, sawal, ideas)"></textarea>
+        <div class="nb-eb">
+          <button class="nb-save" id="nbSave">Save</button>
+          <button class="nb-cancel" id="nbCancel">Cancel</button>
+        </div>
+      </div>
+      <div class="nb-g" id="nbList"></div>
     </div>
   </div>
 </div>
@@ -449,7 +368,10 @@ a{color:inherit;text-decoration:none}
       <div class="mtitle" id="mTitle"></div>
       <button class="mx" id="mX">&times;</button>
     </div>
-    <div class="mvid"><iframe id="mFrame" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <div class="mvid">
+      <iframe id="mFrame" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div class="shield"></div>
+    </div>
     <div class="mfoot">
       <div class="mtime" id="mTime"></div>
       <button class="mdone" id="mDone">Mark complete</button>
@@ -461,25 +383,22 @@ a{color:inherit;text-decoration:none}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged
+  signOut, onAuthStateChanged, setPersistence, browserLocalPersistence,
+  sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, deleteDoc,
-  query, where, serverTimestamp
+  getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs,
+  deleteDoc, query, where, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 /* ============================================================
-   CONFIG
-   ------------------------------------------------------------
-   LESSONS_CSV — publish your Sheet's "Lessons" tab:
-       File > Share > Publish to web > Lessons > CSV > Publish
-   Columns must be:  Course | Module | Lesson Title | YouTube URL | Order
+   CONFIG — publish each tab of your Sheet as CSV and paste here.
+   Lessons tab columns:  Batch | Course | Module | Lesson Title | YouTube URL | Order
+   Tasks   tab columns:  Batch | Course | Module | Task | What to submit
    ============================================================ */
 const LESSONS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=0&single=true&output=csv';
-
-/* TASKS — publish the "Tasks" tab of the same Sheet as CSV and paste the link.
-   Columns:  Course | Module | Task | What to submit          */
-const TASKS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=161942160&single=true&output=csv';
+const TASKS_CSV   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=161942160&single=true&output=csv';
+const WHATSAPP    = 'https://wa.me/923119637931';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
@@ -493,25 +412,21 @@ const firebaseConfig = {
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
 const note = $('note');
-
-function say(msg, good){
-  note.className = 'note show ' + (good ? 'good' : 'bad');
-  note.innerHTML = msg;
-}
+function say(msg, good){ note.className = 'note show ' + (good?'good':'bad'); note.innerHTML = msg; }
 function clearNote(){ note.className = 'note'; }
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
-// A phone number is turned into a fake email so Firebase Auth can use it.
 function normalize(n){
   n = String(n||'').replace(/\D/g,'');
   if(n.startsWith('0')) n = '92' + n.slice(1);
   if(n.startsWith('3') && n.length === 10) n = '92' + n;
   return n;
 }
-const toEmail = n => normalize(n) + '@student.umairtiktokwala.com';
 
 function ytId(url){
   const m = String(url||'').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
@@ -522,10 +437,8 @@ function parseCSV(text){
   const rows=[]; let row=[], cell='', q=false;
   for(let i=0;i<text.length;i++){
     const c=text[i];
-    if(q){
-      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
-      else cell+=c;
-    } else {
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else{
       if(c==='"') q=true;
       else if(c===','){ row.push(cell); cell=''; }
       else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
@@ -536,236 +449,170 @@ function parseCSV(text){
   return rows;
 }
 
-/* ---------- time ---------- */
-const todayKey = () => new Date().toISOString().slice(0,10);   // YYYY-MM-DD
-
+/* ---------- state ---------- */
+const todayKey = () => new Date().toISOString().slice(0,10);
 function fmt(sec){
   const m = Math.round((sec||0)/60);
-  if(m < 60) return [m, 'm'];
+  if(m < 60) return [m,'m'];
   const hr = Math.floor(m/60), rm = m%60;
-  return [hr + 'h' + (rm ? ' ' + rm + 'm' : ''), ''];
+  return [hr+'h'+(rm?' '+rm+'m':''),''];
 }
 
-/* ---------- state ---------- */
-let ME = null;          // { uid, number, name, courses: [] }
-let LESSONS = [];       // [{course, module, title, url, order, id}]
-let DONE = new Set();   // lesson ids completed
-let TAB = null;         // current course
-let OPEN = null;        // lesson open in the modal
-let T0 = 0;             // when the modal opened
-let TASKS = [];         // [{course, module, task, submit}]
-let SUBS = {};          // moduleKey -> submission doc
-let SESSION = Date.now();
+let ME = null;          // { uid, number, name, email, batches:[] }
+let LESSONS = [];       // all rows, with batch
+let TASKS = [];
+let DONE = new Set();
+let DAYS = {};
+let SUBS = {};
+let NOTES = [];
+let BATCH = null;       // selected batch
+let TAB = null;         // selected course within the batch
+let OPEN = null, T0 = 0, SESSION = Date.now();
+let SECTION = 'learn';
 
 /* ---------- auth screens ---------- */
-$('toSignup').onclick = () => {
-  clearNote();
-  $('loginView').style.display='none';
-  $('signupView').style.display='block';
-};
-$('toLogin').onclick = () => {
-  clearNote();
-  $('signupView').style.display='none';
-  $('loginView').style.display='block';
-};
+$('toSignup').onclick = () => { clearNote(); $('loginView').style.display='none'; $('signupView').style.display='block'; };
+$('toLogin').onclick  = () => { clearNote(); $('signupView').style.display='none'; $('loginView').style.display='block'; };
+
+async function emailForNumber(num){
+  try{ const s = await getDoc(doc(db,'numbers',num)); return s.exists()? s.data().email : null; }
+  catch(e){ return null; }
+}
 
 /* ---------- SIGNUP ---------- */
-$('signupBtn').onclick = async () => {
+$('signupView').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
   clearNote();
-  const num = normalize($('suNum').value);
-  const pw  = $('suPw').value;
-  const btn = $('signupBtn');
+  const num   = normalize($('suNum').value);
+  const email = $('suEmail').value.trim().toLowerCase();
+  const pw    = $('suPw').value;
+  const btn   = $('signupBtn');
 
   if(num.length < 11) return say('Number theek nahi lag raha. Poora number likhein.');
-  if(pw.length < 6)   return say('Password kam se kam 6 characters ka hona chahiye.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return say('Email theek nahi lag raha.');
+  if(pw.length < 6) return say('Password kam se kam 6 characters ka hona chahiye.');
 
-  btn.disabled = true; btn.textContent = 'Verify ho raha hai…';
-
+  btn.disabled=true; btn.textContent='Verify ho raha hai…';
   try{
-    // 1. is this number on Umair's verified list?
-    const r = await fetch('/api/verify', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ number: num })
-    });
+    const r = await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:num})});
     const v = await r.json();
-
     if(v.error) throw new Error(v.error);
 
     if(!v.verified){
       btn.disabled=false; btn.textContent='Verify & create account';
-      return say(
-        'Ye number verified list mein nahi mila.<br><br>' +
-        'Agar aapne enroll kiya hai, to WhatsApp par rabta karein: ' +
-        '<a href="https://wa.me/923119637931" target="_blank">Message bhejein</a>'
-      );
+      return say('Ye number verified list mein nahi mila.<br><br>Agar aapne enroll kiya hai, to WhatsApp par rabta karein: <a href="'+WHATSAPP+'" target="_blank">Message bhejein</a>');
     }
 
-    // 2. create the Firebase account
-    const cred = await createUserWithEmailAndPassword(auth, toEmail(num), pw);
+    // batches from the server. if none listed but verified, fall back to current.
+    let batches = Array.isArray(v.batches) ? v.batches : [];
+    if(!batches.length && v.current) batches = [v.current];
 
-    // 3. write their record. courses comes from the SERVER, not the browser.
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
     await setDoc(doc(db,'students',cred.user.uid), {
-      number: num,
-      name: v.name || '',
-      courses: v.courses,
-      verified: true,
-      joined: serverTimestamp(),
+      number: num, email: email, name: v.name || '',
+      batches: batches, verified: true, joined: serverTimestamp(),
     });
-
-    // onAuthStateChanged takes over from here
+    await setDoc(doc(db,'numbers',num), { email: email });
   }catch(e){
     btn.disabled=false; btn.textContent='Verify & create account';
     const m = String(e.message||e);
-    if(m.includes('email-already-in-use')){
-      say('Is number ka account pehle se hai. <b>Log in</b> karein.');
-    }else if(m.includes('weak-password')){
-      say('Password kamzor hai. Kam se kam 6 characters rakhein.');
-    }else{
-      say('Kuch masla ho gaya. Thori der baad try karein.');
-    }
+    if(m.includes('email-already-in-use')) say('Is email ka account pehle se hai. <b>Log in</b> karein.');
+    else if(m.includes('weak-password')) say('Password kamzor hai. Kam se kam 6 characters rakhein.');
+    else say('Kuch masla ho gaya. Thori der baad try karein.');
   }
-};
+});
 
 /* ---------- LOGIN ---------- */
-$('loginBtn').onclick = async () => {
+$('loginView').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
   clearNote();
   const num = normalize($('liNum').value);
   const pw  = $('liPw').value;
   const btn = $('loginBtn');
-
   if(num.length < 11) return say('Number theek nahi lag raha.');
-  if(!pw)             return say('Password likhein.');
+  if(!pw) return say('Password likhein.');
 
-  btn.disabled = true; btn.textContent = 'Log in ho raha hai…';
+  btn.disabled=true; btn.textContent='Log in ho raha hai…';
   try{
-    await signInWithEmailAndPassword(auth, toEmail(num), pw);
+    const email = await emailForNumber(num);
+    if(!email){ btn.disabled=false; btn.textContent='Log in'; return say('Is number ka account nahi mila. Pehle <b>account banayein</b>.'); }
+    await signInWithEmailAndPassword(auth, email, pw);
   }catch(e){
     btn.disabled=false; btn.textContent='Log in';
     const m = String(e.message||e);
-    if(m.includes('invalid-credential') || m.includes('wrong-password') || m.includes('user-not-found')){
+    if(m.includes('invalid-credential')||m.includes('wrong-password')||m.includes('user-not-found'))
       say('Number ya password galat hai. Agar account nahi hai, pehle <b>account banayein</b>.');
-    }else{
-      say('Login nahi ho paya. Thori der baad try karein.');
-    }
+    else say('Login nahi ho paya. Thori der baad try karein.');
   }
-};
+});
 
 $('outBtn').onclick = () => signOut(auth);
 
-/* enter key submits */
-['liNum','liPw'].forEach(id => $(id).addEventListener('keydown', e => {
-  if(e.key==='Enter') $('loginBtn').click();
-}));
-['suNum','suPw'].forEach(id => $(id).addEventListener('keydown', e => {
-  if(e.key==='Enter') $('signupBtn').click();
-}));
+$('forgot').onclick = async () => {
+  clearNote();
+  const num = normalize($('liNum').value);
+  if(num.length < 11) return say('Pehle upar apna number likhein, phir "Password bhool gaye?" dabayein.');
+  const btn = $('forgot');
+  btn.disabled=true; btn.textContent='Bhej raha hai…';
+  try{
+    const email = await emailForNumber(num);
+    if(!email){ btn.disabled=false; btn.textContent='Password bhool gaye?'; return say('Is number ka account nahi mila. Ya WhatsApp par rabta karein: <a href="'+WHATSAPP+'" target="_blank">Message bhejein</a>'); }
+    await sendPasswordResetEmail(auth, email);
+    btn.disabled=false; btn.textContent='Password bhool gaye?';
+    const masked = email.replace(/^(.{2}).*(@.*)$/,'$1***$2');
+    say('Reset link bhej diya <b>'+masked+'</b> par. Apna email (aur spam folder) check karein.', true);
+  }catch(e){
+    btn.disabled=false; btn.textContent='Password bhool gaye?';
+    say('Reset link nahi bhej paye. WhatsApp par rabta karein: <a href="'+WHATSAPP+'" target="_blank">Message bhejein</a>');
+  }
+};
 
 /* ---------- AUTH STATE ---------- */
 onAuthStateChanged(auth, async user => {
   if(!user){
-    $('auth').style.display='grid';
-    $('app').style.display='none';
-    ME=null; DONE.clear();
-    return;
+    $('auth').style.display='grid'; $('app').style.display='none';
+    ME=null; DONE.clear(); return;
   }
-
   const snap = await getDoc(doc(db,'students',user.uid));
-  if(!snap.exists()){
-    // account exists in Auth but has no record — shouldn't happen, but be safe
-    await signOut(auth);
-    return say('Account record nahi mila. WhatsApp par rabta karein.');
-  }
-
+  if(!snap.exists()){ await signOut(auth); return say('Account record nahi mila. WhatsApp par rabta karein.'); }
   const d = snap.data();
+  if(d.suspended){ await signOut(auth); return say('Aapka access abhi band hai. WhatsApp par rabta karein: <a href="'+WHATSAPP+'" target="_blank">Message bhejein</a>'); }
 
-  if(d.suspended){
-    await signOut(auth);
-    return say('Aapka access abhi band hai. WhatsApp par rabta karein: ' +
-               '<a href="https://wa.me/923119637931" target="_blank">Message bhejein</a>');
-  }
+  ME = { uid:user.uid, number:d.number, name:d.name, email:d.email, batches:d.batches||[] };
 
-  ME = { uid:user.uid, number:d.number, name:d.name, courses:d.courses||[] };
+  // on every login, re-check the verified list — pick up any new batches
+  await refreshBatches();
 
-  $('auth').style.display='none';
-  $('app').style.display='block';
-
+  $('auth').style.display='none'; $('app').style.display='block';
   const first = (ME.name||'').split(' ')[0];
-  $('hi').textContent = first ? ('Assalam-o-Alaikum, ' + first) : 'Assalam-o-Alaikum';
+  $('hi').textContent = first ? ('Assalam-o-Alaikum, '+first) : 'Assalam-o-Alaikum';
   $('meAv').textContent = (first || ME.number || 'U').charAt(0).toUpperCase();
   $('meNum').textContent = ME.number || '';
-  $('topUser').textContent = ME.name || ME.number;
 
   SESSION = Date.now();
   await loadProgress();
   await loadTime();
   await loadSubs();
-  await loadLessons();
-  await loadTasks();
+  await loadNotes();
+  await loadContent();
+  BATCH = ME.batches[ME.batches.length-1] || null;   // newest batch first
   render();
 });
 
-/* ---------- TIME ---------- */
-let DAYS = {};   // 'YYYY-MM-DD' -> seconds
-
-async function loadTime(){
-  DAYS = {};
-  const snap = await getDocs(collection(db,'students',ME.uid,'days'));
-  snap.forEach(d => { DAYS[d.id] = (d.data().seconds || 0); });
-  paintTime();
-}
-
-async function addTime(sec){
-  if(!ME || sec < 5) return;                 // ignore blips
-  sec = Math.min(sec, 2*60*60);              // cap a single burst at 2h
-  const k = todayKey();
-  DAYS[k] = (DAYS[k] || 0) + sec;
-  paintTime();
+// re-check verified list on login; add any batch the number now appears in
+async function refreshBatches(){
   try{
-    await setDoc(doc(db,'students',ME.uid,'days',k), {
-      seconds: DAYS[k],
-      at: serverTimestamp(),
-    });
-  }catch(e){ /* offline — the number stays on screen anyway */ }
+    const r = await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:ME.number})});
+    const v = await r.json();
+    if(v && Array.isArray(v.batches) && v.batches.length){
+      const merged = Array.from(new Set([...(ME.batches||[]), ...v.batches]));
+      if(merged.length !== (ME.batches||[]).length){
+        ME.batches = merged;
+        await updateDoc(doc(db,'students',ME.uid), { batches: merged });
+      }
+    }
+  }catch(e){ /* keep whatever we already had */ }
 }
-
-function streak(){
-  let n = 0;
-  const d = new Date();
-  // today doesn't have to count yet, so start from today and walk back
-  for(let i=0;i<400;i++){
-    const k = d.toISOString().slice(0,10);
-    if(DAYS[k] && DAYS[k] > 0){ n++; }
-    else if(i > 0){ break; }                 // a gap ends the streak
-    d.setDate(d.getDate() - 1);
-  }
-  return n;
-}
-
-function paintTime(){
-  const total = Object.values(DAYS).reduce((a,b)=>a+b, 0);
-  const today = DAYS[todayKey()] || 0;
-
-  const [tn,tu] = fmt(total);
-  $('stTotal').innerHTML = tn + '<span>' + tu + '</span>';
-
-  const [dn,du] = fmt(today);
-  $('stToday').innerHTML = dn + '<span>' + du + '</span>';
-
-  const s = streak();
-  $('stStreak').innerHTML = s + '<span> din</span>';
-}
-
-// bank the session time when they leave or hide the tab
-function bank(){
-  if(!ME) return;
-  const sec = Math.round((Date.now() - SESSION) / 1000);
-  SESSION = Date.now();
-  addTime(sec);
-}
-setInterval(bank, 60 * 1000);                          // every minute
-document.addEventListener('visibilitychange', () => { if(document.hidden) bank(); });
-window.addEventListener('pagehide', bank);
 
 /* ---------- PROGRESS ---------- */
 async function loadProgress(){
@@ -773,226 +620,210 @@ async function loadProgress(){
   const snap = await getDocs(collection(db,'students',ME.uid,'progress'));
   snap.forEach(d => DONE.add(d.id));
 }
-
 async function markDone(lessonId, seconds){
   if(DONE.has(lessonId)){
-    await deleteDoc(doc(db,'students',ME.uid,'progress',lessonId));
-    DONE.delete(lessonId);
+    await deleteDoc(doc(db,'students',ME.uid,'progress',lessonId)); DONE.delete(lessonId);
   }else{
-    await setDoc(doc(db,'students',ME.uid,'progress',lessonId), {
-      done: true,
-      seconds: seconds || 0,
-      at: serverTimestamp(),
-    });
+    await setDoc(doc(db,'students',ME.uid,'progress',lessonId), { done:true, seconds:seconds||0, at:serverTimestamp() });
     DONE.add(lessonId);
   }
   render();
 }
 
-/* ---------- LESSONS ---------- */
-async function loadLessons(){
-  if(!LESSONS_CSV || LESSONS_CSV.indexOf('http') !== 0){
-    $('mods').innerHTML = '<div class="empty">Lessons abhi add nahi hue. Sheet ka CSV link learn.html mein daalein.</div>';
-    return;
+/* ---------- TIME ---------- */
+async function loadTime(){
+  DAYS = {};
+  const snap = await getDocs(collection(db,'students',ME.uid,'days'));
+  snap.forEach(d => { DAYS[d.id] = (d.data().seconds||0); });
+  paintTime();
+}
+async function addTime(sec){
+  if(!ME || sec < 5) return;
+  sec = Math.min(sec, 2*60*60);
+  const k = todayKey();
+  DAYS[k] = (DAYS[k]||0) + sec;
+  paintTime();
+  try{ await setDoc(doc(db,'students',ME.uid,'days',k), { seconds:DAYS[k], at:serverTimestamp() }); }catch(e){}
+}
+function streak(){
+  let n=0; const d=new Date();
+  for(let i=0;i<400;i++){
+    const k=d.toISOString().slice(0,10);
+    if(DAYS[k]&&DAYS[k]>0) n++;
+    else if(i>0) break;
+    d.setDate(d.getDate()-1);
   }
-  try{
-    const res  = await fetch(LESSONS_CSV);
-    const rows = parseCSV(await res.text()).slice(1);
-    LESSONS = rows
-      .filter(r => (r[0]||'').trim() && (r[2]||'').trim())
-      .map((r,i) => ({
-        course: (r[0]||'').trim().toLowerCase(),
-        module: (r[1]||'').trim() || 'Lessons',
-        title:  (r[2]||'').trim(),
-        url:    (r[3]||'').trim(),
-        order:  parseInt(r[4]) || (i+1),
-        id:     'L' + (i+1),
-      }))
-      .sort((a,b) => a.order - b.order);
+  return n;
+}
+function paintTime(){
+  const total=Object.values(DAYS).reduce((a,b)=>a+b,0), today=DAYS[todayKey()]||0;
+  const [tn,tu]=fmt(total); $('stTotal').innerHTML=tn+'<span>'+tu+'</span>';
+  const [dn,du]=fmt(today); $('stToday').innerHTML=dn+'<span>'+du+'</span>';
+  $('stStreak').innerHTML=streak()+'<span> din</span>';
+}
+function bank(){ if(!ME) return; const sec=Math.round((Date.now()-SESSION)/1000); SESSION=Date.now(); addTime(sec); }
+setInterval(bank, 60*1000);
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) bank(); });
+window.addEventListener('pagehide', bank);
 
-    if(!LESSONS.length){
-      $('mods').innerHTML = '<div class="empty">Sheet mein abhi koi lesson nahi hai.</div>';
-      return;
-    }
-    TAB = ME.courses[0] || null;
-    render();
-  }catch(e){
-    $('mods').innerHTML = '<div class="empty">Lessons load nahi ho paye. Check karein ke Sheet publish hui hai.</div>';
+/* ---------- CONTENT (lessons + tasks) ---------- */
+async function loadContent(){
+  // lessons
+  if(LESSONS_CSV && LESSONS_CSV.indexOf('http')===0){
+    try{
+      const rows = parseCSV(await (await fetch(LESSONS_CSV)).text()).slice(1);
+      LESSONS = rows
+        .filter(r => (r[0]||'').trim() && (r[3]||'').trim())   // batch + title
+        .map((r,i)=>({
+          batch:(r[0]||'').trim(),
+          course:(r[1]||'').trim().toLowerCase(),
+          module:(r[2]||'').trim()||'Lessons',
+          title:(r[3]||'').trim(),
+          url:(r[4]||'').trim(),
+          order:parseInt(r[5])||(i+1),
+          id:'L'+(i+1),
+        }))
+        .sort((a,b)=>a.order-b.order);
+    }catch(e){ LESSONS=[]; }
+  }
+  // tasks
+  if(TASKS_CSV && TASKS_CSV.indexOf('http')===0){
+    try{
+      const rows = parseCSV(await (await fetch(TASKS_CSV)).text()).slice(1);
+      TASKS = rows
+        .filter(r => (r[0]||'').trim() && (r[3]||'').trim())
+        .map(r=>({
+          batch:(r[0]||'').trim(),
+          course:(r[1]||'').trim().toLowerCase(),
+          module:(r[2]||'').trim(),
+          task:(r[3]||'').trim(),
+          submit:(r[4]||'').trim(),
+        }));
+    }catch(e){ TASKS=[]; }
   }
 }
 
-function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-
-/* ---------- TASKS ---------- */
-const modKey = (course, module) => course + '::' + module;
-
-async function loadTasks(){
-  if(!TASKS_CSV || TASKS_CSV.indexOf('http') !== 0){ TASKS = []; return; }
-  try{
-    const res  = await fetch(TASKS_CSV);
-    const rows = parseCSV(await res.text()).slice(1);
-    TASKS = rows
-      .filter(r => (r[0]||'').trim() && (r[2]||'').trim())
-      .map(r => ({
-        course: (r[0]||'').trim().toLowerCase(),
-        module: (r[1]||'').trim(),
-        task:   (r[2]||'').trim(),
-        submit: (r[3]||'').trim(),
-      }));
-  }catch(e){ TASKS = []; }
-}
-
+/* ---------- SUBMISSIONS ---------- */
 async function loadSubs(){
   SUBS = {};
   try{
     const q = query(collection(db,'submissions'), where('uid','==',ME.uid));
     const snap = await getDocs(q);
     snap.forEach(d => { SUBS[d.data().key] = { id:d.id, ...d.data() }; });
-  }catch(e){ /* none yet */ }
+  }catch(e){}
 }
+const subKey = (batch,course,module) => batch+'::'+course+'::'+module;
 
-async function submitTask(course, module, link, text, btn){
-  const key = modKey(course, module);
+async function submitTask(batch, course, module, link, text, btn){
+  const key = subKey(batch,course,module);
   const existing = SUBS[key];
-
-  btn.disabled = true; btn.textContent = 'Bhej raha hai…';
-
+  btn.disabled=true; btn.textContent='Bhej raha hai…';
   const payload = {
-    uid: ME.uid,
-    key,
-    name: ME.name || '',
-    number: ME.number || '',
-    course,
-    module,
-    link: link || '',
-    text: text || '',
-    status: 'pending',
-    feedback: '',
-    at: serverTimestamp(),
+    uid:ME.uid, key, name:ME.name||'', number:ME.number||'',
+    batch, course, module, link:link||'', text:text||'',
+    status:'pending', feedback:'', at:serverTimestamp(),
   };
-
   try{
     if(existing){
       await updateDoc(doc(db,'submissions',existing.id), payload);
-      SUBS[key] = { id:existing.id, ...payload, status:'pending', feedback:'' };
+      SUBS[key] = { id:existing.id, ...payload };
     }else{
-      const id = ME.uid + '_' + key.replace(/[^a-zA-Z0-9]/g,'_');
+      const id = ME.uid+'_'+key.replace(/[^a-zA-Z0-9]/g,'_');
       await setDoc(doc(db,'submissions',id), payload);
       SUBS[key] = { id, ...payload };
     }
     render();
-  }catch(e){
-    btn.disabled = false; btn.textContent = 'Submit karein';
-    alert('Submit nahi ho paya. Dobara try karein.');
-  }
+  }catch(e){ btn.disabled=false; btn.textContent='Submit karein'; alert('Submit nahi ho paya. Dobara try karein.'); }
 }
 
-function taskHTML(course, module){
-  const t = TASKS.find(x => x.course === course && x.module === module);
-  if(!t) return '';
-
-  const key = modKey(course, module);
-  const s   = SUBS[key];
-  const st  = s ? s.status : null;
-
-  let statusChip = '';
-  if(st === 'pending')  statusChip = '<span class="task-st pending">Review mein</span>';
-  if(st === 'approved') statusChip = '<span class="task-st approved">Approved</span>';
-  if(st === 'rework')   statusChip = '<span class="task-st rework">Dobara karein</span>';
-
-  let feedback = '';
-  if(s && s.feedback){
-    feedback = `<div class="fb ${st === 'approved' ? 'approved' : 'rework'}">
-      <b>Ustad ka feedback</b>${esc(s.feedback)}</div>`;
-  }
-
-  // approved -> just show what they sent
-  if(st === 'approved'){
-    return `<div class="task">
-      <div class="task-h"><span class="task-tag">Task</span>${statusChip}</div>
-      <div class="task-t">${esc(t.task)}</div>
-      ${feedback}
-      <div class="task-sent">
-        ${s.link ? `Aapka link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>` : 'Submit ho gaya'}
-      </div>
-    </div>`;
-  }
-
-  // pending -> show what they sent, let them replace it
-  if(st === 'pending'){
-    return `<div class="task">
-      <div class="task-h"><span class="task-tag">Task</span>${statusChip}</div>
-      <div class="task-t">${esc(t.task)}</div>
-      <div class="task-sent">
-        ${s.link ? `Aapka link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>` : 'Submit ho gaya'}
-      </div>
-      <button class="task-again" data-edit="${esc(key)}">Badalna hai?</button>
-    </div>`;
-  }
-
-  // nothing sent yet, or sent back for rework -> show the form
-  return `<div class="task">
-    <div class="task-h"><span class="task-tag">Task</span>${statusChip}</div>
-    <div class="task-t">${esc(t.task)}</div>
-    ${t.submit ? `<div class="task-w">${esc(t.submit)}</div>` : ''}
-    ${feedback}
-    <div class="task-f">
-      <input type="url" placeholder="Apni video ka link" data-link="${esc(key)}" value="${s ? esc(s.link) : ''}">
-      <textarea placeholder="Kuch batana hai? (optional)" data-text="${esc(key)}">${s ? esc(s.text) : ''}</textarea>
-      <button class="task-btn" data-send="${esc(key)}" data-c="${esc(course)}" data-m="${esc(module)}">
-        ${st === 'rework' ? 'Dobara submit karein' : 'Submit karein'}
-      </button>
-    </div>
-  </div>`;
+/* ---------- NOTEBOOK ---------- */
+async function loadNotes(){
+  NOTES = [];
+  try{
+    const snap = await getDocs(collection(db,'students',ME.uid,'notes'));
+    snap.forEach(d => NOTES.push({ id:d.id, ...d.data() }));
+    NOTES.sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0));
+  }catch(e){}
 }
+async function saveNote(title, body){
+  const id = 'n_'+Date.now();
+  const rec = { title:title||'Bina title', body:body||'', at:serverTimestamp() };
+  await setDoc(doc(db,'students',ME.uid,'notes',id), rec);
+  NOTES.unshift({ id, ...rec, at:{seconds:Date.now()/1000} });
+  renderNotes();
+}
+async function delNote(id){
+  await deleteDoc(doc(db,'students',ME.uid,'notes',id));
+  NOTES = NOTES.filter(n=>n.id!==id);
+  renderNotes();
+}
+
+/* ---------- SECTION NAV ---------- */
+$('nav').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    $('nav').querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    SECTION = b.dataset.s;
+    $('secLearn').style.display = SECTION==='learn' ? 'block' : 'none';
+    $('secNotes').style.display = SECTION==='notes' ? 'block' : 'none';
+    if(SECTION==='notes') renderNotes();
+  };
+});
+
+/* ---------- RENDER (learn) ---------- */
+const modKey = (course, module) => course+'::'+module;
 
 function render(){
-  // ---- tabs ----
-  const all = ['facebook','tiktok'];
-  $('tabs').innerHTML = all.map(c => {
-    const has  = ME.courses.includes(c);
-    const name = c==='facebook' ? 'Facebook' : 'TikTok';
-    return `<button class="tab ${c===TAB?'on':''} ${has?'':'locked'}" data-c="${c}" ${has?'':'disabled'}>
-      ${name}${has?'':' 🔒'}
-    </button>`;
+  // ---- batch selector ----
+  const bs = ME.batches || [];
+  if(bs.length > 1){
+    $('batches').style.display='flex';
+    $('batches').innerHTML = bs.map(b => `
+      <button class="batch ${b===BATCH?'on':''}" data-b="${esc(b)}">
+        <div class="batch-n">${esc(b)}</div>
+        <div class="batch-m">${b===BATCH?'Dekh rahe hain':'Kholne ke liye click'}</div>
+      </button>`).join('');
+    $('batches').querySelectorAll('.batch').forEach(el => {
+      el.onclick = () => { BATCH = el.dataset.b; TAB = null; render(); };
+    });
+  }else{
+    $('batches').style.display='none';
+  }
+
+  if(!BATCH){ $('mods').innerHTML='<div class="empty">Koi batch nahi mila. WhatsApp par rabta karein.</div>'; return; }
+
+  // lessons for this batch
+  const inBatch = LESSONS.filter(l => l.batch === BATCH);
+  const courses = Array.from(new Set(inBatch.map(l => l.course))).filter(Boolean);
+  if(!TAB) TAB = courses[0] || null;
+
+  // ---- course tabs ----
+  $('tabs').innerHTML = courses.map(c => {
+    const name = c==='facebook'?'Facebook':(c==='tiktok'?'TikTok':c.charAt(0).toUpperCase()+c.slice(1));
+    return `<button class="tab ${c===TAB?'on':''}" data-c="${esc(c)}">${esc(name)}</button>`;
   }).join('');
-  $('tabs').querySelectorAll('.tab:not(.locked)').forEach(b => {
-    b.onclick = () => { TAB = b.dataset.c; render(); };
-  });
+  $('tabs').querySelectorAll('.tab').forEach(b => { b.onclick = () => { TAB=b.dataset.c; render(); }; });
 
-  // ---- my lessons ----
-  const mine = LESSONS.filter(l => ME.courses.includes(l.course));
-  const shown = LESSONS.filter(l => l.course === TAB);
+  // ---- progress (this batch) ----
+  const mine = inBatch;
+  const done = mine.filter(l=>DONE.has(l.id)).length;
+  const pct = mine.length ? Math.round(done/mine.length*100) : 0;
+  $('progLbl').textContent = 'Progress — ' + BATCH;
+  $('progN').innerHTML = pct+'<span>%</span>';
+  $('progFill').style.width = pct+'%';
+  $('progDone').textContent = done+' of '+mine.length+' lessons complete';
+  $('progLeft').textContent = mine.length-done>0 ? (mine.length-done)+' to go' : 'All done!';
 
-  // ---- progress across everything unlocked ----
-  const total = mine.length;
-  const done  = mine.filter(l => DONE.has(l.id)).length;
-  const pct   = total ? Math.round(done/total*100) : 0;
+  // ---- modules for the selected course ----
+  const shown = inBatch.filter(l => l.course === TAB);
+  if(!shown.length){ $('mods').innerHTML='<div class="empty">Is course mein abhi lessons add nahi hue.</div>'; return; }
 
-  $('progN').innerHTML = pct + '<span>%</span>';
-  $('progFill').style.width = pct + '%';
-  $('progDone').textContent = done + ' of ' + total + ' lessons complete';
-  $('progLeft').textContent = total - done > 0 ? (total - done) + ' to go' : 'All done!';
-
-  if(!ME.courses.length){
-    $('mods').innerHTML = '<div class="empty">Koi course unlock nahi hai. WhatsApp par rabta karein.</div>';
-    return;
-  }
-  if(!shown.length){
-    $('mods').innerHTML = '<div class="empty">Is course mein abhi lessons add nahi hue.</div>';
-    return;
-  }
-
-  // ---- group into modules ----
   const mods = {};
-  shown.forEach(l => { (mods[l.module] = mods[l.module] || []).push(l); });
+  shown.forEach(l => { (mods[l.module]=mods[l.module]||[]).push(l); });
 
-  $('mods').innerHTML = Object.keys(mods).map((m,i) => {
-    const ls = mods[m];
-    const d  = ls.filter(l => DONE.has(l.id)).length;
-    const openNow = i === 0;
-    return `
-    <div class="module ${openNow?'open':''}" data-m="${i}">
+  $('mods').innerHTML = Object.keys(mods).map((m,i)=>{
+    const ls = mods[m], d = ls.filter(l=>DONE.has(l.id)).length;
+    return `<div class="module ${i===0?'open':''}">
       <div class="mod-h">
         <span class="mod-n">${String(i+1).padStart(2,'0')}</span>
         <span class="mod-t">${esc(m)}</span>
@@ -1000,92 +831,111 @@ function render(){
         <span class="mod-ic"></span>
       </div>
       <div class="lessons">
-        ${ls.map(l => `
-          <div class="lesson ${DONE.has(l.id)?'done':''}" data-l="${l.id}">
-            <span class="l-check">✓</span>
-            <span class="l-t">${esc(l.title)}</span>
-            <span class="l-play">${DONE.has(l.id)?'Watch again':'Watch'}</span>
-          </div>`).join('')}
-        ${taskHTML(TAB, m)}
+        ${ls.map(l=>`<div class="lesson ${DONE.has(l.id)?'done':''}" data-l="${l.id}">
+          <span class="l-check">✓</span>
+          <span class="l-t">${esc(l.title)}</span>
+          <span class="l-play">${DONE.has(l.id)?'Watch again':'Watch'}</span>
+        </div>`).join('')}
+        ${taskHTML(BATCH, TAB, m)}
       </div>
     </div>`;
   }).join('');
 
-  $('mods').querySelectorAll('.mod-h').forEach(h => {
-    h.onclick = () => h.parentElement.classList.toggle('open');
-  });
-  $('mods').querySelectorAll('.lesson').forEach(el => {
-    el.onclick = () => openLesson(el.dataset.l);
-  });
-
-  // ---- task handlers ----
-  $('mods').querySelectorAll('.task').forEach(t => {
-    t.onclick = e => e.stopPropagation();          // keep clicks inside the task
-  });
+  $('mods').querySelectorAll('.mod-h').forEach(h => { h.onclick = () => h.parentElement.classList.toggle('open'); });
+  $('mods').querySelectorAll('.lesson').forEach(el => { el.onclick = () => openLesson(el.dataset.l); });
+  $('mods').querySelectorAll('.task').forEach(t => { t.onclick = e => e.stopPropagation(); });
   $('mods').querySelectorAll('[data-send]').forEach(b => {
     b.onclick = () => {
-      const key  = b.dataset.send;
-      const link = $('mods').querySelector('[data-link="' + CSS.escape(key) + '"]').value.trim();
-      const text = $('mods').querySelector('[data-text="' + CSS.escape(key) + '"]').value.trim();
+      const key=b.dataset.send;
+      const link=$('mods').querySelector('[data-link="'+CSS.escape(key)+'"]').value.trim();
+      const text=$('mods').querySelector('[data-text="'+CSS.escape(key)+'"]').value.trim();
       if(!link && !text){ alert('Link ya kuch text zaroor likhein.'); return; }
-      submitTask(b.dataset.c, b.dataset.m, link, text, b);
+      submitTask(BATCH, b.dataset.c, b.dataset.m, link, text, b);
     };
   });
   $('mods').querySelectorAll('[data-edit]').forEach(b => {
-    b.onclick = () => {
-      const key = b.dataset.edit;
-      if(SUBS[key]) SUBS[key].status = 'rework';   // reopen the form locally
-      render();
-    };
+    b.onclick = () => { const key=b.dataset.edit; if(SUBS[key]) SUBS[key].status='rework'; render(); };
   });
 }
 
+/* ---------- TASK HTML ---------- */
+function taskHTML(batch, course, module){
+  const t = TASKS.find(x => x.batch===batch && x.course===course && x.module===module);
+  if(!t) return '';
+  const key = subKey(batch,course,module);
+  const s = SUBS[key], st = s ? s.status : null;
 
-/* ---------- VIDEO MODAL ---------- */
+  let chip='';
+  if(st==='pending') chip='<span class="task-st pending">Review mein</span>';
+  if(st==='approved') chip='<span class="task-st approved">Approved</span>';
+  if(st==='rework') chip='<span class="task-st rework">Dobara karein</span>';
+  let fb=''; if(s && s.feedback) fb=`<div class="fb ${st==='approved'?'approved':'rework'}"><b>Ustad ka feedback</b>${esc(s.feedback)}</div>`;
+
+  if(st==='approved') return `<div class="task"><div class="task-h"><span class="task-tag">Task</span>${chip}</div><div class="task-t">${esc(t.task)}</div>${fb}<div class="task-sent">${s.link?`Aapka link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>`:'Submit ho gaya'}</div></div>`;
+  if(st==='pending') return `<div class="task"><div class="task-h"><span class="task-tag">Task</span>${chip}</div><div class="task-t">${esc(t.task)}</div><div class="task-sent">${s.link?`Aapka link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>`:'Submit ho gaya'}</div><button class="task-again" data-edit="${esc(key)}">Badalna hai?</button></div>`;
+
+  return `<div class="task"><div class="task-h"><span class="task-tag">Task</span>${chip}</div><div class="task-t">${esc(t.task)}</div>${t.submit?`<div class="task-w">${esc(t.submit)}</div>`:''}${fb}<div class="task-f"><input type="url" placeholder="Apni video ka link" data-link="${esc(key)}" value="${s?esc(s.link):''}"><textarea placeholder="Kuch batana hai? (optional)" data-text="${esc(key)}">${s?esc(s.text):''}</textarea><button class="task-btn" data-send="${esc(key)}" data-c="${esc(course)}" data-m="${esc(module)}">${st==='rework'?'Dobara submit karein':'Submit karein'}</button></div></div>`;
+}
+
+/* ---------- VIDEO (views hidden) ---------- */
 function openLesson(id){
-  const l = LESSONS.find(x => x.id === id);
-  if(!l) return;
-  OPEN = l;
-  T0 = Date.now();
-
+  const l = LESSONS.find(x=>x.id===id); if(!l) return;
+  OPEN=l; T0=Date.now();
   const vid = ytId(l.url);
   $('mTitle').textContent = l.title;
-  $('mFrame').src = vid
-    ? 'https://www.youtube.com/embed/' + vid + '?rel=0&modestbranding=1'
-    : '';
+  // rel=0 (no related from other channels), modestbranding, no fullscreen-title,
+  // color=white, iv_load_policy=3 (no annotations). Keeps the view count out of sight.
+  $('mFrame').src = vid ? 'https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&modestbranding=1&iv_load_policy=3&color=white&playsinline=1' : '';
   $('mTime').textContent = vid ? '' : 'Video link theek nahi lag raha.';
-
-  const btn = $('mDone');
-  const isDone = DONE.has(l.id);
-  btn.textContent = isDone ? '✓ Completed' : 'Mark complete';
-  btn.classList.toggle('done', isDone);
-
+  const btn=$('mDone'); const isDone=DONE.has(l.id);
+  btn.textContent = isDone?'✓ Completed':'Mark complete'; btn.classList.toggle('done',isDone);
   $('modal').classList.add('open');
 }
-
-function shutModal(){
-  $('modal').classList.remove('open');
-  $('mFrame').src = '';
-  OPEN = null;
-}
-
+function shutModal(){ $('modal').classList.remove('open'); $('mFrame').src=''; OPEN=null; }
 $('mX').onclick = shutModal;
-$('modal').onclick = e => { if(e.target === $('modal')) shutModal(); };
-document.addEventListener('keydown', e => {
-  if(e.key === 'Escape' && $('modal').classList.contains('open')) shutModal();
-});
-
+$('modal').onclick = e => { if(e.target===$('modal')) shutModal(); };
+document.addEventListener('keydown', e => { if(e.key==='Escape' && $('modal').classList.contains('open')) shutModal(); });
 $('mDone').onclick = async () => {
   if(!OPEN) return;
-  const secs = Math.round((Date.now() - T0) / 1000);
-  const btn = $('mDone');
-  btn.disabled = true;
+  const secs=Math.round((Date.now()-T0)/1000);
+  const btn=$('mDone'); btn.disabled=true;
   await markDone(OPEN.id, secs);
-  const nowDone = DONE.has(OPEN.id);
-  btn.textContent = nowDone ? '✓ Completed' : 'Mark complete';
-  btn.classList.toggle('done', nowDone);
-  btn.disabled = false;
+  const nowDone=DONE.has(OPEN.id);
+  btn.textContent=nowDone?'✓ Completed':'Mark complete'; btn.classList.toggle('done',nowDone); btn.disabled=false;
 };
+
+/* ---------- NOTEBOOK render ---------- */
+$('nbAdd').onclick = () => { $('nbEditor').classList.add('open'); $('nbTitle').value=''; $('nbBody').value=''; $('nbTitle').focus(); };
+$('nbCancel').onclick = () => $('nbEditor').classList.remove('open');
+$('nbSave').onclick = async () => {
+  const t=$('nbTitle').value.trim(), b=$('nbBody').value.trim();
+  if(!t && !b){ alert('Kuch to likhein.'); return; }
+  const btn=$('nbSave'); btn.disabled=true; btn.textContent='Save ho raha…';
+  await saveNote(t, b);
+  btn.disabled=false; btn.textContent='Save';
+  $('nbEditor').classList.remove('open');
+};
+
+function fmtDate(sec){
+  if(!sec) return '';
+  const d = new Date(sec*1000);
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function renderNotes(){
+  if(!NOTES.length){ $('nbList').innerHTML='<div class="empty">Abhi koi note nahi. Upar "Naya note" se shuru karein.</div>'; return; }
+  $('nbList').innerHTML = NOTES.map(n=>`
+    <div class="nb">
+      <div class="nb-t">${esc(n.title)}</div>
+      ${n.body?`<div class="nb-body">${esc(n.body)}</div>`:''}
+      <div class="nb-meta">
+        <span class="nb-date">${fmtDate(n.at?.seconds)}</span>
+        <button class="nb-del" data-del="${esc(n.id)}">Delete</button>
+      </div>
+    </div>`).join('');
+  $('nbList').querySelectorAll('[data-del]').forEach(b => {
+    b.onclick = () => { if(confirm('Ye note delete karein?')) delNote(b.dataset.del); };
+  });
+}
 </script>
 </body>
 </html>
