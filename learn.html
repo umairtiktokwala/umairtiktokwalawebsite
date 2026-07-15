@@ -515,10 +515,13 @@ $('signupView').addEventListener('submit', async (ev) => {
     await setDoc(doc(db,'numbers',num), { email: email });
   }catch(e){
     btn.disabled=false; btn.textContent='Verify & create account';
-    const m = String(e.message||e);
-    if(m.includes('email-already-in-use')) say('Is email ka account pehle se hai. <b>Log in</b> karein.');
+    const m = String(e.code || e.message || e);
+    if(m.includes('email-already-in-use')) say('Is email ka account pehle se hai. <b>Log in</b> karein, ya doosra email use karein.');
     else if(m.includes('weak-password')) say('Password kamzor hai. Kam se kam 6 characters rakhein.');
-    else say('Kuch masla ho gaya. Thori der baad try karein.');
+    else if(m.includes('invalid-email')) say('Email theek nahi lag raha.');
+    else if(m.includes('permission')) say('Permission ka masla: Firestore rules check karein. (' + m + ')');
+    else if(m.includes('network')) say('Internet ka masla lag raha hai. Dobara try karein.');
+    else say('Masla: ' + m);
   }
 });
 
