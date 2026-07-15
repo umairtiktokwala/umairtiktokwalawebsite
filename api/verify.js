@@ -76,11 +76,13 @@ export default async function handler(req, res) {
     const data = await r.json();
     if (data.error) throw new Error(data.error);
 
-    // Only ever return the minimum: verified yes/no, which courses, their name.
+    // Return the minimum: verified yes/no, their name, which batches they're in,
+    // and what the current (latest) batch is.
     return res.status(200).json({
       verified: !!data.verified,
-      courses: Array.isArray(data.courses) ? data.courses : [],
       name: String(data.name || '').slice(0, 60),
+      batches: Array.isArray(data.batches) ? data.batches.slice(0, 50) : [],
+      current: String(data.current || '').slice(0, 40),
     });
   } catch (err) {
     console.error('verify failed:', err.message);
