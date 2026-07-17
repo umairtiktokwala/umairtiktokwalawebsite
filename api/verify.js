@@ -41,8 +41,9 @@ export default async function handler(req, res) {
   const SECRET = process.env.SHEET_SECRET;
 
   if (!SCRIPT_URL || !SECRET) {
+    console.error('SHEET_SCRIPT_URL or SHEET_SECRET missing');
     return res.status(503).json({
-      error: 'Setup missing: SHEET_SCRIPT_URL=' + (!!SCRIPT_URL) + ' SHEET_SECRET=' + (!!SECRET),
+      error: 'Verification abhi set nahi hui. WhatsApp par rabta karein.',
     });
   }
 
@@ -70,16 +71,13 @@ export default async function handler(req, res) {
       redirect: 'follow',
     });
 
-    if (!r.ok) {
-      const body = await r.text();
-      throw new Error('script HTTP ' + r.status + ': ' + body.slice(0, 120));
-    }
+    if (!r.ok) throw new Error('script ' + r.status);
 
     const raw = await r.text();
     let data;
     try { data = JSON.parse(raw); }
-    catch(e){ throw new Error('script did not return JSON: ' + raw.slice(0, 120)); }
-    if (data.error) throw new Error('script says: ' + data.error);
+    catch(e){ throw new Error('bad json'); }
+    if (data.error) throw new Error(data.error);
 
     // Return the minimum: verified yes/no, their name, which batches they're in,
     // and what the current (latest) batch is.
@@ -87,11 +85,13 @@ export default async function handler(req, res) {
       verified: !!data.verified,
       name: String(data.name || '').slice(0, 60),
       batches: Array.isArray(data.batches) ? data.batches.slice(0, 50) : [],
+      enrollments: Array.isArray(data.enrollments) ? data.enrollments.slice(0, 50) : [],
       current: String(data.current || '').slice(0, 40),
     });
   } catch (err) {
+    console.error('verify failed:', err.message);
     return res.status(502).json({
-      error: 'Verify error: ' + String(err.message || err),
+      error: 'Verification abhi kaam nahi kar rahi. Thori der baad try karein.',
     });
   }
 }
