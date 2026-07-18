@@ -238,6 +238,11 @@ button{font-family:var(--body)}
 .task-btn{padding:12px 26px;border:none;border-radius:99px;cursor:pointer;background:var(--ink);color:#fff;font-weight:700;font-size:13.5px;transition:transform .16s}
 .task-btn:hover:not(:disabled){transform:translateY(-1px)}
 .task-btn:disabled{opacity:.5;cursor:not-allowed}
+.task-thread{display:flex;flex-direction:column;gap:9px;margin:4px 0 14px}
+.tmsg{max-width:82%;padding:10px 13px;border-radius:13px;font-size:13.5px;line-height:1.5}
+.tmsg .tm-who{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;opacity:.7}
+.tmsg.admin{align-self:flex-start;background:#fff;border:1px solid #FBE3BF;color:#92400E;border-bottom-left-radius:4px}
+.tmsg.me{align-self:flex-end;background:#FFF6E6;border:1px solid #FBE3BF;color:var(--ink-2);border-bottom-right-radius:4px}
 .task-sent{font-size:13.5px;color:var(--ink-2);padding:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .task-sent a{color:var(--purple);text-decoration:underline;word-break:break-all}
 .task-again{background:none;border:none;cursor:pointer;color:var(--purple);font-weight:700;font-size:13px;padding:6px 0 0}
@@ -799,15 +804,13 @@ async function loadContent(){
 /* ===== announcements ===== */
 async function loadAnnouncements(){
   ANN=[];
-  if(!ANN_CSV || ANN_CSV.indexOf('http')!==0) return;
   try{
-    const rows=parseCSV(await(await fetch(ANN_CSV)).text()).slice(1);
-    // columns: Message | Batch (optional) | Date (optional) | Show (optional yes/no)
-    ANN=rows.filter(r=>(r[0]||'').trim())
-      .map(r=>({msg:(r[0]||'').trim(),batch:cleanBatch(r[1]||''),date:(r[2]||'').trim(),show:(r[3]||'yes').trim().toLowerCase()}))
-      .filter(a=>a.show!=='no');
+    const snap=await getDocs(collection(db,'announcements'));
+    snap.forEach(d=>{ const a=d.data(); ANN.push({msg:a.message||'',batch:cleanBatch(a.batch||''),date:a.at?fmtAnnDate(a.at.seconds):'',ts:a.at?.seconds||0}); });
+    ANN.sort((x,y)=>y.ts-x.ts);
   }catch(e){ ANN=[]; }
 }
+function fmtAnnDate(sec){ if(!sec)return''; return new Date(sec*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 
 /* ===== submissions ===== */
 async function loadSubs(){
@@ -822,8 +825,11 @@ const subKey=(batch,course,module)=>batch+'::'+course+'::'+module;
 async function submitTask(batch,course,module,link,text,btn){
   const key=subKey(batch,course,module); const existing=SUBS[key];
   btn.disabled=true; btn.textContent='Sending…';
+  // keep the conversation history; add this note as a student message
+  const prevMsgs=(existing&&Array.isArray(existing.messages))?existing.messages.slice():[];
+  if(existing && text) prevMsgs.push({from:'student',text:text,at:Math.floor(Date.now()/1000)});
   const payload={uid:ME.uid,key,name:ME.name||'',number:ME.number||'',batch,course,module,
-    link:link||'',text:text||'',status:'pending',feedback:'',at:serverTimestamp()};
+    link:link||'',text:text||'',status:'pending',messages:prevMsgs,at:serverTimestamp()};
   try{
     if(existing){ await updateDoc(doc(db,'submissions',existing.id),payload); SUBS[key]={id:existing.id,...payload}; }
     else{ const id=ME.uid+'_'+key.replace(/[^a-zA-Z0-9]/g,'_'); await setDoc(doc(db,'submissions',id),payload); SUBS[key]={id,...payload}; }
@@ -973,6 +979,22 @@ function renderTasks(){
   wireTaskButtons(wrap);
 }
 
+function threadHTML(s){
+  if(!s) return '';
+  let out='';
+  const msgs=Array.isArray(s.messages)?s.messages:[];
+  if(!msgs.length && s.feedback){
+    // older submissions: single feedback field
+    return `<div class="task-thread"><div class="tmsg admin"><div class="tm-who">Teacher</div>${esc(s.feedback)}</div></div>`;
+  }
+  if(!msgs.length) return '';
+  msgs.forEach(m=>{
+    const mine=m.from!=='admin';
+    out+=`<div class="tmsg ${mine?'me':'admin'}"><div class="tm-who">${mine?'You':'Teacher'}</div>${esc(m.text)}</div>`;
+  });
+  return `<div class="task-thread">${out}</div>`;
+}
+
 function taskCard(t){
   const key=subKey(t.batch,t.course,t.module);
   const s=SUBS[key], st=s?s.status:null;
@@ -980,7 +1002,7 @@ function taskCard(t){
   if(st==='pending') chip='<span class="task-st pending">In review</span>';
   else if(st==='approved') chip='<span class="task-st approved">Approved</span>';
   else if(st==='rework') chip='<span class="task-st rework">Redo needed</span>';
-  let fb=''; if(s&&s.feedback) fb=`<div class="fb ${st==='approved'?'approved':'rework'}"><b><i class="ti ti-message-2"></i>Teacher's feedback</b>${esc(s.feedback)}</div>`;
+  const fb = threadHTML(s);
   const head=`<div class="task-h"><span class="task-tag"><i class="ti ti-checklist"></i>${esc(courseName(t.course))} · ${esc(t.module)}</span>${chip}</div><div class="task-t">${esc(t.task)}</div>`;
 
   if(st==='approved') return `<div class="task">${head}${fb}<div class="task-sent">${s.link?`Your link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>`:'Submitted'}</div></div>`;
