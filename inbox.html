@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support inbox — Umair TikTok Wala</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b23; --panel2:#1c2330; --line:#252d3a;
+    --text:#e6edf3; --dim:#8b98a9; --faint:#5d6b7d;
+    --brand1:#2563eb; --brand2:#7c3aed; --brand3:#dc2626;
+    --in:#1c2330; --out:#1e3a5f;
+    --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); height:100vh; overflow:hidden;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input,textarea{font-family:inherit}
+
+  /* ---------- Login ---------- */
+  #login{
+    height:100vh; display:flex; align-items:center; justify-content:center;
+  }
+  .login-card{
+    width:340px; background:var(--panel); border:1px solid var(--line);
+    border-radius:14px; padding:32px;
+  }
+  .logo{
+    height:4px; width:56px; border-radius:2px; margin-bottom:22px;
+    background:linear-gradient(90deg,var(--brand1),var(--brand2),var(--brand3));
+  }
+  .login-card h1{font-size:19px;font-weight:600;margin-bottom:6px}
+  .login-card p{font-size:13px;color:var(--dim);margin-bottom:22px}
+  .field{
+    width:100%; height:42px; background:var(--panel2); border:1px solid var(--line);
+    border-radius:9px; color:var(--text); padding:0 13px; font-size:14px; margin-bottom:11px;
+  }
+  .field:focus{outline:none;border-color:var(--brand1)}
+  .btn-primary{
+    width:100%; height:42px; border:none; border-radius:9px; color:#fff;
+    font-size:14px; font-weight:600;
+    background:linear-gradient(90deg,var(--brand1),var(--brand2));
+  }
+  .btn-primary:disabled{opacity:.55}
+  .err{color:var(--danger);font-size:13px;margin-top:11px;min-height:18px}
+
+  /* ---------- Shell ---------- */
+  #app{display:none;height:100vh;flex-direction:column}
+  .topbar{
+    height:54px; border-bottom:1px solid var(--line); display:flex;
+    align-items:center; justify-content:space-between; padding:0 18px; flex-shrink:0;
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand-mark{
+    width:9px;height:26px;border-radius:3px;
+    background:linear-gradient(180deg,var(--brand1),var(--brand2),var(--brand3));
+  }
+  .brand b{font-size:14px;font-weight:600;display:block}
+  .brand span{font-size:11px;color:var(--faint)}
+  .topbar-right{display:flex;align-items:center;gap:13px;font-size:13px;color:var(--dim)}
+  .link-btn{background:none;border:none;color:var(--dim);font-size:13px}
+  .link-btn:hover{color:var(--text)}
+
+  .main{flex:1;display:grid;grid-template-columns:290px 1fr 240px;overflow:hidden}
+  @media(max-width:900px){ .main{grid-template-columns:1fr} .col-list,.col-info{display:none} }
+
+  /* ---------- Conversation list ---------- */
+  .col-list{border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+  .search-wrap{padding:11px 13px;border-bottom:1px solid var(--line)}
+  .search{
+    width:100%;height:34px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);padding:0 11px;font-size:13px;
+  }
+  .search:focus{outline:none;border-color:var(--brand1)}
+  .convo-list{flex:1;overflow-y:auto}
+  .convo{
+    padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+  }
+  .convo:hover{background:var(--panel)}
+  .convo.active{background:var(--panel2);border-left:3px solid var(--brand1);padding-left:11px}
+  .convo-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .convo-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .convo-time{font-size:11px;color:var(--faint);flex-shrink:0}
+  .convo-preview{
+    font-size:12px;color:var(--dim);margin-top:3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .convo-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+  .tag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
+  .tag-unread{background:rgba(37,99,235,.22);color:#7dabff}
+  .tag-paid{background:rgba(34,197,94,.16);color:#5ddc93}
+  .tag-new{background:rgba(124,58,237,.2);color:#b794f6}
+  .tag-expiring{background:rgba(245,158,11,.16);color:#fbbf24}
+  .tag-agent{background:var(--panel2);color:var(--dim)}
+  .empty{padding:36px 20px;text-align:center;color:var(--faint);font-size:13px}
+
+  /* ---------- Chat ---------- */
+  .col-chat{display:flex;flex-direction:column;overflow:hidden}
+  .chat-head{
+    height:56px;border-bottom:1px solid var(--line);display:flex;
+    align-items:center;justify-content:space-between;padding:0 17px;flex-shrink:0;
+  }
+  .chat-head-name{font-size:14px;font-weight:500}
+  .chat-head-sub{font-size:11px;color:var(--faint);margin-top:1px}
+  .window-pill{font-size:11px;padding:4px 10px;border-radius:6px;background:var(--panel2);color:var(--dim)}
+  .window-pill.warn{background:rgba(245,158,11,.16);color:#fbbf24}
+  .window-pill.closed{background:rgba(239,68,68,.16);color:#f87171}
+
+  .messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:9px}
+  .bubble{max-width:62%;padding:9px 13px;border-radius:12px;font-size:14px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
+  .bubble.in{align-self:flex-start;background:var(--in);border-bottom-left-radius:4px}
+  .bubble.out{align-self:flex-end;background:var(--out);border-bottom-right-radius:4px}
+  .meta{font-size:10px;color:var(--faint);margin-top:5px;display:block}
+
+  .composer{border-top:1px solid var(--line);padding:12px 16px;flex-shrink:0}
+  .quick{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+  .quick button{
+    font-size:11px;padding:5px 11px;border-radius:6px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  }
+  .quick button:hover{color:var(--text);border-color:var(--brand1)}
+  .composer-row{display:flex;gap:9px;align-items:flex-end}
+  .composer textarea{
+    flex:1;min-height:40px;max-height:130px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:9px;color:var(--text);
+    padding:10px 13px;font-size:14px;resize:none;line-height:1.5;
+  }
+  .composer textarea:focus{outline:none;border-color:var(--brand1)}
+  .send-btn{
+    width:40px;height:40px;border:none;border-radius:9px;color:#fff;font-size:17px;
+    background:linear-gradient(135deg,var(--brand1),var(--brand2));flex-shrink:0;
+  }
+  .send-btn:disabled{opacity:.4}
+  .send-err{color:var(--danger);font-size:12px;margin-top:7px;min-height:16px}
+
+  /* ---------- Info panel ---------- */
+  .col-info{border-left:1px solid var(--line);padding:18px 16px;overflow-y:auto}
+  .info-title{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:13px}
+  .avatar{
+    width:52px;height:52px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:17px;font-weight:600;color:#fff;margin-bottom:11px;
+    background:linear-gradient(135deg,var(--brand1),var(--brand2));
+  }
+  .info-name{font-size:15px;font-weight:600}
+  .info-number{font-size:12px;color:var(--dim);margin-top:2px}
+  .info-row{padding:10px 0;border-bottom:1px solid var(--line)}
+  .info-label{font-size:11px;color:var(--faint)}
+  .info-value{font-size:13px;margin-top:3px}
+  .chip{
+    display:inline-block;font-size:11px;padding:3px 9px;border-radius:5px;
+    background:var(--panel2);color:var(--dim);margin:3px 4px 0 0;
+  }
+  .placeholder{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    color:var(--faint);font-size:14px;
+  }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-card">
+    <div class="logo"></div>
+    <h1>Support inbox</h1>
+    <p>Team login</p>
+    <input id="email" class="field" type="email" placeholder="name@example.com" autocomplete="username">
+    <input id="password" class="field" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="loginBtn" class="btn-primary">Sign in</button>
+    <div id="loginErr" class="err"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <b>Umair TikTok Wala</b>
+        <span>Support inbox</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="whoami"></span>
+      <button class="link-btn" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="col-list">
+      <div class="search-wrap">
+        <input id="search" class="search" placeholder="Search name or number">
+      </div>
+      <div class="convo-list" id="convoList">
+        <div class="empty">Loading…</div>
+      </div>
+    </div>
+
+    <div class="col-chat">
+      <div id="chatArea" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <div class="placeholder" id="chatPlaceholder">Pick a conversation to start</div>
+      </div>
+    </div>
+
+    <div class="col-info" id="infoPanel">
+      <div class="info-title">Student</div>
+      <div class="empty" style="padding:20px 0">No chat selected</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, limit, onSnapshot,
+  doc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ============================================================
+//  FIREBASE CONFIG
+//  learn.html se apni values yahan paste karein
+// ============================================================
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Quick reply buttons — jitne marzi badal lein
+const QUICK_REPLIES = [
+  { label: "Fee details", text: "Support Program ki fees aur details yahan hain: https://umairtiktokwala.com" },
+  { label: "Next batch", text: "Naya batch jald shuru ho raha hai. Registration ki tafseel: https://umairtiktokwala.com" },
+  { label: "Portal link", text: "Learning portal: https://umairtiktokwala.com/learn.html" },
+  { label: "Thanks", text: "Shukriya! Koi aur sawal ho to zaroor likhein." }
+];
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let convos = [];
+let activeId = null;
+let unsubMessages = null;
+let searchTerm = "";
+
+const $ = (id) => document.getElementById(id);
+
+// ---------- Login ----------
+$("loginBtn").onclick = async () => {
+  const btn = $("loginBtn");
+  btn.disabled = true;
+  $("loginErr").textContent = "";
+  try {
+    await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
+  } catch (e) {
+    $("loginErr").textContent = "Email ya password ghalat hai";
+    btn.disabled = false;
+  }
+};
+$("password").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
+$("logoutBtn").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    $("login").style.display = "none";
+    $("app").style.display = "flex";
+    $("whoami").textContent = user.email;
+    watchConversations();
+  } else {
+    $("login").style.display = "flex";
+    $("app").style.display = "none";
+    $("loginBtn").disabled = false;
+    if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+  }
+});
+
+// ---------- Conversation list ----------
+function watchConversations() {
+  const q = query(
+    collection(db, "conversations"),
+    orderBy("lastMessageAt", "desc"),
+    limit(100)
+  );
+  onSnapshot(q, (snap) => {
+    convos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderList();
+    if (activeId) renderInfo();
+  });
+}
+
+$("search").oninput = (e) => { searchTerm = e.target.value.toLowerCase(); renderList(); };
+
+function timeAgo(ts) {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return mins + "m";
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + "h";
+  return Math.floor(hrs / 24) + "d";
+}
+
+function windowState(c) {
+  if (!c.windowExpiresAt) return { label: "", cls: "" };
+  const exp = c.windowExpiresAt.toDate ? c.windowExpiresAt.toDate() : new Date(c.windowExpiresAt);
+  const mins = Math.floor((exp.getTime() - Date.now()) / 60000);
+  if (mins <= 0) return { label: "Window closed", cls: "closed" };
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 3) return { label: (hrs > 0 ? hrs + "h " : "") + (mins % 60) + "m left", cls: "warn" };
+  return { label: hrs + "h left", cls: "" };
+}
+
+function displayNameOf(c) {
+  return c.student?.name || c.displayName || ("+" + (c.waNumber || c.id));
+}
+
+function renderList() {
+  const list = $("convoList");
+  const shown = convos.filter(c => {
+    if (!searchTerm) return true;
+    return (displayNameOf(c) + " " + (c.waNumber || "")).toLowerCase().includes(searchTerm);
+  });
+
+  if (!shown.length) {
+    list.innerHTML = '<div class="empty">No conversations yet. They appear here as soon as someone messages.</div>';
+    return;
+  }
+
+  list.innerHTML = shown.map(c => {
+    const tags = [];
+    if (c.unread > 0) tags.push('<span class="tag tag-unread">' + c.unread + ' new</span>');
+    if (c.student?.verified) tags.push('<span class="tag tag-paid">Paid</span>');
+    else if (!c.student) tags.push('<span class="tag tag-new">Not enrolled</span>');
+    const w = windowState(c);
+    if (w.cls) tags.push('<span class="tag tag-expiring">' + w.label + '</span>');
+    if (c.assignedTo) tags.push('<span class="tag tag-agent">' + esc(c.assignedTo) + '</span>');
+
+    return '<div class="convo' + (c.id === activeId ? ' active' : '') + '" data-id="' + c.id + '">' +
+      '<div class="convo-top"><span class="convo-name">' + esc(displayNameOf(c)) + '</span>' +
+      '<span class="convo-time">' + timeAgo(c.lastMessageAt) + '</span></div>' +
+      '<div class="convo-preview">' + esc(c.lastMessage || "") + '</div>' +
+      (tags.length ? '<div class="convo-tags">' + tags.join("") + '</div>' : '') +
+    '</div>';
+  }).join("");
+
+  list.querySelectorAll(".convo").forEach(el => {
+    el.onclick = () => openConvo(el.dataset.id);
+  });
+}
+
+// ---------- Chat ----------
+function openConvo(id) {
+  activeId = id;
+  renderList();
+  renderInfo();
+
+  const c = convos.find(x => x.id === id);
+  if (!c) return;
+
+  if (c.unread > 0) {
+    updateDoc(doc(db, "conversations", id), { unread: 0 }).catch(() => {});
+  }
+
+  const w = windowState(c);
+  $("chatArea").innerHTML =
+    '<div class="chat-head">' +
+      '<div><div class="chat-head-name">' + esc(displayNameOf(c)) + '</div>' +
+      '<div class="chat-head-sub">+' + esc(c.waNumber || c.id) + '</div></div>' +
+      '<span class="window-pill ' + w.cls + '">' + (w.label || "24h window open") + '</span>' +
+    '</div>' +
+    '<div class="messages" id="messages"><div class="empty">Loading…</div></div>' +
+    '<div class="composer">' +
+      '<div class="quick" id="quick"></div>' +
+      '<div class="composer-row">' +
+        '<textarea id="draft" placeholder="Message likhein…" rows="1"></textarea>' +
+        '<button class="send-btn" id="sendBtn">↑</button>' +
+      '</div>' +
+      '<div class="send-err" id="sendErr"></div>' +
+    '</div>';
+
+  $("quick").innerHTML = QUICK_REPLIES
+    .map((q, i) => '<button data-i="' + i + '">' + esc(q.label) + '</button>').join("");
+  $("quick").querySelectorAll("button").forEach(b => {
+    b.onclick = () => { $("draft").value = QUICK_REPLIES[b.dataset.i].text; $("draft").focus(); };
+  });
+
+  const ta = $("draft");
+  ta.oninput = () => { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 130) + "px"; };
+  ta.onkeydown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  };
+  $("sendBtn").onclick = send;
+
+  if (unsubMessages) unsubMessages();
+  const mq = query(
+    collection(db, "conversations", id, "messages"),
+    orderBy("timestamp", "asc"),
+    limit(300)
+  );
+  unsubMessages = onSnapshot(mq, (snap) => {
+    const box = $("messages");
+    if (!box) return;
+    if (snap.empty) { box.innerHTML = '<div class="empty">No messages</div>'; return; }
+    box.innerHTML = snap.docs.map(d => {
+      const m = d.data();
+      const t = m.timestamp?.toDate ? m.timestamp.toDate() : new Date();
+      const stamp = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const by = m.direction === "out"
+        ? (m.sentBy === "welcome" || m.sentBy === "keyword" ? " · auto" : (m.sentBy ? " · " + esc(m.sentBy) : ""))
+        : "";
+      return '<div class="bubble ' + m.direction + '">' + esc(m.text || "") +
+        '<span class="meta">' + stamp + by + '</span></div>';
+    }).join("");
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+async function send() {
+  const c = convos.find(x => x.id === activeId);
+  const ta = $("draft"), btn = $("sendBtn"), err = $("sendErr");
+  if (!c || !ta.value.trim()) return;
+
+  const text = ta.value.trim();
+  btn.disabled = true;
+  err.textContent = "";
+
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const r = await fetch("/api/whatsapp-send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ to: c.waNumber || c.id, text })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Message nahi gaya");
+    ta.value = "";
+    ta.style.height = "auto";
+  } catch (e) {
+    err.textContent = e.message;
+  }
+  btn.disabled = false;
+}
+
+// ---------- Info panel ----------
+function renderInfo() {
+  const c = convos.find(x => x.id === activeId);
+  const panel = $("infoPanel");
+  if (!c) {
+    panel.innerHTML = '<div class="info-title">Student</div><div class="empty" style="padding:20px 0">No chat selected</div>';
+    return;
+  }
+
+  const s = c.student;
+  const name = displayNameOf(c);
+  const initials = name.replace(/[^A-Za-z ]/g, "").trim().split(/\s+/)
+    .slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
+
+  let rows = "";
+  if (s) {
+    rows += infoRow("Status", s.verified ? "Paid · verified" : "Registered");
+    if (s.email) rows += infoRow("Email", s.email);
+    if (s.batches?.length) rows += infoRow("Batch", s.batches.map(b => chip(b)).join(""), true);
+    if (s.courses?.length) rows += infoRow("Courses", s.courses.map(x => chip(x)).join(""), true);
+  } else {
+    rows += infoRow("Status", "Not in student records");
+  }
+  rows += infoRow("First message", c.createdAt ? fmtDate(c.createdAt) : "—");
+
+  panel.innerHTML =
+    '<div class="info-title">Student</div>' +
+    '<div class="avatar">' + esc(initials) + '</div>' +
+    '<div class="info-name">' + esc(name) + '</div>' +
+    '<div class="info-number">+' + esc(c.waNumber || c.id) + '</div>' +
+    '<div style="margin-top:14px">' + rows + '</div>';
+}
+
+function infoRow(label, value, raw) {
+  return '<div class="info-row"><div class="info-label">' + esc(label) + '</div>' +
+    '<div class="info-value">' + (raw ? value : esc(value)) + '</div></div>';
+}
+function chip(t) { return '<span class="chip">' + esc(t) + '</span>'; }
+function fmtDate(ts) {
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+}
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+</script>
+</body>
+</html>
