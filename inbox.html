@@ -3,18 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&display=swap" rel="stylesheet">
 <title>Support inbox — Umair TikTok Wala</title>
 <style>
   :root{
-    --bg:#0d1117; --panel:#151b23; --panel2:#1c2330; --line:#252d3a;
-    --text:#e6edf3; --dim:#8b98a9; --faint:#5d6b7d;
+    --bg:#F6F7FB; --panel:#FFFFFF; --panel2:#F9FAFC; --line:#ECEEF4;
+    --text:#0F1222; --dim:#5B6178; --faint:#8A90A6;
     --brand1:#2563eb; --brand2:#7c3aed; --brand3:#dc2626;
-    --in:#1c2330; --out:#1e3a5f;
-    --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+    --in:#F1F3F8; --out:#E3EDFD;
+    --ok:#16a34a; --warn:#b45309; --danger:#dc2626;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-family:"Bricolage Grotesque",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     background:var(--bg); color:var(--text); height:100vh; overflow:hidden;
   }
   button{font-family:inherit;cursor:pointer}
@@ -26,7 +29,8 @@
   }
   .login-card{
     width:340px; background:var(--panel); border:1px solid var(--line);
-    border-radius:14px; padding:32px;
+    border-radius:16px; padding:32px;
+    box-shadow:0 4px 24px rgba(15,18,34,.06);
   }
   .logo{
     height:4px; width:56px; border-radius:2px; margin-bottom:22px;
@@ -50,7 +54,7 @@
   /* ---------- Shell ---------- */
   #app{display:none;height:100vh;flex-direction:column}
   .topbar{
-    height:54px; border-bottom:1px solid var(--line); display:flex;
+    height:54px; background:var(--panel); border-bottom:1px solid var(--line); display:flex;
     align-items:center; justify-content:space-between; padding:0 18px; flex-shrink:0;
   }
   .brand{display:flex;align-items:center;gap:11px}
@@ -68,7 +72,7 @@
   @media(max-width:900px){ .main{grid-template-columns:1fr} .col-list,.col-info{display:none} }
 
   /* ---------- Conversation list ---------- */
-  .col-list{border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+  .col-list{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
   .search-wrap{padding:11px 13px;border-bottom:1px solid var(--line)}
   .search{
     width:100%;height:34px;background:var(--panel2);border:1px solid var(--line);
@@ -79,8 +83,8 @@
   .convo{
     padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;
   }
-  .convo:hover{background:var(--panel)}
-  .convo.active{background:var(--panel2);border-left:3px solid var(--brand1);padding-left:11px}
+  .convo:hover{background:var(--panel2)}
+  .convo.active{background:#EEF3FE;border-left:3px solid var(--brand1);padding-left:11px}
   .convo-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .convo-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .convo-time{font-size:11px;color:var(--faint);flex-shrink:0}
@@ -90,32 +94,32 @@
   }
   .convo-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
   .tag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
-  .tag-unread{background:rgba(37,99,235,.22);color:#7dabff}
-  .tag-paid{background:rgba(34,197,94,.16);color:#5ddc93}
-  .tag-new{background:rgba(124,58,237,.2);color:#b794f6}
-  .tag-expiring{background:rgba(245,158,11,.16);color:#fbbf24}
+  .tag-unread{background:rgba(37,99,235,.12);color:#1d4ed8}
+  .tag-paid{background:rgba(22,163,74,.12);color:#15803d}
+  .tag-new{background:rgba(124,58,237,.12);color:#6d28d9}
+  .tag-expiring{background:rgba(180,83,9,.12);color:#b45309}
   .tag-agent{background:var(--panel2);color:var(--dim)}
   .empty{padding:36px 20px;text-align:center;color:var(--faint);font-size:13px}
 
   /* ---------- Chat ---------- */
-  .col-chat{display:flex;flex-direction:column;overflow:hidden}
+  .col-chat{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
   .chat-head{
-    height:56px;border-bottom:1px solid var(--line);display:flex;
+    height:56px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;
     align-items:center;justify-content:space-between;padding:0 17px;flex-shrink:0;
   }
   .chat-head-name{font-size:14px;font-weight:500}
   .chat-head-sub{font-size:11px;color:var(--faint);margin-top:1px}
   .window-pill{font-size:11px;padding:4px 10px;border-radius:6px;background:var(--panel2);color:var(--dim)}
-  .window-pill.warn{background:rgba(245,158,11,.16);color:#fbbf24}
-  .window-pill.closed{background:rgba(239,68,68,.16);color:#f87171}
+  .window-pill.warn{background:rgba(180,83,9,.12);color:#b45309}
+  .window-pill.closed{background:rgba(220,38,38,.1);color:#b91c1c}
 
   .messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:9px}
   .bubble{max-width:62%;padding:9px 13px;border-radius:12px;font-size:14px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
-  .bubble.in{align-self:flex-start;background:var(--in);border-bottom-left-radius:4px}
+  .bubble.in{align-self:flex-start;background:var(--in);border:1px solid var(--line);border-bottom-left-radius:4px}
   .bubble.out{align-self:flex-end;background:var(--out);border-bottom-right-radius:4px}
   .meta{font-size:10px;color:var(--faint);margin-top:5px;display:block}
 
-  .composer{border-top:1px solid var(--line);padding:12px 16px;flex-shrink:0}
+  .composer{background:var(--panel);border-top:1px solid var(--line);padding:12px 16px;flex-shrink:0}
   .quick{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}
   .quick button{
     font-size:11px;padding:5px 11px;border-radius:6px;
@@ -137,7 +141,7 @@
   .send-err{color:var(--danger);font-size:12px;margin-top:7px;min-height:16px}
 
   /* ---------- Info panel ---------- */
-  .col-info{border-left:1px solid var(--line);padding:18px 16px;overflow-y:auto}
+  .col-info{background:var(--panel);border-left:1px solid var(--line);padding:18px 16px;overflow-y:auto}
   .info-title{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:13px}
   .avatar{
     width:52px;height:52px;border-radius:50%;display:flex;align-items:center;
