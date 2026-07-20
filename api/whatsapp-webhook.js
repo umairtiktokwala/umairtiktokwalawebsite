@@ -34,15 +34,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Meta ko foran 200 dena zaroori hai, warna wo dobara bhejta rehta hai
-  res.status(200).json({ received: true });
-
+  // Kaam pehle mukammal karein, phir Meta ko jawab dein.
+  // (Vercel response bhejte hi function band kar deta hai, is liye
+  //  await karna zaroori hai — warna Firestore ka kaam adhoora reh jata hai.)
   try {
     await processWebhook(req.body);
   } catch (err) {
     console.error("WEBHOOK ERROR:", err && err.message ? err.message : err);
     console.error("STACK:", err && err.stack ? err.stack : "no stack");
   }
+
+  return res.status(200).json({ received: true });
 }
 
 async function processWebhook(body) {
