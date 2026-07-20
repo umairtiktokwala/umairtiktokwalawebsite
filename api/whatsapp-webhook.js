@@ -131,6 +131,7 @@ async function processWebhook(body) {
       windowExpiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
       unread: (prev.unread || 0) + 1,
       status: "open",
+      awaitingReply: true,
       updatedAt: now,
     };
     if (student) convoData.student = student;

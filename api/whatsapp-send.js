@@ -90,7 +90,9 @@ export default async function handler(req, res) {
         lastMessage: String(text).slice(0, 120),
         lastMessageAt: now,
         unread: 0,
+        awaitingReply: false,
         assignedTo: agentName,
+        assignedUid: decoded.uid,
         updatedAt: now,
       },
       { merge: true }
