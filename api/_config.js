@@ -124,6 +124,44 @@ export const AUTO_REPLIES = [
 ];
 
 // ============================================================
+//  SURVEY (masla hal hua ya nahi)
+//  Team "Send survey" button dabati hai, ye message student ko jata hai.
+// ============================================================
+
+export const SURVEY_MESSAGE =
+  "Kya aap ka masla hal ho gaya?\n\n" +
+  "1 = Haan, shukriya\n" +
+  "2 = Nahi, abhi bhi masla hai\n\n" +
+  "Sirf number likh kar bhej dein.";
+
+// Student "1" likhe to ye jawab jayega
+export const SURVEY_REPLY_YES =
+  "Shukriya! Aap ka feedback humare liye ahem hai.\n\n" +
+  "Koi aur sawal ho to kabhi bhi message karein.";
+
+// Student "2" likhe to ye jawab jayega (chat wapas team ke paas aa jayegi)
+export const SURVEY_REPLY_NO =
+  "Maazrat. Hamari team dobara aap se rabta karegi.\n\n" +
+  "Apna masla thora tafseel se likh dein taake behtar madad kar sakein.";
+
+// ============================================================
+//  LABELS
+//  Chat pe lagane ke liye. Naya label add karna ho to yahan likh dein.
+//  AHEM: yehi list inbox.html mein bhi hai — dono jagah same rakhein.
+//  color: blue / green / amber / red / purple / grey
+// ============================================================
+
+export const LABELS = [
+  { id: "new_inquiry",      name: "New inquiry",      color: "purple" },
+  { id: "payment_pending",  name: "Payment pending",  color: "amber"  },
+  { id: "payment_verified", name: "Payment verified", color: "green"  },
+  { id: "enrolled",         name: "Enrolled",         color: "blue"   },
+  { id: "technical",        name: "Technical issue",  color: "red"    },
+  { id: "follow_up",        name: "Follow up",        color: "amber"  },
+  { id: "resolved",         name: "Resolved",         color: "grey"   },
+];
+
+// ============================================================
 //  DATA CLEANUP
 //  Itne din baad purani chats khud delete ho jayengi
 // ============================================================
