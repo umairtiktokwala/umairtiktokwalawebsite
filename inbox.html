@@ -14,6 +14,7 @@
     --brand1:#2563eb; --brand2:#7c3aed; --brand3:#dc2626;
     --in:#F1F3F8; --out:#E3EDFD;
     --ok:#16a34a; --warn:#b45309; --danger:#dc2626;
+    --radius:9px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
@@ -22,30 +23,30 @@
   }
   button{font-family:inherit;cursor:pointer}
   input,textarea{font-family:inherit}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:#D6DAE5;border-radius:5px}
+  ::-webkit-scrollbar-track{background:transparent}
 
   /* ---------- Login ---------- */
-  #login{
-    height:100vh; display:flex; align-items:center; justify-content:center;
-  }
+  #login{height:100vh;display:flex;align-items:center;justify-content:center}
   .login-card{
-    width:340px; background:var(--panel); border:1px solid var(--line);
-    border-radius:16px; padding:32px;
-    box-shadow:0 4px 24px rgba(15,18,34,.06);
+    width:340px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:32px;box-shadow:0 4px 24px rgba(15,18,34,.06);
   }
   .logo{
-    height:4px; width:56px; border-radius:2px; margin-bottom:22px;
+    height:4px;width:56px;border-radius:2px;margin-bottom:22px;
     background:linear-gradient(90deg,var(--brand1),var(--brand2),var(--brand3));
   }
   .login-card h1{font-size:19px;font-weight:600;margin-bottom:6px}
   .login-card p{font-size:13px;color:var(--dim);margin-bottom:22px}
   .field{
-    width:100%; height:42px; background:var(--panel2); border:1px solid var(--line);
-    border-radius:9px; color:var(--text); padding:0 13px; font-size:14px; margin-bottom:11px;
+    width:100%;height:42px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:var(--radius);color:var(--text);padding:0 13px;font-size:14px;margin-bottom:11px;
   }
   .field:focus{outline:none;border-color:var(--brand1)}
   .btn-primary{
-    width:100%; height:42px; border:none; border-radius:9px; color:#fff;
-    font-size:14px; font-weight:600;
+    width:100%;height:42px;border:none;border-radius:var(--radius);color:#fff;
+    font-size:14px;font-weight:600;
     background:linear-gradient(90deg,var(--brand1),var(--brand2));
   }
   .btn-primary:disabled{opacity:.55}
@@ -54,8 +55,8 @@
   /* ---------- Shell ---------- */
   #app{display:none;height:100vh;flex-direction:column}
   .topbar{
-    height:54px; background:var(--panel); border-bottom:1px solid var(--line); display:flex;
-    align-items:center; justify-content:space-between; padding:0 18px; flex-shrink:0;
+    height:54px;background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0;
   }
   .brand{display:flex;align-items:center;gap:11px}
   .brand-mark{
@@ -64,54 +65,89 @@
   }
   .brand b{font-size:14px;font-weight:600;display:block}
   .brand span{font-size:11px;color:var(--faint)}
-  .topbar-right{display:flex;align-items:center;gap:13px;font-size:13px;color:var(--dim)}
+  .topbar-right{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim)}
+  .total-badge{
+    background:var(--brand1);color:#fff;font-size:11px;font-weight:600;
+    padding:3px 9px;border-radius:11px;
+  }
+  .icon-btn{
+    background:none;border:1px solid var(--line);border-radius:7px;
+    width:32px;height:32px;font-size:15px;color:var(--dim);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{border-color:var(--brand1);color:var(--brand1)}
+  .icon-btn.on{background:rgba(37,99,235,.1);border-color:var(--brand1);color:var(--brand1)}
   .link-btn{background:none;border:none;color:var(--dim);font-size:13px}
   .link-btn:hover{color:var(--text)}
 
-  .main{flex:1;display:grid;grid-template-columns:290px 1fr 240px;overflow:hidden}
-  @media(max-width:900px){ .main{grid-template-columns:1fr} .col-list,.col-info{display:none} }
+  .main{flex:1;display:grid;grid-template-columns:300px 1fr 250px;overflow:hidden}
+  @media(max-width:980px){.main{grid-template-columns:1fr}.col-list,.col-info{display:none}}
 
-  /* ---------- Conversation list ---------- */
+  /* ---------- Filters + list ---------- */
   .col-list{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
-  .search-wrap{padding:11px 13px;border-bottom:1px solid var(--line)}
+  .search-wrap{padding:11px 13px 8px}
   .search{
     width:100%;height:34px;background:var(--panel2);border:1px solid var(--line);
     border-radius:8px;color:var(--text);padding:0 11px;font-size:13px;
   }
   .search:focus{outline:none;border-color:var(--brand1)}
+  .filters{display:flex;gap:5px;padding:0 13px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .filters button{
+    font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);
+    background:transparent;color:var(--dim);
+  }
+  .filters button.active{background:rgba(37,99,235,.1);border-color:var(--brand1);color:var(--brand1);font-weight:600}
   .convo-list{flex:1;overflow-y:auto}
   .convo{
     padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+    border-left:3px solid transparent;
   }
   .convo:hover{background:var(--panel2)}
-  .convo.active{background:#EEF3FE;border-left:3px solid var(--brand1);padding-left:11px}
+  .convo.active{background:#EEF3FE;border-left-color:var(--brand1)}
+  .convo.unread{background:#FBFCFF;border-left-color:var(--brand1)}
+  .convo.unread.active{background:#EEF3FE}
+  .convo.read{opacity:.72}
   .convo-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .convo-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .convo.unread .convo-name{font-weight:700}
   .convo-time{font-size:11px;color:var(--faint);flex-shrink:0}
-  .convo-preview{
-    font-size:12px;color:var(--dim);margin-top:3px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  .convo-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+  .convo-preview{font-size:12px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .convo.unread .convo-preview{color:var(--text);font-weight:500}
+  .convo-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;align-items:center}
   .tag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
-  .tag-unread{background:rgba(37,99,235,.12);color:#1d4ed8}
+  .tag-unread{background:var(--brand1);color:#fff}
   .tag-paid{background:rgba(22,163,74,.12);color:#15803d}
   .tag-new{background:rgba(124,58,237,.12);color:#6d28d9}
+  .tag-wait{background:rgba(180,83,9,.12);color:#b45309}
+  .tag-wait.urgent{background:rgba(220,38,38,.12);color:#b91c1c;font-weight:600}
   .tag-expiring{background:rgba(180,83,9,.12);color:#b45309}
-  .tag-agent{background:var(--panel2);color:var(--dim)}
-  .empty{padding:36px 20px;text-align:center;color:var(--faint);font-size:13px}
+  .tag-agent{background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+  .tag-viewing{background:rgba(22,163,74,.14);color:#15803d;font-weight:600}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px}
+  .empty{padding:36px 20px;text-align:center;color:var(--faint);font-size:13px;line-height:1.6}
 
   /* ---------- Chat ---------- */
   .col-chat{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
   .chat-head{
-    height:56px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;
-    align-items:center;justify-content:space-between;padding:0 17px;flex-shrink:0;
+    min-height:56px;background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:9px 17px;flex-shrink:0;gap:10px;
   }
-  .chat-head-name{font-size:14px;font-weight:500}
+  .chat-head-name{font-size:14px;font-weight:600}
   .chat-head-sub{font-size:11px;color:var(--faint);margin-top:1px}
+  .chat-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .mini-btn{
+    font-size:11px;padding:5px 10px;border-radius:6px;
+    border:1px solid var(--line);background:var(--panel);color:var(--dim);
+  }
+  .mini-btn:hover{border-color:var(--brand1);color:var(--brand1)}
+  .mini-btn.primary{background:var(--brand1);border-color:var(--brand1);color:#fff;font-weight:600}
   .window-pill{font-size:11px;padding:4px 10px;border-radius:6px;background:var(--panel2);color:var(--dim)}
   .window-pill.warn{background:rgba(180,83,9,.12);color:#b45309}
   .window-pill.closed{background:rgba(220,38,38,.1);color:#b91c1c}
+  .viewing-bar{
+    background:rgba(22,163,74,.08);color:#15803d;font-size:12px;
+    padding:6px 17px;border-bottom:1px solid var(--line);
+  }
 
   .messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:9px}
   .bubble{max-width:62%;padding:9px 13px;border-radius:12px;font-size:14px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
@@ -121,27 +157,44 @@
   .bubble.failed{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);opacity:1}
   .bubble.failed .meta{color:var(--danger)}
   .meta{font-size:10px;color:var(--faint);margin-top:5px;display:block}
+  .agent-chip{font-weight:600}
 
-  .composer{background:var(--panel);border-top:1px solid var(--line);padding:12px 16px;flex-shrink:0}
-  .quick{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+  /* ---------- Composer ---------- */
+  .composer{background:var(--panel);border-top:1px solid var(--line);padding:11px 16px;flex-shrink:0;position:relative}
+  .quick{display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap;align-items:center}
   .quick button{
     font-size:11px;padding:5px 11px;border-radius:6px;
     background:var(--panel2);border:1px solid var(--line);color:var(--dim);
   }
-  .quick button:hover{color:var(--text);border-color:var(--brand1)}
+  .quick button:hover{color:var(--brand1);border-color:var(--brand1)}
+  .quick .manage{border-style:dashed}
   .composer-row{display:flex;gap:9px;align-items:flex-end}
   .composer textarea{
     flex:1;min-height:40px;max-height:130px;background:var(--panel2);
-    border:1px solid var(--line);border-radius:9px;color:var(--text);
+    border:1px solid var(--line);border-radius:var(--radius);color:var(--text);
     padding:10px 13px;font-size:14px;resize:none;line-height:1.5;
   }
   .composer textarea:focus{outline:none;border-color:var(--brand1)}
   .send-btn{
-    width:40px;height:40px;border:none;border-radius:9px;color:#fff;font-size:17px;
+    width:40px;height:40px;border:none;border-radius:var(--radius);color:#fff;font-size:17px;
     background:linear-gradient(135deg,var(--brand1),var(--brand2));flex-shrink:0;
   }
   .send-btn:disabled{opacity:.4}
   .send-err{color:var(--danger);font-size:12px;margin-top:7px;min-height:16px}
+  .hint{font-size:11px;color:var(--faint);margin-top:6px}
+
+  /* slash-command dropdown */
+  .slash{
+    position:absolute;bottom:100%;left:16px;right:16px;margin-bottom:6px;
+    background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    box-shadow:0 -6px 24px rgba(15,18,34,.1);max-height:260px;overflow-y:auto;display:none;z-index:40;
+  }
+  .slash.show{display:block}
+  .slash-item{padding:9px 13px;border-bottom:1px solid var(--line);cursor:pointer}
+  .slash-item:last-child{border-bottom:none}
+  .slash-item.sel,.slash-item:hover{background:#EEF3FE}
+  .slash-cmd{font-size:12px;font-weight:600;color:var(--brand1)}
+  .slash-body{font-size:12px;color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   /* ---------- Info panel ---------- */
   .col-info{background:var(--panel);border-left:1px solid var(--line);padding:18px 16px;overflow-y:auto}
@@ -156,14 +209,38 @@
   .info-row{padding:10px 0;border-bottom:1px solid var(--line)}
   .info-label{font-size:11px;color:var(--faint)}
   .info-value{font-size:13px;margin-top:3px}
-  .chip{
-    display:inline-block;font-size:11px;padding:3px 9px;border-radius:5px;
-    background:var(--panel2);color:var(--dim);margin:3px 4px 0 0;
+  .chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:5px;background:var(--panel2);color:var(--dim);margin:3px 4px 0 0;border:1px solid var(--line)}
+  .placeholder{flex:1;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:14px}
+
+  /* ---------- Modal ---------- */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(15,18,34,.4);z-index:100;
+    display:none;align-items:center;justify-content:center;padding:20px;
   }
-  .placeholder{
-    flex:1;display:flex;align-items:center;justify-content:center;
-    color:var(--faint);font-size:14px;
+  .modal-bg.show{display:flex}
+  .modal{
+    background:var(--panel);border-radius:16px;width:100%;max-width:560px;
+    max-height:82vh;display:flex;flex-direction:column;box-shadow:0 12px 48px rgba(15,18,34,.18);
   }
+  .modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .modal-head h2{font-size:16px;font-weight:600}
+  .modal-body{padding:18px 22px;overflow-y:auto;flex:1}
+  .modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end}
+  .sr-item{border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px}
+  .sr-item-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .sr-cmd{font-size:13px;font-weight:600;color:var(--brand1)}
+  .sr-text{font-size:12px;color:var(--dim);margin-top:5px;white-space:pre-wrap;line-height:1.5}
+  .sr-actions{display:flex;gap:6px}
+  .tiny-btn{font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--dim)}
+  .tiny-btn:hover{color:var(--brand1);border-color:var(--brand1)}
+  .tiny-btn.danger:hover{color:var(--danger);border-color:var(--danger)}
+  .form-label{font-size:12px;color:var(--dim);margin:12px 0 5px;display:block}
+  .modal input[type=text],.modal textarea{
+    width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    color:var(--text);padding:9px 12px;font-size:14px;
+  }
+  .modal textarea{min-height:100px;resize:vertical;line-height:1.5}
+  .modal input:focus,.modal textarea:focus{outline:none;border-color:var(--brand1)}
 </style>
 </head>
 <body>
@@ -190,6 +267,9 @@
       </div>
     </div>
     <div class="topbar-right">
+      <span id="totalUnread" class="total-badge" style="display:none">0</span>
+      <button class="icon-btn" id="soundBtn" title="Awaaz on/off">&#128266;</button>
+      <button class="icon-btn" id="notifBtn" title="Browser notification">&#128276;</button>
       <span id="whoami"></span>
       <button class="link-btn" id="logoutBtn">Sign out</button>
     </div>
@@ -200,14 +280,21 @@
       <div class="search-wrap">
         <input id="search" class="search" placeholder="Search name or number">
       </div>
+      <div class="filters" id="filters">
+        <button data-f="all" class="active">All</button>
+        <button data-f="unread">Unread</button>
+        <button data-f="mine">Mine</button>
+        <button data-f="unassigned">Unassigned</button>
+        <button data-f="waiting">Waiting</button>
+      </div>
       <div class="convo-list" id="convoList">
-        <div class="empty">Loading…</div>
+        <div class="empty">Loading&hellip;</div>
       </div>
     </div>
 
     <div class="col-chat">
       <div id="chatArea" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <div class="placeholder" id="chatPlaceholder">Pick a conversation to start</div>
+        <div class="placeholder">Pick a conversation to start</div>
       </div>
     </div>
 
@@ -218,6 +305,29 @@
   </div>
 </div>
 
+<!-- Saved replies manager -->
+<div class="modal-bg" id="srModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Saved replies</h2>
+      <button class="tiny-btn" id="srClose">Close</button>
+    </div>
+    <div class="modal-body">
+      <div id="srList"></div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:6px">
+        <div style="font-size:13px;font-weight:600" id="srFormTitle">Add new</div>
+        <label class="form-label">Shortcut (bina slash ke, jaise: fees)</label>
+        <input type="text" id="srCmd" placeholder="fees">
+        <label class="form-label">Reply text</label>
+        <textarea id="srText" placeholder="Support Program ki fees 3000 PKR hai&hellip;"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="tiny-btn" id="srCancel">Cancel</button>
+      <button class="mini-btn primary" id="srSave">Save</button>
+    </div>
+  </div>
+</div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -225,12 +335,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getFirestore, collection, query, orderBy, limit, onSnapshot,
-  doc, updateDoc
+  doc, getDoc, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ============================================================
 //  FIREBASE CONFIG
-//  learn.html se apni values yahan paste karein
 // ============================================================
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
@@ -241,24 +350,39 @@ const firebaseConfig = {
   appId: "1:389127998917:web:a849ddb50e57f8787e4fac"
 };
 
-// Quick reply buttons — jitne marzi badal lein
-const QUICK_REPLIES = [
-  { label: "Fee details", text: "Support Program ki fees aur details yahan hain: https://umairtiktokwala.com" },
-  { label: "Next batch", text: "Naya batch jald shuru ho raha hai. Registration ki tafseel: https://umairtiktokwala.com" },
-  { label: "Portal link", text: "Learning portal: https://umairtiktokwala.com/learn.html" },
-  { label: "Thanks", text: "Shukriya! Koi aur sawal ho to zaroor likhein." }
-];
+// 30 minute se zyada intezar = urgent (laal)
+const URGENT_MINUTES = 30;
+// Chat khole rakhne pe har itne second baad presence refresh
+const PRESENCE_REFRESH_SEC = 20;
+// Presence itne second purani ho to samjho banda chala gaya
+const PRESENCE_STALE_SEC = 60;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let me = { uid: null, name: "", email: "" };
 let convos = [];
 let activeId = null;
 let unsubMessages = null;
+let unsubPresence = null;
 let searchTerm = "";
+let currentFilter = "all";
+let savedReplies = [];
+let presence = {};        // convoId -> { uid, name, at }
+let presenceTimer = null;
+let editingSrId = null;
+let soundOn = true;
+let notifOn = false;
+let lastSeenIds = new Set();
+let firstLoad = true;
+let slashSel = 0;
+let slashMatches = [];
 
 const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
 
 // ---------- Login ----------
 $("loginBtn").onclick = async () => {
@@ -273,49 +397,259 @@ $("loginBtn").onclick = async () => {
   }
 };
 $("password").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
-$("logoutBtn").onclick = () => signOut(auth);
+$("logoutBtn").onclick = async () => {
+  await clearMyPresence();
+  signOut(auth);
+};
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
+    me.uid = user.uid;
+    me.email = user.email;
+    try {
+      const snap = await getDoc(doc(db, "admins", user.uid));
+      me.name = (snap.exists() && snap.data().name) || user.email;
+    } catch (e) { me.name = user.email; }
+
     $("login").style.display = "none";
     $("app").style.display = "flex";
-    $("whoami").textContent = user.email;
+    $("whoami").textContent = me.name;
+
+    loadPrefs();
     watchConversations();
+    watchPresence();
+    watchSavedReplies();
   } else {
     $("login").style.display = "flex";
     $("app").style.display = "none";
     $("loginBtn").disabled = false;
     if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+    if (unsubPresence) { unsubPresence(); unsubPresence = null; }
   }
 });
 
+// ---------- Preferences (sound / notifications) ----------
+function loadPrefs() {
+  soundOn = true;
+  notifOn = ("Notification" in window) && Notification.permission === "granted";
+  paintPrefButtons();
+}
+function paintPrefButtons() {
+  $("soundBtn").classList.toggle("on", soundOn);
+  $("notifBtn").classList.toggle("on", notifOn);
+}
+$("soundBtn").onclick = () => { soundOn = !soundOn; paintPrefButtons(); };
+$("notifBtn").onclick = async () => {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "granted") { notifOn = !notifOn; paintPrefButtons(); return; }
+  const p = await Notification.requestPermission();
+  notifOn = p === "granted";
+  paintPrefButtons();
+};
+
+// Chhoti si beep — koi file ki zaroorat nahi
+function beep() {
+  if (!soundOn) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+    osc.start(); osc.stop(ctx.currentTime + 0.3);
+    setTimeout(() => ctx.close(), 600);
+  } catch (e) {}
+}
+function notify(title, body) {
+  if (!notifOn || document.hasFocus()) return;
+  try { new Notification(title, { body, icon: "/img/logo.png" }); } catch (e) {}
+}
+
+// ---------- Presence (kaun kaunsi chat khole baitha hai) ----------
+function watchPresence() {
+  if (unsubPresence) unsubPresence();
+  unsubPresence = onSnapshot(collection(db, "presence"), (snap) => {
+    presence = {};
+    snap.forEach(d => {
+      const p = d.data();
+      if (!p || !p.convoId) return;
+      const at = p.at?.toMillis ? p.at.toMillis() : 0;
+      if (Date.now() - at > PRESENCE_STALE_SEC * 1000) return; // purani
+      if (p.uid === me.uid) return;                            // apni nahi ginte
+      presence[p.convoId] = { uid: p.uid, name: p.name || "Team", at };
+    });
+    renderList();
+    if (activeId) paintViewingBar();
+  });
+}
+
+async function setMyPresence(convoId) {
+  if (!me.uid) return;
+  try {
+    await setDoc(doc(db, "presence", me.uid), {
+      uid: me.uid, name: me.name, convoId: convoId || null, at: serverTimestamp()
+    });
+  } catch (e) {}
+}
+async function clearMyPresence() {
+  if (!me.uid) return;
+  try { await deleteDoc(doc(db, "presence", me.uid)); } catch (e) {}
+}
+window.addEventListener("beforeunload", () => {
+  if (me.uid) navigator.sendBeacon ? clearMyPresence() : clearMyPresence();
+});
+
+function startPresenceLoop(convoId) {
+  if (presenceTimer) clearInterval(presenceTimer);
+  setMyPresence(convoId);
+  presenceTimer = setInterval(() => setMyPresence(convoId), PRESENCE_REFRESH_SEC * 1000);
+}
+
+function paintViewingBar() {
+  const bar = $("viewingBar");
+  if (!bar) return;
+  const p = presence[activeId];
+  if (p) {
+    bar.textContent = p.name + " is viewing this chat";
+    bar.style.display = "block";
+  } else {
+    bar.style.display = "none";
+  }
+}
+
+// ---------- Saved replies ----------
+function watchSavedReplies() {
+  onSnapshot(query(collection(db, "savedReplies"), orderBy("cmd")), (snap) => {
+    savedReplies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderSrList();
+    if (activeId) renderQuickBar();
+  });
+}
+
+$("srClose").onclick = closeSrModal;
+$("srCancel").onclick = closeSrModal;
+function openSrModal() { $("srModal").classList.add("show"); resetSrForm(); }
+function closeSrModal() { $("srModal").classList.remove("show"); resetSrForm(); }
+function resetSrForm() {
+  editingSrId = null;
+  $("srCmd").value = "";
+  $("srText").value = "";
+  $("srFormTitle").textContent = "Add new";
+}
+
+$("srSave").onclick = async () => {
+  const cmd = $("srCmd").value.trim().toLowerCase().replace(/^\//, "").replace(/\s+/g, "");
+  const text = $("srText").value.trim();
+  if (!cmd || !text) return;
+  try {
+    if (editingSrId) {
+      await updateDoc(doc(db, "savedReplies", editingSrId), { cmd, text, updatedBy: me.name });
+    } else {
+      await addDoc(collection(db, "savedReplies"), {
+        cmd, text, createdBy: me.name, createdAt: serverTimestamp()
+      });
+    }
+    resetSrForm();
+  } catch (e) {
+    alert("Save nahi hua: " + e.message);
+  }
+};
+
+function renderSrList() {
+  const box = $("srList");
+  if (!box) return;
+  if (!savedReplies.length) {
+    box.innerHTML = '<div class="empty" style="padding:14px 0">Abhi koi saved reply nahi.<br>Neeche se add karein.</div>';
+    return;
+  }
+  box.innerHTML = savedReplies.map(r =>
+    '<div class="sr-item">' +
+      '<div class="sr-item-top">' +
+        '<span class="sr-cmd">/' + esc(r.cmd) + '</span>' +
+        '<span class="sr-actions">' +
+          '<button class="tiny-btn" data-edit="' + r.id + '">Edit</button>' +
+          '<button class="tiny-btn danger" data-del="' + r.id + '">Delete</button>' +
+        '</span>' +
+      '</div>' +
+      '<div class="sr-text">' + esc(r.text) + '</div>' +
+    '</div>'
+  ).join("");
+
+  box.querySelectorAll("[data-edit]").forEach(b => {
+    b.onclick = () => {
+      const r = savedReplies.find(x => x.id === b.dataset.edit);
+      if (!r) return;
+      editingSrId = r.id;
+      $("srCmd").value = r.cmd;
+      $("srText").value = r.text;
+      $("srFormTitle").textContent = "Edit /" + r.cmd;
+      $("srCmd").focus();
+    };
+  });
+  box.querySelectorAll("[data-del]").forEach(b => {
+    b.onclick = async () => {
+      if (!confirm("Ye saved reply delete kar dein?")) return;
+      try { await deleteDoc(doc(db, "savedReplies", b.dataset.del)); } catch (e) {}
+    };
+  });
+}
+
 // ---------- Conversation list ----------
 function watchConversations() {
-  const q = query(
-    collection(db, "conversations"),
-    orderBy("lastMessageAt", "desc"),
-    limit(100)
-  );
+  const q = query(collection(db, "conversations"), orderBy("lastMessageAt", "desc"), limit(150));
   onSnapshot(q, (snap) => {
-    convos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const next = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Naye messages ka pata lagana (notification ke liye)
+    if (!firstLoad) {
+      next.forEach(c => {
+        const prev = convos.find(x => x.id === c.id);
+        const prevAt = prev?.lastMessageAt?.toMillis ? prev.lastMessageAt.toMillis() : 0;
+        const nowAt = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
+        const isNewIncoming = nowAt > prevAt && (c.unread || 0) > (prev?.unread || 0);
+        if (isNewIncoming && c.id !== activeId) {
+          beep();
+          notify(displayNameOf(c), c.lastMessage || "New message");
+        }
+      });
+    }
+    firstLoad = false;
+
+    convos = next;
     renderList();
-    if (activeId) renderInfo();
+    updateTotalBadge();
+    if (activeId) { renderInfo(); paintChatHead(); }
   });
 }
 
 $("search").oninput = (e) => { searchTerm = e.target.value.toLowerCase(); renderList(); };
 
-function timeAgo(ts) {
-  if (!ts) return "";
-  const d = ts.toDate ? ts.toDate() : new Date(ts);
-  const mins = Math.floor((Date.now() - d.getTime()) / 60000);
-  if (mins < 1) return "now";
-  if (mins < 60) return mins + "m";
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + "h";
-  return Math.floor(hrs / 24) + "d";
-}
+$("filters").querySelectorAll("button").forEach(b => {
+  b.onclick = () => {
+    currentFilter = b.dataset.f;
+    $("filters").querySelectorAll("button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    renderList();
+  };
+});
 
+function minsSince(ts) {
+  if (!ts) return 0;
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return Math.floor((Date.now() - d.getTime()) / 60000);
+}
+function timeAgo(ts) {
+  const m = minsSince(ts);
+  if (!ts) return "";
+  if (m < 1) return "now";
+  if (m < 60) return m + "m";
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + "h";
+  return Math.floor(h / 24) + "d";
+}
 function windowState(c) {
   if (!c.windowExpiresAt) return { label: "", cls: "" };
   const exp = c.windowExpiresAt.toDate ? c.windowExpiresAt.toDate() : new Date(c.windowExpiresAt);
@@ -325,33 +659,73 @@ function windowState(c) {
   if (hrs < 3) return { label: (hrs > 0 ? hrs + "h " : "") + (mins % 60) + "m left", cls: "warn" };
   return { label: hrs + "h left", cls: "" };
 }
-
 function displayNameOf(c) {
   return c.student?.name || c.displayName || ("+" + (c.waNumber || c.id));
+}
+// Chat jawab ka intezar kar rahi hai? (aakhri message student ka tha)
+function isWaiting(c) { return (c.unread || 0) > 0 || c.awaitingReply === true; }
+
+function updateTotalBadge() {
+  const n = convos.filter(c => (c.unread || 0) > 0).length;
+  const el = $("totalUnread");
+  el.textContent = n;
+  el.style.display = n > 0 ? "inline-block" : "none";
+  document.title = n > 0 ? "(" + n + ") Support inbox" : "Support inbox — Umair TikTok Wala";
+}
+
+function filteredConvos() {
+  return convos.filter(c => {
+    if (searchTerm) {
+      const hay = (displayNameOf(c) + " " + (c.waNumber || "")).toLowerCase();
+      if (!hay.includes(searchTerm)) return false;
+    }
+    if (currentFilter === "unread") return (c.unread || 0) > 0;
+    if (currentFilter === "mine") return c.assignedUid === me.uid;
+    if (currentFilter === "unassigned") return !c.assignedUid;
+    if (currentFilter === "waiting") return isWaiting(c) && minsSince(c.lastMessageAt) >= 5;
+    return true;
+  });
 }
 
 function renderList() {
   const list = $("convoList");
-  const shown = convos.filter(c => {
-    if (!searchTerm) return true;
-    return (displayNameOf(c) + " " + (c.waNumber || "")).toLowerCase().includes(searchTerm);
-  });
+  const shown = filteredConvos();
 
   if (!shown.length) {
-    list.innerHTML = '<div class="empty">No conversations yet. They appear here as soon as someone messages.</div>';
+    list.innerHTML = '<div class="empty">' +
+      (convos.length ? "Is filter mein koi chat nahi." : "Abhi koi chat nahi.<br>Jab koi message karega, yahan aa jayegi.") +
+      '</div>';
     return;
   }
 
   list.innerHTML = shown.map(c => {
+    const unread = (c.unread || 0) > 0;
     const tags = [];
-    if (c.unread > 0) tags.push('<span class="tag tag-unread">' + c.unread + ' new</span>');
+
+    if (unread) tags.push('<span class="tag tag-unread">' + c.unread + '</span>');
+
+    const viewer = presence[c.id];
+    if (viewer) tags.push('<span class="tag tag-viewing">' + esc(viewer.name) + ' viewing</span>');
+
+    if (isWaiting(c)) {
+      const m = minsSince(c.lastMessageAt);
+      if (m >= URGENT_MINUTES) tags.push('<span class="tag tag-wait urgent">' + m + 'm waiting</span>');
+      else if (m >= 5) tags.push('<span class="tag tag-wait">' + m + 'm waiting</span>');
+    }
+
     if (c.student?.verified) tags.push('<span class="tag tag-paid">Paid</span>');
     else if (!c.student) tags.push('<span class="tag tag-new">Not enrolled</span>');
-    const w = windowState(c);
-    if (w.cls) tags.push('<span class="tag tag-expiring">' + w.label + '</span>');
-    if (c.assignedTo) tags.push('<span class="tag tag-agent">' + esc(c.assignedTo) + '</span>');
 
-    return '<div class="convo' + (c.id === activeId ? ' active' : '') + '" data-id="' + c.id + '">' +
+    const w = windowState(c);
+    if (w.cls === "closed") tags.push('<span class="tag tag-expiring">Window closed</span>');
+
+    if (c.assignedTo) {
+      const mine = c.assignedUid === me.uid;
+      tags.push('<span class="tag tag-agent">' + (mine ? "You" : esc(c.assignedTo)) + '</span>');
+    }
+
+    const cls = "convo" + (c.id === activeId ? " active" : "") + (unread ? " unread" : " read");
+    return '<div class="' + cls + '" data-id="' + c.id + '">' +
       '<div class="convo-top"><span class="convo-name">' + esc(displayNameOf(c)) + '</span>' +
       '<span class="convo-time">' + timeAgo(c.lastMessageAt) + '</span></div>' +
       '<div class="convo-preview">' + esc(c.lastMessage || "") + '</div>' +
@@ -364,68 +738,121 @@ function renderList() {
   });
 }
 
-// ---------- Chat ----------
-function openConvo(id) {
+// Har minute waiting time refresh
+setInterval(() => { if (convos.length) renderList(); }, 60000);
+
+// ---------- Chat kholna ----------
+async function openConvo(id) {
   activeId = id;
   renderList();
   renderInfo();
+  startPresenceLoop(id);
 
   const c = convos.find(x => x.id === id);
   if (!c) return;
 
-  if (c.unread > 0) {
-    updateDoc(doc(db, "conversations", id), { unread: 0 }).catch(() => {});
-  }
+  // Read mark + auto-assign agar khali hai
+  const patch = {};
+  if ((c.unread || 0) > 0) patch.unread = 0;
+  if (!c.assignedUid) { patch.assignedUid = me.uid; patch.assignedTo = me.name; }
+  patch.lastOpenedBy = me.name;
+  patch.lastOpenedAt = serverTimestamp();
+  try { await updateDoc(doc(db, "conversations", id), patch); } catch (e) {}
 
-  const w = windowState(c);
   $("chatArea").innerHTML =
-    '<div class="chat-head">' +
-      '<div><div class="chat-head-name">' + esc(displayNameOf(c)) + '</div>' +
-      '<div class="chat-head-sub">+' + esc(c.waNumber || c.id) + '</div></div>' +
-      '<span class="window-pill ' + w.cls + '">' + (w.label || "24h window open") + '</span>' +
-    '</div>' +
-    '<div class="messages" id="messages"><div class="empty">Loading…</div></div>' +
+    '<div class="chat-head" id="chatHead"></div>' +
+    '<div class="viewing-bar" id="viewingBar" style="display:none"></div>' +
+    '<div class="messages" id="messages"><div class="empty">Loading&hellip;</div></div>' +
     '<div class="composer">' +
+      '<div class="slash" id="slash"></div>' +
       '<div class="quick" id="quick"></div>' +
       '<div class="composer-row">' +
-        '<textarea id="draft" placeholder="Message likhein…" rows="1"></textarea>' +
-        '<button class="send-btn" id="sendBtn">↑</button>' +
+        '<textarea id="draft" placeholder="Message likhein&hellip;  ( / se saved reply )" rows="1"></textarea>' +
+        '<button class="send-btn" id="sendBtn">&uarr;</button>' +
       '</div>' +
       '<div class="send-err" id="sendErr"></div>' +
     '</div>';
 
-  $("quick").innerHTML = QUICK_REPLIES
-    .map((q, i) => '<button data-i="' + i + '">' + esc(q.label) + '</button>').join("");
-  $("quick").querySelectorAll("button").forEach(b => {
-    b.onclick = () => { $("draft").value = QUICK_REPLIES[b.dataset.i].text; $("draft").focus(); };
-  });
+  paintChatHead();
+  paintViewingBar();
+  renderQuickBar();
+  wireComposer();
+  watchMessages(id);
+}
 
-  const ta = $("draft");
-  ta.oninput = () => { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 130) + "px"; };
-  ta.onkeydown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+function paintChatHead() {
+  const head = $("chatHead");
+  const c = convos.find(x => x.id === activeId);
+  if (!head || !c) return;
+  const w = windowState(c);
+  const assigned = c.assignedTo
+    ? (c.assignedUid === me.uid ? "You" : esc(c.assignedTo))
+    : "Unassigned";
+
+  head.innerHTML =
+    '<div>' +
+      '<div class="chat-head-name">' + esc(displayNameOf(c)) + '</div>' +
+      '<div class="chat-head-sub">+' + esc(c.waNumber || c.id) +
+        (c.student ? ' &middot; ' + esc([c.student.verified ? "Paid" : "Registered"]
+          .concat(c.student.batches || []).concat(c.student.courses || []).join(" · ")) : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="chat-actions">' +
+      '<span class="window-pill ' + w.cls + '">' + (w.label || "24h window open") + '</span>' +
+      '<span class="mini-btn" style="cursor:default">' + assigned + '</span>' +
+      (c.assignedUid === me.uid
+        ? '<button class="mini-btn" id="releaseBtn">Release</button>'
+        : '<button class="mini-btn primary" id="takeBtn">Take this</button>') +
+      '<button class="mini-btn" id="unreadBtn">Mark unread</button>' +
+    '</div>';
+
+  const take = $("takeBtn");
+  if (take) take.onclick = async () => {
+    try {
+      await updateDoc(doc(db, "conversations", activeId),
+        { assignedUid: me.uid, assignedTo: me.name });
+    } catch (e) {}
   };
-  $("sendBtn").onclick = send;
+  const rel = $("releaseBtn");
+  if (rel) rel.onclick = async () => {
+    try {
+      await updateDoc(doc(db, "conversations", activeId),
+        { assignedUid: null, assignedTo: null });
+    } catch (e) {}
+  };
+  const un = $("unreadBtn");
+  if (un) un.onclick = async () => {
+    try {
+      await updateDoc(doc(db, "conversations", activeId), { unread: 1 });
+      activeId = null;
+      if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+      clearMyPresence();
+      $("chatArea").innerHTML = '<div class="placeholder">Pick a conversation to start</div>';
+      renderInfo();
+      renderList();
+    } catch (e) {}
+  };
+}
 
+function watchMessages(id) {
   if (unsubMessages) unsubMessages();
-  const mq = query(
-    collection(db, "conversations", id, "messages"),
-    orderBy("timestamp", "asc"),
-    limit(300)
-  );
+  const mq = query(collection(db, "conversations", id, "messages"), orderBy("timestamp", "asc"), limit(300));
   unsubMessages = onSnapshot(mq, (snap) => {
     const box = $("messages");
     if (!box) return;
-    if (snap.empty) { box.innerHTML = '<div class="empty">No messages</div>'; return; }
-    // Failed bubbles ko bacha lein taake team ko pata rahe kya nahi gaya
     const failed = Array.from(box.querySelectorAll(".bubble.failed"));
+    if (snap.empty) { box.innerHTML = '<div class="empty">No messages</div>'; return; }
+
     box.innerHTML = snap.docs.map(d => {
       const m = d.data();
       const t = m.timestamp?.toDate ? m.timestamp.toDate() : new Date();
       const stamp = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const by = m.direction === "out"
-        ? (m.sentBy === "welcome" || m.sentBy === "keyword" ? " · auto" : (m.sentBy ? " · " + esc(m.sentBy) : ""))
-        : "";
+      let by = "";
+      if (m.direction === "out") {
+        if (m.sentBy === "welcome" || m.sentBy === "keyword") by = ' &middot; auto';
+        else if (m.sentBy) by = ' &middot; <span class="agent-chip" style="color:' +
+          colorFor(m.sentBy) + '">' + esc(m.sentBy) + '</span>';
+      }
       return '<div class="bubble ' + m.direction + '">' + esc(m.text || "") +
         '<span class="meta">' + stamp + by + '</span></div>';
     }).join("");
@@ -434,12 +861,102 @@ function openConvo(id) {
   });
 }
 
-// Login token cache — har message pe naya token lene mein waqt lagta tha
-let cachedToken = null;
-let cachedTokenAt = 0;
+// Har team member ka apna rang (naam se hi bana lete hain)
+function colorFor(name) {
+  const palette = ["#2563eb","#7c3aed","#0f766e","#b45309","#be185d","#4338ca","#15803d"];
+  let h = 0;
+  for (let i = 0; i < String(name).length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return palette[h % palette.length];
+}
+
+// ---------- Composer: quick bar + slash commands ----------
+function renderQuickBar() {
+  const bar = $("quick");
+  if (!bar) return;
+  const top = savedReplies.slice(0, 5);
+  bar.innerHTML =
+    top.map((r, i) => '<button data-sr="' + r.id + '">/' + esc(r.cmd) + '</button>').join("") +
+    '<button class="manage" id="manageSr">Manage replies</button>';
+
+  bar.querySelectorAll("[data-sr]").forEach(b => {
+    b.onclick = () => {
+      const r = savedReplies.find(x => x.id === b.dataset.sr);
+      if (!r) return;
+      const ta = $("draft");
+      ta.value = r.text;
+      ta.focus();
+      autoGrow(ta);
+    };
+  });
+  $("manageSr").onclick = openSrModal;
+}
+
+function autoGrow(ta) {
+  ta.style.height = "auto";
+  ta.style.height = Math.min(ta.scrollHeight, 130) + "px";
+}
+
+function wireComposer() {
+  const ta = $("draft");
+  ta.oninput = () => { autoGrow(ta); updateSlash(); };
+  ta.onkeydown = (e) => {
+    const slashBox = $("slash");
+    const open = slashBox && slashBox.classList.contains("show");
+
+    if (open) {
+      if (e.key === "ArrowDown") { e.preventDefault(); slashSel = Math.min(slashSel + 1, slashMatches.length - 1); paintSlash(); return; }
+      if (e.key === "ArrowUp")   { e.preventDefault(); slashSel = Math.max(slashSel - 1, 0); paintSlash(); return; }
+      if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); applySlash(slashSel); return; }
+      if (e.key === "Escape")    { hideSlash(); return; }
+    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  };
+  $("sendBtn").onclick = send;
+}
+
+function updateSlash() {
+  const ta = $("draft");
+  const v = ta.value;
+  if (!v.startsWith("/")) { hideSlash(); return; }
+  const term = v.slice(1).toLowerCase().trim();
+  slashMatches = savedReplies.filter(r => r.cmd.toLowerCase().startsWith(term));
+  if (!slashMatches.length) { hideSlash(); return; }
+  slashSel = 0;
+  paintSlash();
+}
+function paintSlash() {
+  const box = $("slash");
+  if (!box) return;
+  box.innerHTML = slashMatches.map((r, i) =>
+    '<div class="slash-item' + (i === slashSel ? " sel" : "") + '" data-i="' + i + '">' +
+      '<div class="slash-cmd">/' + esc(r.cmd) + '</div>' +
+      '<div class="slash-body">' + esc(r.text.replace(/\n/g, " ")) + '</div>' +
+    '</div>'
+  ).join("");
+  box.classList.add("show");
+  box.querySelectorAll(".slash-item").forEach(el => {
+    el.onclick = () => applySlash(Number(el.dataset.i));
+  });
+}
+function hideSlash() {
+  const box = $("slash");
+  if (box) { box.classList.remove("show"); box.innerHTML = ""; }
+  slashMatches = [];
+}
+function applySlash(i) {
+  const r = slashMatches[i];
+  if (!r) return;
+  const ta = $("draft");
+  ta.value = r.text;
+  hideSlash();
+  ta.focus();
+  autoGrow(ta);
+}
+
+// ---------- Sending ----------
+let cachedToken = null, cachedTokenAt = 0;
 async function getToken() {
   const now = Date.now();
-  // Firebase tokens 1 ghanta chalte hain; 50 min baad naya le lete hain
   if (cachedToken && now - cachedTokenAt < 50 * 60 * 1000) return cachedToken;
   cachedToken = await auth.currentUser.getIdToken();
   cachedTokenAt = now;
@@ -455,9 +972,9 @@ async function send() {
   const to = c.waNumber || c.id;
   const convoId = c.id;
 
-  // Message foran screen pe — intezar nahi
   ta.value = "";
-  ta.style.height = "auto";
+  autoGrow(ta);
+  hideSlash();
   err.textContent = "";
   const pendingEl = addPendingBubble(text);
 
@@ -470,13 +987,9 @@ async function send() {
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || "Message nahi gaya");
-    // Kaamyab — Firestore listener asli bubble laa dega, pending hata dein
     if (pendingEl) pendingEl.remove();
   } catch (e) {
-    // Token purana ho to ek baar dobara koshish
-    if (String(e.message).toLowerCase().includes("session")) {
-      cachedToken = null;
-    }
+    if (String(e.message).toLowerCase().includes("session")) cachedToken = null;
     if (pendingEl) {
       pendingEl.classList.add("failed");
       const meta = pendingEl.querySelector(".meta");
@@ -486,14 +999,13 @@ async function send() {
   }
 }
 
-// Bhejte waqt foran dikhne wala bubble
 function addPendingBubble(text) {
   const box = $("messages");
   if (!box) return null;
   const el = document.createElement("div");
   el.className = "bubble out pending";
   const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  el.innerHTML = esc(text) + '<span class="meta">' + t + ' · bhej rahe hain…</span>';
+  el.innerHTML = esc(text) + '<span class="meta">' + t + ' &middot; bhej rahe hain&hellip;</span>';
   box.appendChild(el);
   box.scrollTop = box.scrollHeight;
   return el;
@@ -507,7 +1019,6 @@ function renderInfo() {
     panel.innerHTML = '<div class="info-title">Student</div><div class="empty" style="padding:20px 0">No chat selected</div>';
     return;
   }
-
   const s = c.student;
   const name = displayNameOf(c);
   const initials = name.replace(/[^A-Za-z ]/g, "").trim().split(/\s+/)
@@ -515,14 +1026,16 @@ function renderInfo() {
 
   let rows = "";
   if (s) {
-    rows += infoRow("Status", s.verified ? "Paid · verified" : "Registered");
+    rows += infoRow("Status", s.verified ? "Paid &middot; verified" : "Registered", true);
     if (s.email) rows += infoRow("Email", s.email);
-    if (s.batches?.length) rows += infoRow("Batch", s.batches.map(b => chip(b)).join(""), true);
-    if (s.courses?.length) rows += infoRow("Courses", s.courses.map(x => chip(x)).join(""), true);
+    if (s.batches?.length) rows += infoRow("Batch", s.batches.map(chip).join(""), true);
+    if (s.courses?.length) rows += infoRow("Courses", s.courses.map(chip).join(""), true);
   } else {
     rows += infoRow("Status", "Not in student records");
   }
-  rows += infoRow("First message", c.createdAt ? fmtDate(c.createdAt) : "—");
+  if (c.assignedTo) rows += infoRow("Assigned to", c.assignedUid === me.uid ? "You" : c.assignedTo);
+  if (c.lastOpenedBy) rows += infoRow("Last opened by", c.lastOpenedBy);
+  rows += infoRow("First message", c.createdAt ? fmtDate(c.createdAt) : "&mdash;", true);
 
   panel.innerHTML =
     '<div class="info-title">Student</div>' +
@@ -540,11 +1053,6 @@ function chip(t) { return '<span class="chip">' + esc(t) + '</span>'; }
 function fmtDate(ts) {
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
-}
-function esc(s) {
-  return String(s == null ? "" : s)
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 </script>
 </body>
