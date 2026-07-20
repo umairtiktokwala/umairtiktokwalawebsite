@@ -117,6 +117,9 @@
   .bubble{max-width:62%;padding:9px 13px;border-radius:12px;font-size:14px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
   .bubble.in{align-self:flex-start;background:var(--in);border:1px solid var(--line);border-bottom-left-radius:4px}
   .bubble.out{align-self:flex-end;background:var(--out);border-bottom-right-radius:4px}
+  .bubble.pending{opacity:.62}
+  .bubble.failed{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);opacity:1}
+  .bubble.failed .meta{color:var(--danger)}
   .meta{font-size:10px;color:var(--faint);margin-top:5px;display:block}
 
   .composer{background:var(--panel);border-top:1px solid var(--line);padding:12px 16px;flex-shrink:0}
@@ -414,6 +417,8 @@ function openConvo(id) {
     const box = $("messages");
     if (!box) return;
     if (snap.empty) { box.innerHTML = '<div class="empty">No messages</div>'; return; }
+    // Failed bubbles ko bacha lein taake team ko pata rahe kya nahi gaya
+    const failed = Array.from(box.querySelectorAll(".bubble.failed"));
     box.innerHTML = snap.docs.map(d => {
       const m = d.data();
       const t = m.timestamp?.toDate ? m.timestamp.toDate() : new Date();
@@ -424,34 +429,74 @@ function openConvo(id) {
       return '<div class="bubble ' + m.direction + '">' + esc(m.text || "") +
         '<span class="meta">' + stamp + by + '</span></div>';
     }).join("");
+    failed.forEach(el => box.appendChild(el));
     box.scrollTop = box.scrollHeight;
   });
 }
 
+// Login token cache — har message pe naya token lene mein waqt lagta tha
+let cachedToken = null;
+let cachedTokenAt = 0;
+async function getToken() {
+  const now = Date.now();
+  // Firebase tokens 1 ghanta chalte hain; 50 min baad naya le lete hain
+  if (cachedToken && now - cachedTokenAt < 50 * 60 * 1000) return cachedToken;
+  cachedToken = await auth.currentUser.getIdToken();
+  cachedTokenAt = now;
+  return cachedToken;
+}
+
 async function send() {
   const c = convos.find(x => x.id === activeId);
-  const ta = $("draft"), btn = $("sendBtn"), err = $("sendErr");
+  const ta = $("draft"), err = $("sendErr");
   if (!c || !ta.value.trim()) return;
 
   const text = ta.value.trim();
-  btn.disabled = true;
+  const to = c.waNumber || c.id;
+  const convoId = c.id;
+
+  // Message foran screen pe — intezar nahi
+  ta.value = "";
+  ta.style.height = "auto";
   err.textContent = "";
+  const pendingEl = addPendingBubble(text);
 
   try {
-    const token = await auth.currentUser.getIdToken();
+    const token = await getToken();
     const r = await fetch("/api/whatsapp-send", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-      body: JSON.stringify({ to: c.waNumber || c.id, text })
+      body: JSON.stringify({ to, text })
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || "Message nahi gaya");
-    ta.value = "";
-    ta.style.height = "auto";
+    // Kaamyab — Firestore listener asli bubble laa dega, pending hata dein
+    if (pendingEl) pendingEl.remove();
   } catch (e) {
-    err.textContent = e.message;
+    // Token purana ho to ek baar dobara koshish
+    if (String(e.message).toLowerCase().includes("session")) {
+      cachedToken = null;
+    }
+    if (pendingEl) {
+      pendingEl.classList.add("failed");
+      const meta = pendingEl.querySelector(".meta");
+      if (meta) meta.textContent = "Nahi gaya — dobara bhejein";
+    }
+    if (activeId === convoId) err.textContent = e.message;
   }
-  btn.disabled = false;
+}
+
+// Bhejte waqt foran dikhne wala bubble
+function addPendingBubble(text) {
+  const box = $("messages");
+  if (!box) return null;
+  const el = document.createElement("div");
+  el.className = "bubble out pending";
+  const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  el.innerHTML = esc(text) + '<span class="meta">' + t + ' · bhej rahe hain…</span>';
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  return el;
 }
 
 // ---------- Info panel ----------
