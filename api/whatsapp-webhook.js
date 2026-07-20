@@ -40,33 +40,43 @@ export default async function handler(req, res) {
   try {
     await processWebhook(req.body);
   } catch (err) {
-    console.error("Webhook error:", err);
+    console.error("WEBHOOK ERROR:", err && err.message ? err.message : err);
+    console.error("STACK:", err && err.stack ? err.stack : "no stack");
   }
 }
 
 async function processWebhook(body) {
   const entry = body?.entry?.[0];
   const change = entry?.changes?.[0]?.value;
-  if (!change) return;
+  if (!change) {
+    console.log("No change object in payload");
+    return;
+  }
+  console.log("Webhook received. messages:", change.messages ? change.messages.length : 0,
+              "statuses:", change.statuses ? change.statuses.length : 0);
 
   const db = getDb();
 
   // ---- Delivery / read status updates ----
+  // Ye poore function ko rok na sake, is liye alag try/catch mein hai.
   if (Array.isArray(change.statuses)) {
-    for (const st of change.statuses) {
-      if (!st.id) continue;
-      try {
+    try {
+      for (const st of change.statuses) {
+        if (!st.id || !st.recipient_id) continue;
+        const cid = normalizePhone(st.recipient_id) || st.recipient_id;
         const q = await db
-          .collectionGroup("messages")
+          .collection("conversations")
+          .doc(cid)
+          .collection("messages")
           .where("waMessageId", "==", st.id)
           .limit(1)
           .get();
         if (!q.empty) {
           await q.docs[0].ref.update({ status: st.status || "sent" });
         }
-      } catch (e) {
-        // ignore
       }
+    } catch (e) {
+      console.log("Status update skipped:", e.message);
     }
   }
 
@@ -83,6 +93,7 @@ async function processWebhook(body) {
     const convoRef = db.collection("conversations").doc(convoId);
     const convoSnap = await convoRef.get();
     const isFirstEver = !convoSnap.exists;
+    const prev = (convoSnap.exists && convoSnap.data()) || {};
 
     // ---- Message ka text nikalna ----
     let text = "";
@@ -103,7 +114,7 @@ async function processWebhook(body) {
     }
 
     // ---- Student ka record ----
-    let student = convoSnap.exists ? convoSnap.data().student : null;
+    let student = prev.student || null;
     if (!student) {
       student = await findStudent(from);
     }
@@ -112,11 +123,11 @@ async function processWebhook(body) {
     const now = new Date();
     const convoData = {
       waNumber: from,
-      displayName: contactName || convoSnap.data()?.displayName || "",
+      displayName: contactName || prev.displayName || "",
       lastMessage: text.slice(0, 120),
       lastMessageAt: now,
       windowExpiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
-      unread: (convoSnap.data()?.unread || 0) + 1,
+      unread: (prev.unread || 0) + 1,
       status: "open",
       updatedAt: now,
     };
@@ -124,6 +135,7 @@ async function processWebhook(body) {
     if (isFirstEver) convoData.createdAt = now;
 
     await convoRef.set(convoData, { merge: true });
+    console.log("Saved conversation:", convoId, "first:", isFirstEver);
 
     // ---- Message save ----
     await convoRef.collection("messages").add({
@@ -147,7 +159,7 @@ async function processWebhook(body) {
     if (!replied && KEYWORDS_ENABLED && type === "text") {
       const match = findKeywordMatch(text);
       if (match) {
-        const lastSent = convoSnap.data()?.lastAutoReply?.[match.index];
+        const lastSent = prev.lastAutoReply ? prev.lastAutoReply[match.index] : null;
         const cooldownMs = KEYWORD_COOLDOWN_MINUTES * 60 * 1000;
         const lastMs = lastSent?.toMillis ? lastSent.toMillis() : 0;
 
