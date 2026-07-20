@@ -97,6 +97,17 @@
     background:transparent;color:var(--dim);
   }
   .filters button.active{background:rgba(37,99,235,.1);border-color:var(--brand1);color:var(--brand1);font-weight:600}
+  .filters-2{padding-top:0;padding-bottom:8px;border-bottom:none}
+  .filters-2 button.active{background:rgba(22,163,74,.1);border-color:var(--ok);color:#15803d}
+  .filters-3{padding-top:0;padding-bottom:10px;gap:6px}
+  .mini-select{
+    flex:1;font-size:11px;padding:5px 7px;border-radius:6px;
+    border:1px solid var(--line);background:transparent;color:var(--dim);
+  }
+  .mini-select:focus{outline:none;border-color:var(--brand1)}
+  .tag-fb{background:rgba(37,99,235,.12);color:#1d4ed8;font-weight:600}
+  .tag-tt{background:rgba(15,18,34,.08);color:#0F1222;font-weight:600}
+  .tag-batch{background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
   .convo-list{flex:1;overflow-y:auto}
   .convo{
     padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;
@@ -122,6 +133,10 @@
   .tag-wait.urgent{background:rgba(220,38,38,.12);color:#b91c1c;font-weight:600}
   .tag-expiring{background:rgba(180,83,9,.12);color:#b45309}
   .tag-agent{background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+  .tag-free{background:rgba(139,144,166,.14);color:#5B6178}
+  .tag-fb{background:rgba(24,119,242,.12);color:#1877F2;font-weight:600}
+  .tag-tt{background:rgba(15,18,34,.08);color:#0F1222;font-weight:600}
+  .tag-batch{background:rgba(124,58,237,.09);color:#6d28d9}
   .tag-viewing{background:rgba(22,163,74,.14);color:#15803d;font-weight:600}
   .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px}
   .empty{padding:36px 20px;text-align:center;color:var(--faint);font-size:13px;line-height:1.6}
@@ -241,6 +256,49 @@
   }
   .modal textarea{min-height:100px;resize:vertical;line-height:1.5}
   .modal input:focus,.modal textarea:focus{outline:none;border-color:var(--brand1)}
+  /* ---------- Labels ---------- */
+  .lab{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600;white-space:nowrap}
+  .lab-blue{background:rgba(37,99,235,.12);color:#1d4ed8}
+  .lab-green{background:rgba(22,163,74,.12);color:#15803d}
+  .lab-amber{background:rgba(180,83,9,.12);color:#b45309}
+  .lab-red{background:rgba(220,38,38,.1);color:#b91c1c}
+  .lab-purple{background:rgba(124,58,237,.12);color:#6d28d9}
+  .lab-grey{background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+  .lab-pick{cursor:pointer;opacity:.45;border:1px solid var(--line)}
+  .lab-pick.on{opacity:1;border-color:transparent}
+  .label-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+
+  /* ---------- Notes ---------- */
+  .note-box{margin-top:14px}
+  .note{
+    background:#FFFBEB;border:1px solid #FDE68A;border-radius:9px;
+    padding:9px 11px;margin-bottom:8px;font-size:12px;line-height:1.5;
+  }
+  .note-meta{font-size:10px;color:#92400E;margin-top:5px;display:flex;justify-content:space-between;gap:8px}
+  .note-del{background:none;border:none;color:#92400E;font-size:10px;cursor:pointer;text-decoration:underline}
+  .note-input{
+    width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    color:var(--text);padding:8px 10px;font-size:12px;resize:vertical;min-height:56px;line-height:1.5;
+  }
+  .note-input:focus{outline:none;border-color:var(--brand1)}
+
+  /* ---------- Stats ---------- */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin-bottom:20px}
+  .stat-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .stat-num{font-size:24px;font-weight:700;letter-spacing:-.02em}
+  .stat-lbl{font-size:11px;color:var(--faint);margin-top:3px}
+  .stat-table{width:100%;border-collapse:collapse;font-size:13px}
+  .stat-table th{
+    text-align:left;font-size:11px;color:var(--faint);font-weight:500;
+    padding:8px 10px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em;
+  }
+  .stat-table td{padding:9px 10px;border-bottom:1px solid var(--line)}
+  .stat-table tr:last-child td{border-bottom:none}
+  .bar{height:6px;border-radius:3px;background:var(--brand1);display:inline-block;vertical-align:middle}
+  .modal.wide{max-width:720px}
+  .survey-yes{color:#15803d;font-weight:600}
+  .survey-no{color:#b91c1c;font-weight:600}
+
 </style>
 </head>
 <body>
@@ -268,6 +326,7 @@
     </div>
     <div class="topbar-right">
       <span id="totalUnread" class="total-badge" style="display:none">0</span>
+      <button class="icon-btn" id="statsBtn" title="Stats">&#128202;</button>
       <button class="icon-btn" id="soundBtn" title="Awaaz on/off">&#128266;</button>
       <button class="icon-btn" id="notifBtn" title="Browser notification">&#128276;</button>
       <span id="whoami"></span>
@@ -286,6 +345,21 @@
         <button data-f="mine">Mine</button>
         <button data-f="unassigned">Unassigned</button>
         <button data-f="waiting">Waiting</button>
+      </div>
+      <div class="filters filters-2" id="filters2">
+        <button data-s="all" class="active">Everyone</button>
+        <button data-s="paid">Paid</button>
+        <button data-s="free">Free</button>
+        <button data-s="facebook">Facebook</button>
+        <button data-s="tiktok">TikTok</button>
+      </div>
+      <div class="filters filters-3">
+        <select id="batchFilter" class="mini-select">
+          <option value="">All batches</option>
+        </select>
+        <select id="labelFilter" class="mini-select">
+          <option value="">All labels</option>
+        </select>
       </div>
       <div class="convo-list" id="convoList">
         <div class="empty">Loading&hellip;</div>
@@ -328,13 +402,25 @@
     </div>
   </div>
 </div>
+
+<!-- Stats -->
+<div class="modal-bg" id="statsModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h2>Team stats</h2>
+      <button class="tiny-btn" id="statsClose">Close</button>
+    </div>
+    <div class="modal-body" id="statsBody"></div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, collection, query, orderBy, limit, onSnapshot,
+  getFirestore, collection, query, orderBy, limit, onSnapshot, getDocs,
   doc, getDoc, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -349,6 +435,18 @@ const firebaseConfig = {
   messagingSenderId: "389127998917",
   appId: "1:389127998917:web:a849ddb50e57f8787e4fac"
 };
+
+// Labels — _config.js jaisi hi list (dono jagah same rakhein)
+const LABELS = [
+  { id: "new_inquiry",      name: "New inquiry",      color: "purple" },
+  { id: "payment_pending",  name: "Payment pending",  color: "amber"  },
+  { id: "payment_verified", name: "Payment verified", color: "green"  },
+  { id: "enrolled",         name: "Enrolled",         color: "blue"   },
+  { id: "technical",        name: "Technical issue",  color: "red"    },
+  { id: "follow_up",        name: "Follow up",        color: "amber"  },
+  { id: "resolved",         name: "Resolved",         color: "grey"   },
+];
+const labelById = (id) => LABELS.find(l => l.id === id);
 
 // 30 minute se zyada intezar = urgent (laal)
 const URGENT_MINUTES = 30;
@@ -378,6 +476,11 @@ let lastSeenIds = new Set();
 let firstLoad = true;
 let slashSel = 0;
 let slashMatches = [];
+let labelFilter = "";
+let studentFilter = "all";
+let batchFilter = "";
+let unsubNotes = null;
+let notes = [];
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s)
@@ -416,6 +519,22 @@ onAuthStateChanged(auth, async (user) => {
     $("whoami").textContent = me.name;
 
     loadPrefs();
+    const lf = $("labelFilter");
+    lf.innerHTML = '<option value="">All labels</option>' +
+      LABELS.map(l => '<option value="' + l.id + '">' + esc(l.name) + '</option>').join("");
+    lf.onchange = () => { labelFilter = lf.value; renderList(); };
+
+    $("batchFilter").onchange = (e) => { batchFilter = e.target.value; renderList(); };
+
+    $("filters2").querySelectorAll("button").forEach(b => {
+      b.onclick = () => {
+        studentFilter = b.dataset.s;
+        $("filters2").querySelectorAll("button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        renderList();
+      };
+    });
+
     watchConversations();
     watchPresence();
     watchSavedReplies();
@@ -619,6 +738,7 @@ function watchConversations() {
     firstLoad = false;
 
     convos = next;
+    refreshBatchOptions();
     renderList();
     updateTotalBadge();
     if (activeId) { renderInfo(); paintChatHead(); }
@@ -659,6 +779,28 @@ function windowState(c) {
   if (hrs < 3) return { label: (hrs > 0 ? hrs + "h " : "") + (mins % 60) + "m left", cls: "warn" };
   return { label: hrs + "h left", cls: "" };
 }
+function coursesOf(c) {
+  return (c.student?.courses || []).map(x => String(x).toLowerCase());
+}
+function batchesOf(c) {
+  return c.student?.batches || [];
+}
+function isPaid(c) { return c.student?.verified === true; }
+
+// Sab batches jama kar ke dropdown bharna
+function refreshBatchOptions() {
+  const set = new Set();
+  convos.forEach(c => batchesOf(c).forEach(b => { if (b) set.add(b); }));
+  const list = Array.from(set).sort();
+  const el = $("batchFilter");
+  if (!el) return;
+  const cur = el.value;
+  el.innerHTML = '<option value="">All batches</option>' +
+    list.map(b => '<option value="' + esc(b) + '">' + esc(b) + '</option>').join("");
+  if (list.includes(cur)) el.value = cur;
+  else if (cur) { el.value = ""; batchFilter = ""; }
+}
+
 function displayNameOf(c) {
   return c.student?.name || c.displayName || ("+" + (c.waNumber || c.id));
 }
@@ -679,6 +821,14 @@ function filteredConvos() {
       const hay = (displayNameOf(c) + " " + (c.waNumber || "")).toLowerCase();
       if (!hay.includes(searchTerm)) return false;
     }
+    if (labelFilter && !(c.labels || []).includes(labelFilter)) return false;
+
+    if (studentFilter === "paid" && !isPaid(c)) return false;
+    if (studentFilter === "free" && isPaid(c)) return false;
+    if (studentFilter === "facebook" && !coursesOf(c).includes("facebook")) return false;
+    if (studentFilter === "tiktok" && !coursesOf(c).includes("tiktok")) return false;
+
+    if (batchFilter && !batchesOf(c).includes(batchFilter)) return false;
     if (currentFilter === "unread") return (c.unread || 0) > 0;
     if (currentFilter === "mine") return c.assignedUid === me.uid;
     if (currentFilter === "unassigned") return !c.assignedUid;
@@ -715,9 +865,27 @@ function renderList() {
 
     if (c.student?.verified) tags.push('<span class="tag tag-paid">Paid</span>');
     else if (!c.student) tags.push('<span class="tag tag-new">Not enrolled</span>');
+    else tags.push('<span class="tag tag-free">Free</span>');
+
+    coursesOf(c).forEach(co => {
+      if (co === "facebook") tags.push('<span class="tag tag-fb">Facebook</span>');
+      else if (co === "tiktok") tags.push('<span class="tag tag-tt">TikTok</span>');
+      else tags.push('<span class="tag tag-agent">' + esc(co) + '</span>');
+    });
+
+    batchesOf(c).forEach(b => tags.push('<span class="tag tag-batch">' + esc(b) + '</span>'));
 
     const w = windowState(c);
     if (w.cls === "closed") tags.push('<span class="tag tag-expiring">Window closed</span>');
+
+    (c.labels || []).forEach(id => {
+      const l = labelById(id);
+      if (l) tags.push('<span class="lab lab-' + l.color + '">' + esc(l.name) + '</span>');
+    });
+
+    if (c.surveyAnswer === "yes") tags.push('<span class="lab lab-green">Survey: Haan</span>');
+    if (c.surveyAnswer === "no")  tags.push('<span class="lab lab-red">Survey: Nahi</span>');
+    if (c.surveyPending) tags.push('<span class="lab lab-grey">Survey sent</span>');
 
     if (c.assignedTo) {
       const mine = c.assignedUid === me.uid;
@@ -778,6 +946,7 @@ async function openConvo(id) {
   renderQuickBar();
   wireComposer();
   watchMessages(id);
+  watchNotes(id);
 }
 
 function paintChatHead() {
@@ -804,6 +973,8 @@ function paintChatHead() {
         ? '<button class="mini-btn" id="releaseBtn">Release</button>'
         : '<button class="mini-btn primary" id="takeBtn">Take this</button>') +
       '<button class="mini-btn" id="unreadBtn">Mark unread</button>' +
+      (c.surveyPending ? '<span class="mini-btn" style="cursor:default">Survey sent</span>'
+                       : '<button class="mini-btn" id="surveyBtn">Send survey</button>') +
     '</div>';
 
   const take = $("takeBtn");
@@ -820,6 +991,27 @@ function paintChatHead() {
         { assignedUid: null, assignedTo: null });
     } catch (e) {}
   };
+  const sv = $("surveyBtn");
+  if (sv) sv.onclick = async () => {
+    if (!confirm("Student ko survey bhejein? (masla hal hua ya nahi)")) return;
+    sv.disabled = true;
+    sv.textContent = "Bhej rahe hain...";
+    try {
+      const token = await getToken();
+      const r = await fetch("/api/whatsapp-survey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ to: c.waNumber || c.id })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Survey nahi gaya");
+    } catch (e) {
+      alert(e.message);
+      sv.disabled = false;
+      sv.textContent = "Send survey";
+    }
+  };
+
   const un = $("unreadBtn");
   if (un) un.onclick = async () => {
     try {
@@ -1037,12 +1229,82 @@ function renderInfo() {
   if (c.lastOpenedBy) rows += infoRow("Last opened by", c.lastOpenedBy);
   rows += infoRow("First message", c.createdAt ? fmtDate(c.createdAt) : "&mdash;", true);
 
+  const active = c.labels || [];
+  const labelPicker =
+    '<div class="info-title" style="margin-top:20px">Labels</div>' +
+    '<div class="label-row">' +
+      LABELS.map(l =>
+        '<span class="lab lab-' + l.color + ' lab-pick' + (active.includes(l.id) ? ' on' : '') +
+        '" data-label="' + l.id + '">' + esc(l.name) + '</span>'
+      ).join("") +
+    '</div>';
+
+  const notesBox =
+    '<div class="info-title" style="margin-top:22px">Internal notes</div>' +
+    '<div class="note-box">' +
+      '<div id="noteList"></div>' +
+      '<textarea class="note-input" id="noteInput" placeholder="Team ke liye note (student ko nazar nahi aata)"></textarea>' +
+      '<button class="mini-btn" id="noteAdd" style="margin-top:7px;width:100%">Add note</button>' +
+    '</div>';
+
   panel.innerHTML =
     '<div class="info-title">Student</div>' +
     '<div class="avatar">' + esc(initials) + '</div>' +
     '<div class="info-name">' + esc(name) + '</div>' +
     '<div class="info-number">+' + esc(c.waNumber || c.id) + '</div>' +
-    '<div style="margin-top:14px">' + rows + '</div>';
+    '<div style="margin-top:14px">' + rows + '</div>' +
+    labelPicker + notesBox;
+
+  panel.querySelectorAll("[data-label]").forEach(el => {
+    el.onclick = async () => {
+      const id = el.dataset.label;
+      const cur = (convos.find(x => x.id === activeId)?.labels) || [];
+      const next = cur.includes(id) ? cur.filter(x => x !== id) : cur.concat([id]);
+      try { await updateDoc(doc(db, "conversations", activeId), { labels: next }); } catch (e) {}
+    };
+  });
+
+  renderNotes();
+  const add = $("noteAdd");
+  if (add) add.onclick = async () => {
+    const ta = $("noteInput");
+    const txt = ta.value.trim();
+    if (!txt) return;
+    ta.value = "";
+    try {
+      await addDoc(collection(db, "conversations", activeId, "notes"), {
+        text: txt, by: me.name, at: serverTimestamp()
+      });
+    } catch (e) { alert("Note save nahi hua"); }
+  };
+}
+
+function watchNotes(id) {
+  if (unsubNotes) unsubNotes();
+  notes = [];
+  unsubNotes = onSnapshot(
+    query(collection(db, "conversations", id, "notes"), orderBy("at", "desc"), limit(30)),
+    (snap) => { notes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderNotes(); }
+  );
+}
+
+function renderNotes() {
+  const box = $("noteList");
+  if (!box) return;
+  if (!notes.length) { box.innerHTML = ""; return; }
+  box.innerHTML = notes.map(n => {
+    const t = n.at?.toDate ? n.at.toDate() : null;
+    const when = t ? t.toLocaleDateString([], { day: "numeric", month: "short" }) + " " +
+      t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+    return '<div class="note">' + esc(n.text) +
+      '<div class="note-meta"><span>' + esc(n.by || "") + ' &middot; ' + when + '</span>' +
+      '<button class="note-del" data-note="' + n.id + '">delete</button></div></div>';
+  }).join("");
+  box.querySelectorAll("[data-note]").forEach(b => {
+    b.onclick = async () => {
+      try { await deleteDoc(doc(db, "conversations", activeId, "notes", b.dataset.note)); } catch (e) {}
+    };
+  });
 }
 
 function infoRow(label, value, raw) {
@@ -1053,6 +1315,125 @@ function chip(t) { return '<span class="chip">' + esc(t) + '</span>'; }
 function fmtDate(ts) {
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   return d.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+}
+
+// ---------- Stats ----------
+$("statsBtn").onclick = openStats;
+$("statsClose").onclick = () => $("statsModal").classList.remove("show");
+
+async function openStats() {
+  $("statsModal").classList.add("show");
+  const box = $("statsBody");
+  box.innerHTML = '<div class="empty">Hisab lagaya ja raha hai&hellip;</div>';
+
+  const now = Date.now();
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+  let openChats = 0, unreadChats = 0, unassigned = 0, waiting = 0;
+  let newToday = 0, surveyYes = 0, surveyNo = 0, surveyPending = 0;
+  const labelCount = {};
+
+  convos.forEach(c => {
+    const lastAt = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
+    if (c.status !== "resolved") openChats++;
+    if ((c.unread || 0) > 0) unreadChats++;
+    if (!c.assignedUid) unassigned++;
+    if (isWaiting(c) && minsSince(c.lastMessageAt) >= URGENT_MINUTES) waiting++;
+    const created = c.createdAt?.toMillis ? c.createdAt.toMillis() : 0;
+    if (created > dayAgo) newToday++;
+    if (c.surveyAnswer === "yes") surveyYes++;
+    if (c.surveyAnswer === "no") surveyNo++;
+    if (c.surveyPending) surveyPending++;
+    (c.labels || []).forEach(id => { labelCount[id] = (labelCount[id] || 0) + 1; });
+  });
+
+  // Team ke replies ginna — har chat ke messages parhne parte hain
+  const perAgent = {};
+  let totalReplies = 0, autoReplies = 0;
+  const recent = convos.filter(c => {
+    const t = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
+    return t > weekAgo;
+  }).slice(0, 60);
+
+  for (const c of recent) {
+    try {
+      const snap = await getDocs(
+        query(collection(db, "conversations", c.id, "messages"), orderBy("timestamp", "desc"), limit(100))
+      );
+      snap.forEach(d => {
+        const m = d.data();
+        if (m.direction !== "out") return;
+        const t = m.timestamp?.toMillis ? m.timestamp.toMillis() : 0;
+        if (t < weekAgo) return;
+        const by = m.sentBy || "";
+        if (by === "welcome" || by === "keyword" || by === "survey" || by === "system") {
+          autoReplies++;
+        } else if (by) {
+          perAgent[by] = (perAgent[by] || 0) + 1;
+          totalReplies++;
+        }
+      });
+    } catch (e) {}
+  }
+
+  const agents = Object.entries(perAgent).sort((a, b) => b[1] - a[1]);
+  const maxAgent = agents.length ? agents[0][1] : 1;
+  const labelRows = Object.entries(labelCount).sort((a, b) => b[1] - a[1]);
+  const maxLabel = labelRows.length ? labelRows[0][1] : 1;
+  const totalSurvey = surveyYes + surveyNo;
+  const satisfaction = totalSurvey ? Math.round((surveyYes / totalSurvey) * 100) : null;
+
+  box.innerHTML =
+    '<div class="stats-grid">' +
+      statCard(convos.length, "Total chats") +
+      statCard(openChats, "Open") +
+      statCard(unreadChats, "Unread") +
+      statCard(unassigned, "Unassigned") +
+      statCard(waiting, URGENT_MINUTES + "m+ waiting") +
+      statCard(newToday, "New (24h)") +
+    '</div>' +
+
+    '<div class="info-title">Replies — pichhle 7 din</div>' +
+    (agents.length
+      ? '<table class="stat-table"><thead><tr><th>Team member</th><th>Replies</th><th style="width:38%"></th></tr></thead><tbody>' +
+        agents.map(([name, n]) =>
+          '<tr><td><span style="color:' + colorFor(name) + ';font-weight:600">' + esc(name) + '</span></td>' +
+          '<td>' + n + '</td>' +
+          '<td><span class="bar" style="width:' + Math.round((n / maxAgent) * 100) + '%;background:' + colorFor(name) + '"></span></td></tr>'
+        ).join("") +
+        '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies + '</td><td></td></tr>' +
+        '</tbody></table>'
+      : '<div class="empty" style="padding:14px 0">Abhi koi reply nahi.</div>') +
+
+    '<div class="info-title" style="margin-top:22px">Survey</div>' +
+    (totalSurvey || surveyPending
+      ? '<div class="stats-grid">' +
+          statCard('<span class="survey-yes">' + surveyYes + '</span>', "Masla hal hua") +
+          statCard('<span class="survey-no">' + surveyNo + '</span>', "Hal nahi hua") +
+          statCard(surveyPending, "Jawab ka intezar") +
+          statCard(satisfaction === null ? "&mdash;" : satisfaction + "%", "Satisfaction") +
+        '</div>'
+      : '<div class="empty" style="padding:14px 0">Abhi koi survey nahi bheja gaya.</div>') +
+
+    '<div class="info-title" style="margin-top:22px">Labels</div>' +
+    (labelRows.length
+      ? '<table class="stat-table"><tbody>' +
+        labelRows.map(([id, n]) => {
+          const l = labelById(id);
+          return '<tr><td><span class="lab lab-' + (l ? l.color : "grey") + '">' +
+            esc(l ? l.name : id) + '</span></td><td>' + n + '</td>' +
+            '<td style="width:38%"><span class="bar" style="width:' + Math.round((n / maxLabel) * 100) + '%"></span></td></tr>';
+        }).join("") + '</tbody></table>'
+      : '<div class="empty" style="padding:14px 0">Abhi koi label nahi laga.</div>') +
+
+    '<div class="hint" style="margin-top:18px">Reply counts pichhle 7 din ki 60 chats se ginte hain. ' +
+    'Purani chats 7 din baad khud delete ho jati hain.</div>';
+}
+
+function statCard(num, label) {
+  return '<div class="stat-card"><div class="stat-num">' + num + '</div>' +
+         '<div class="stat-lbl">' + esc(label) + '</div></div>';
 }
 </script>
 </body>
