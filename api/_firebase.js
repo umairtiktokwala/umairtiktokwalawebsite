@@ -67,7 +67,20 @@ export async function findStudent(waNumber) {
     }
   }
 
-  // Raasta 2: students collection mein number field se
+  // Raasta 2: phone10 field (aakhri 10 digit) — sab se mehfooz tareeqa
+  // Country code ho ya na ho, dono soorat mein match ho jata hai.
+  try {
+    const q = await database
+      .collection("students")
+      .where("phone10", "==", short)
+      .limit(1)
+      .get();
+    if (!q.empty) return shapeStudent(q.docs[0]);
+  } catch (e) {
+    // aage barhte hain
+  }
+
+  // Raasta 3: purana number field (jin records mein phone10 nahi hai)
   for (const val of ["92" + short, short, "0" + short]) {
     try {
       const q = await database
