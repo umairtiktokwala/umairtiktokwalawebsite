@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&display=swap" rel="stylesheet">
-<title>Numbers import — Umair TikTok Wala</title>
+<title>Numbers link — Umair TikTok Wala</title>
 <style>
   :root{
     --bg:#F6F7FB; --panel:#FFFFFF; --panel2:#F9FAFC; --line:#ECEEF4;
@@ -20,7 +20,7 @@
     background:var(--bg);color:var(--text);line-height:1.6;
   }
   .bar{height:5px;background:linear-gradient(90deg,var(--brand1),var(--brand2),var(--brand3))}
-  .wrap{max-width:820px;margin:0 auto;padding:38px 22px 70px}
+  .wrap{max-width:860px;margin:0 auto;padding:38px 22px 70px}
   h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
   .sub{font-size:14px;color:var(--dim);margin-bottom:26px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:16px}
@@ -31,7 +31,7 @@
     width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;
     color:var(--text);padding:10px 13px;font-size:14px;font-family:inherit;
   }
-  textarea{min-height:200px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.6}
+  textarea{min-height:190px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.7}
   input:focus,textarea:focus{outline:none;border-color:var(--brand1)}
   label{display:block;font-size:12px;color:var(--dim);margin:14px 0 5px}
   button{
@@ -39,31 +39,32 @@
     padding:11px 22px;font-size:14px;font-weight:600;color:#fff;
     background:linear-gradient(90deg,var(--brand1),var(--brand2));
   }
-  button:disabled{opacity:.5}
+  button:disabled{opacity:.5;cursor:default}
   button.ghost{background:none;color:var(--dim);border:1px solid var(--line);font-weight:500}
   .row{display:flex;gap:9px;align-items:center;margin-top:16px;flex-wrap:wrap}
   .log{
     background:var(--panel2);border:1px solid var(--line);border-radius:9px;
-    padding:13px 15px;font-size:13px;max-height:280px;overflow-y:auto;margin-top:16px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.7;
+    padding:13px 15px;font-size:13px;max-height:300px;overflow-y:auto;margin-top:16px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.8;
   }
   .ok{color:#15803d}
   .warn{color:#b45309}
   .bad{color:#b91c1c}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:11px;margin-top:16px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px;margin-top:16px}
   .stat{border:1px solid var(--line);border-radius:11px;padding:12px 14px}
   .stat b{display:block;font-size:22px;font-weight:700}
   .stat span{font-size:11px;color:var(--faint)}
   .hide{display:none}
   .err{color:var(--danger);font-size:13px;margin-top:9px;min-height:18px}
+  .note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:9px;padding:11px 14px;font-size:13px;color:#92400E;margin-bottom:14px}
 </style>
 </head>
 <body>
 <div class="bar"></div>
 <div class="wrap">
 
-  <h1>Numbers import</h1>
-  <p class="sub">Students ke numbers Firestore mein daalne ke liye. Is se WhatsApp inbox mein har student ka naam, batch aur course nazar aayega.</p>
+  <h1>Numbers link</h1>
+  <p class="sub">Students ke WhatsApp numbers unke record se joRne ke liye. Is ke baad inbox mein har student ka naam, batch aur course nazar aayega.</p>
 
   <!-- Login -->
   <div class="card" id="loginCard">
@@ -76,19 +77,35 @@
     <div class="err" id="loginErr"></div>
   </div>
 
-  <!-- Import -->
-  <div class="card hide" id="importCard">
-    <h2>Data paste karein</h2>
+  <!-- Step 1: fix existing records -->
+  <div class="card hide" id="fixCard">
+    <h2>Step 1 &mdash; Purane records theek karein</h2>
     <p>
-      Google Sheet se do column copy karein: <b>number</b> aur <b>email</b>.<br>
-      Har line mein ek student. Number aur email ke darmiyan comma ya tab.
+      Jin students ke record mein pehle se number maujood hai, unhe search ke qabil banata hai.
+      Ye sirf <b>ek baar</b> chalana hai (naye students add hone pe dobara chala lein).
+    </p>
+    <div class="row">
+      <button id="fixBtn">Scan &amp; fix karein</button>
+    </div>
+    <div class="log hide" id="fixLog"></div>
+  </div>
+
+  <!-- Step 2: paste numbers -->
+  <div class="card hide" id="importCard">
+    <h2>Step 2 &mdash; Naye numbers joRein</h2>
+    <div class="note">
+      Sirf <b>numbers</b> paste karein &mdash; har line mein ek.
+      Country code ho ya na ho, dono chalte hain. Aakhri 10 digit se match hota hai.
+    </div>
+    <p style="font-size:13px;margin-bottom:8px">
+      Misal:<br>
+      <code>03001234567</code> &nbsp; <code>923001234567</code> &nbsp; <code>+92 300 1234567</code>
     </p>
     <p style="font-size:13px">
-      Misal:<br>
-      <code>923001234567, ali@gmail.com</code><br>
-      <code>03211234567, sana@gmail.com</code>
+      Agar number ke saath email bhi hai to bhi chalega &mdash;
+      <code>03001234567, ali@gmail.com</code> &mdash; us se match aur pukhta ho jata hai.
     </p>
-    <textarea id="data" placeholder="923001234567, ali@gmail.com&#10;03211234567, sana@gmail.com"></textarea>
+    <textarea id="data" placeholder="03001234567&#10;923211234567&#10;+92 321 1234567"></textarea>
 
     <div class="row">
       <button id="previewBtn">Check karein</button>
@@ -98,7 +115,7 @@
     <div id="previewBox" class="hide">
       <div class="stats" id="stats"></div>
       <div class="row">
-        <button id="importBtn">Firestore mein daalein</button>
+        <button id="importBtn">Firestore mein joRein</button>
       </div>
     </div>
 
@@ -106,14 +123,14 @@
   </div>
 
   <div class="card hide" id="helpCard">
-    <h2>Baad mein</h2>
+    <h2>Yaad rakhein</h2>
     <p>
-      Import hone ke baad WhatsApp inbox kholein. Jo students already message kar chuke hain,
-      unka record foran nahi aayega — agli baar message karne pe aa jayega.
+      Jo students pehle se message kar chuke hain, unka record foran nahi badlega &mdash;
+      agli baar message karne pe aa jayega.
     </p>
     <p style="margin-bottom:0">
-      Naye students add karne hon to yahi page dobara khol kar sirf naye numbers paste kar dein.
-      Purane dobara daalne se koi nuqsan nahi, bas update ho jayenge.
+      Naya batch aaye to yahi page dobara khol kar <b>Step 1</b> chala lein.
+      Baar baar chalane se koi nuqsan nahi.
     </p>
   </div>
 
@@ -123,7 +140,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, writeBatch }
+import { getFirestore, collection, doc, getDoc, getDocs, query, where, limit, writeBatch }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -138,10 +155,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 const $ = (id) => document.getElementById(id);
-let rows = [];
 
+let parsed = [];
+let allStudents = [];
+
+// ---------- Login ----------
 $("loginBtn").onclick = async () => {
   $("loginBtn").disabled = true;
   $("loginErr").textContent = "";
@@ -169,65 +188,143 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   $("loginCard").classList.add("hide");
+  $("fixCard").classList.remove("hide");
   $("importCard").classList.remove("hide");
   $("helpCard").classList.remove("hide");
 });
 
-// WhatsApp jaisa format: 923001234567
-function normalize(raw) {
-  let d = String(raw || "").replace(/\D/g, "");
-  if (!d) return null;
-  if (d.startsWith("0")) d = d.slice(1);          // 0300... -> 300...
-  if (d.length === 10) d = "92" + d;              // 3001234567 -> 923001234567
-  if (d.length < 11 || d.length > 15) return null;
-  return d;
+// Aakhri 10 digit — yehi asli match key hai
+function last10(raw) {
+  const d = String(raw || "").replace(/\D/g, "");
+  if (d.length < 10) return null;
+  return d.slice(-10);
 }
 
+// ---------- Step 1: purane records fix ----------
+$("fixBtn").onclick = async () => {
+  const btn = $("fixBtn");
+  btn.disabled = true;
+  const log = $("fixLog");
+  log.classList.remove("hide");
+  log.innerHTML = "<div>Students parhe ja rahe hain&hellip;</div>";
+
+  try {
+    const snap = await getDocs(collection(db, "students"));
+    allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const needFix = [];
+    let already = 0, noNumber = 0;
+
+    allStudents.forEach(s => {
+      const p10 = last10(s.number);
+      if (!p10) { noNumber++; return; }
+      if (s.phone10 === p10) { already++; return; }
+      needFix.push({ id: s.id, phone10: p10 });
+    });
+
+    log.innerHTML =
+      '<div>Total students: ' + allStudents.length + '</div>' +
+      '<div class="ok">Pehle se theek: ' + already + '</div>' +
+      '<div class="warn">Fix karne hain: ' + needFix.length + '</div>' +
+      '<div class="warn">Number hi nahi: ' + noNumber + '</div>';
+
+    if (!needFix.length) {
+      log.innerHTML += '<div class="ok" style="margin-top:8px">Sab kuch pehle se theek hai.</div>';
+      btn.disabled = false;
+      return;
+    }
+
+    let done = 0;
+    const CHUNK = 400;
+    for (let i = 0; i < needFix.length; i += CHUNK) {
+      const slice = needFix.slice(i, i + CHUNK);
+      const batch = writeBatch(db);
+      slice.forEach(r => batch.update(doc(db, "students", r.id), { phone10: r.phone10 }));
+      await batch.commit();
+      done += slice.length;
+      log.innerHTML += '<div>' + done + " / " + needFix.length + " ho gaye&hellip;</div>";
+    }
+    log.innerHTML += '<div class="ok" style="margin-top:8px">Mukammal &mdash; ' + done + ' records theek ho gaye.</div>';
+  } catch (e) {
+    log.innerHTML += '<div class="bad">Masla: ' + (e.message || e) + '</div>';
+  }
+  btn.disabled = false;
+};
+
+// ---------- Step 2: naye numbers ----------
 function parseInput() {
-  const text = $("data").value;
-  const out = [];
-  const bad = [];
+  const out = [], bad = [];
   const seen = new Set();
 
-  text.split(/\r?\n/).forEach((line, i) => {
+  $("data").value.split(/\r?\n/).forEach((line, i) => {
     const t = line.trim();
     if (!t) return;
+
     const parts = t.split(/[,\t;]+/).map(x => x.trim()).filter(Boolean);
-    if (parts.length < 2) { bad.push({ line: i + 1, text: t, why: "email nahi mila" }); return; }
+    const email = parts.find(x => x.includes("@")) || null;
+    const numRaw = parts.find(x => !x.includes("@")) || t;
 
-    // Kaunsa hissa email hai, kaunsa number
-    let email = parts.find(x => x.includes("@"));
-    let numRaw = parts.find(x => !x.includes("@"));
-    if (!email || !numRaw) { bad.push({ line: i + 1, text: t, why: "format ghalat" }); return; }
+    const p10 = last10(numRaw);
+    if (!p10) { bad.push({ line: i + 1, text: t, why: "number theek nahi" }); return; }
+    if (seen.has(p10)) { bad.push({ line: i + 1, text: t, why: "do baar aaya" }); return; }
 
-    const num = normalize(numRaw);
-    if (!num) { bad.push({ line: i + 1, text: t, why: "number theek nahi" }); return; }
-    if (seen.has(num)) { bad.push({ line: i + 1, text: t, why: "number do baar aaya" }); return; }
-
-    seen.add(num);
-    out.push({ number: num, email: email.toLowerCase() });
+    seen.add(p10);
+    out.push({ phone10: p10, full: "92" + p10, email: email ? email.toLowerCase() : null });
   });
 
   return { out, bad };
 }
 
-$("previewBtn").onclick = () => {
+$("previewBtn").onclick = async () => {
   const { out, bad } = parseInput();
-  rows = out;
-
-  $("stats").innerHTML =
-    '<div class="stat"><b class="ok">' + out.length + '</b><span>Tayar</span></div>' +
-    '<div class="stat"><b class="' + (bad.length ? "warn" : "") + '">' + bad.length + '</b><span>Chhod diye</span></div>';
+  parsed = out;
 
   const log = $("log");
   log.classList.remove("hide");
+  log.innerHTML = "<div>Students se milaya ja raha hai&hellip;</div>";
+
+  // students collection ek baar parh lein taake match check kar sakein
+  if (!allStudents.length) {
+    try {
+      const snap = await getDocs(collection(db, "students"));
+      allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) {
+      log.innerHTML = '<div class="bad">Students parhe nahi ja sake: ' + e.message + '</div>';
+      return;
+    }
+  }
+
+  const byPhone = new Map();
+  allStudents.forEach(s => {
+    const p = s.phone10 || last10(s.number);
+    if (p) byPhone.set(p, s);
+  });
+
+  let matched = 0, unmatched = 0;
+  const unmatchedList = [];
+  out.forEach(r => {
+    const st = byPhone.get(r.phone10);
+    if (st) { matched++; r.studentId = st.id; r.studentName = st.name || ""; }
+    else { unmatched++; unmatchedList.push(r.phone10); }
+  });
+
+  $("stats").innerHTML =
+    '<div class="stat"><b class="ok">' + matched + '</b><span>Student mil gaya</span></div>' +
+    '<div class="stat"><b class="' + (unmatched ? "warn" : "") + '">' + unmatched + '</b><span>Record nahi mila</span></div>' +
+    '<div class="stat"><b class="' + (bad.length ? "warn" : "") + '">' + bad.length + '</b><span>Chhod diye</span></div>';
+
   log.innerHTML =
-    out.slice(0, 5).map(r => '<div class="ok">' + r.number + " &rarr; " + r.email + "</div>").join("") +
-    (out.length > 5 ? '<div style="color:var(--faint)">&hellip; aur ' + (out.length - 5) + " lines</div>" : "") +
+    out.filter(r => r.studentId).slice(0, 5)
+      .map(r => '<div class="ok">' + r.phone10 + " &rarr; " + (r.studentName || "(bina naam)") + "</div>").join("") +
+    (matched > 5 ? '<div style="color:var(--faint)">&hellip; aur ' + (matched - 5) + " mile</div>" : "") +
+    (unmatchedList.length
+      ? '<div class="warn" style="margin-top:9px">In ka student record nahi mila (phir bhi save honge):</div>' +
+        unmatchedList.slice(0, 8).map(p => '<div class="warn">' + p + "</div>").join("") +
+        (unmatchedList.length > 8 ? '<div class="warn">&hellip; aur ' + (unmatchedList.length - 8) + "</div>" : "")
+      : "") +
     (bad.length
-      ? '<div class="warn" style="margin-top:9px">Chhod di gayin:</div>' +
-        bad.slice(0, 10).map(b => '<div class="warn">Line ' + b.line + ": " + b.why + " — " + b.text.slice(0, 45) + "</div>").join("") +
-        (bad.length > 10 ? '<div class="warn">&hellip; aur ' + (bad.length - 10) + "</div>" : "")
+      ? '<div class="bad" style="margin-top:9px">Chhod di gayin:</div>' +
+        bad.slice(0, 6).map(b => '<div class="bad">Line ' + b.line + ": " + b.why + "</div>").join("")
       : "");
 
   $("previewBox").classList.toggle("hide", out.length === 0);
@@ -235,44 +332,54 @@ $("previewBtn").onclick = () => {
 
 $("clearBtn").onclick = () => {
   $("data").value = "";
-  rows = [];
+  parsed = [];
   $("previewBox").classList.add("hide");
   $("log").classList.add("hide");
 };
 
 $("importBtn").onclick = async () => {
-  if (!rows.length) return;
+  if (!parsed.length) return;
   const btn = $("importBtn");
   btn.disabled = true;
-
   const log = $("log");
   log.classList.remove("hide");
-  log.innerHTML = "<div>Shuru&hellip;</div>";
+  log.innerHTML = "<div>Save ho raha hai&hellip;</div>";
 
-  let done = 0, failed = 0;
-  const CHUNK = 400;
+  let done = 0;
+  const CHUNK = 300;
 
   try {
-    for (let i = 0; i < rows.length; i += CHUNK) {
-      const slice = rows.slice(i, i + CHUNK);
+    for (let i = 0; i < parsed.length; i += CHUNK) {
+      const slice = parsed.slice(i, i + CHUNK);
       const batch = writeBatch(db);
+
       slice.forEach(r => {
-        batch.set(doc(db, "numbers", r.number), { email: r.email }, { merge: true });
+        // Student ke record mein phone10 daal dein
+        if (r.studentId) {
+          batch.update(doc(db, "students", r.studentId), { phone10: r.phone10 });
+        }
+        // numbers collection mein bhi entry (email ho to)
+        if (r.email) {
+          batch.set(doc(db, "numbers", r.full), { email: r.email }, { merge: true });
+        }
       });
+
       await batch.commit();
       done += slice.length;
-      log.innerHTML = '<div class="ok">' + done + " / " + rows.length + " ho gaye&hellip;</div>";
+      log.innerHTML = '<div>' + done + " / " + parsed.length + " ho gaye&hellip;</div>";
     }
-    log.innerHTML =
-      '<div class="ok">Mukammal — ' + done + ' numbers save ho gaye.</div>' +
-      '<div style="color:var(--faint);margin-top:6px">Ab WhatsApp inbox mein student ka record nazar aayega.</div>';
-  } catch (e) {
-    failed = rows.length - done;
-    log.innerHTML +=
-      '<div class="bad">Ruk gaya: ' + (e.message || e) + '</div>' +
-      '<div class="bad">' + done + " save huay, " + failed + " reh gaye.</div>";
-  }
 
+    const linked = parsed.filter(r => r.studentId).length;
+    log.innerHTML =
+      '<div class="ok">Mukammal.</div>' +
+      '<div class="ok">' + linked + ' numbers student record se juR gaye.</div>' +
+      (parsed.length - linked
+        ? '<div class="warn">' + (parsed.length - linked) + ' ka koi student record nahi tha.</div>'
+        : "") +
+      '<div style="color:var(--faint);margin-top:6px">Ab jab wo message karenge to inbox mein poora record dikhega.</div>';
+  } catch (e) {
+    log.innerHTML += '<div class="bad">Ruk gaya: ' + (e.message || e) + '</div>';
+  }
   btn.disabled = false;
 };
 </script>
