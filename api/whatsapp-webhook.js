@@ -13,6 +13,10 @@ import {
   KEYWORDS_ENABLED,
   KEYWORD_COOLDOWN_MINUTES,
   AUTO_REPLIES,
+  SURVEY_REPLY_YES,
+  SURVEY_REPLY_NO,
+  SURVEY_MESSAGE_2,
+  SURVEY_REPLY_DONE,
 } from "./_config.js";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
@@ -110,9 +114,36 @@ async function processWebhook(body) {
         msg.interactive?.button_reply?.title ||
         msg.interactive?.list_reply?.title ||
         "";
-    } else {
-      // image / audio / video / document — abhi sirf note kar rahe hain
-      text = `[${type}]`;
+    }
+
+    // ---- Media (image / video / audio / document / sticker) ----
+    let mediaId = null, mimeType = null, filename = null;
+    const mediaObj = msg.image || msg.video || msg.audio || msg.voice ||
+                     msg.document || msg.sticker || null;
+
+    if (mediaObj) {
+      mediaId = mediaObj.id || null;
+      mimeType = mediaObj.mime_type || null;
+      filename = mediaObj.filename || null;
+      // caption ho to wohi text hai
+      text = mediaObj.caption || "";
+      if (msg.voice) type = "audio";
+    }
+
+    // List mein dikhane ke liye chhota sa label
+    let preview = text;
+    if (!preview) {
+      if (type === "image") preview = "📷 Image";
+      else if (type === "video") preview = "🎥 Video";
+      else if (type === "audio") preview = "🎤 Voice note";
+      else if (type === "document") preview = "📄 " + (filename || "Document");
+      else if (type === "sticker") preview = "Sticker";
+      else if (type === "location") preview = "📍 Location";
+      else if (type === "contacts") preview = "👤 Contact";
+      else preview = "[" + type + "]";
+    } else if (mediaObj) {
+      const tag = type === "image" ? "📷" : type === "video" ? "🎥" : "📄";
+      preview = tag + " " + text;
     }
 
     // ---- Student ka record ----
@@ -126,7 +157,7 @@ async function processWebhook(body) {
     const convoData = {
       waNumber: from,
       displayName: contactName || prev.displayName || "",
-      lastMessage: text.slice(0, 120),
+      lastMessage: preview.slice(0, 120),
       lastMessageAt: now,
       windowExpiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
       unread: (prev.unread || 0) + 1,
@@ -146,10 +177,64 @@ async function processWebhook(body) {
       type,
       text,
       waMessageId: msg.id || null,
-      mediaId: msg.image?.id || msg.audio?.id || msg.video?.id || msg.document?.id || null,
+      mediaId,
+      mimeType,
+      filename,
       timestamp: now,
       expiresAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
     });
+
+    // ---- Survey: pehla sawal (masla hal hua?) ----
+    if (prev.surveyPending === true && type === "text") {
+      const ans = text.trim();
+      let answered = null;
+      if (ans === "1" || /^haan|^yes|^han\b/i.test(ans)) answered = "yes";
+      else if (ans === "2" || /^nahi|^no\b/i.test(ans)) answered = "no";
+
+      if (answered) {
+        await sendText(from, answered === "yes" ? SURVEY_REPLY_YES : SURVEY_REPLY_NO,
+                       convoRef, "survey");
+        // Foran doosra sawal — team ka behaviour
+        await sendText(from, SURVEY_MESSAGE_2, convoRef, "survey");
+
+        await convoRef.set({
+          surveyPending: false,
+          survey2Pending: true,
+          surveyAnswer: answered,
+          surveyAnsweredAt: now,
+          surveyAgent: prev.assignedTo || null,
+          status: answered === "yes" ? "resolved" : "open",
+          awaitingReply: answered === "no",
+          unread: prev.unread || 0,
+        }, { merge: true });
+        continue;
+      }
+      // Koi aur jawab — survey band, normal chat
+      await convoRef.set({ surveyPending: false }, { merge: true });
+    }
+
+    // ---- Survey: doosra sawal (behaviour) ----
+    if (prev.survey2Pending === true && type === "text") {
+      const ans = text.trim();
+      let rating = null;
+      if (ans === "1" || /bohot ach|bahut ach|excellent|great/i.test(ans)) rating = 3;
+      else if (ans === "2" || /theek|ok\b|thik/i.test(ans)) rating = 2;
+      else if (ans === "3" || /ach+a nahi|bura|bad|poor/i.test(ans)) rating = 1;
+
+      if (rating) {
+        await sendText(from, SURVEY_REPLY_DONE, convoRef, "survey");
+        await convoRef.set({
+          survey2Pending: false,
+          behaviourRating: rating,      // 3 = bohot achha, 2 = theek, 1 = achha nahi
+          behaviourAnsweredAt: now,
+          behaviourAgent: prev.surveyAgent || prev.assignedTo || null,
+          awaitingReply: false,
+          unread: prev.unread || 0,
+        }, { merge: true });
+        continue;
+      }
+      await convoRef.set({ survey2Pending: false }, { merge: true });
+    }
 
     // ---- Auto-reply ----
     let replied = false;

@@ -134,15 +134,26 @@ export const SURVEY_MESSAGE =
   "2 = Nahi, abhi bhi masla hai\n\n" +
   "Sirf number likh kar bhej dein.";
 
-// Student "1" likhe to ye jawab jayega
-export const SURVEY_REPLY_YES =
-  "Shukriya! Aap ka feedback humare liye ahem hai.\n\n" +
-  "Koi aur sawal ho to kabhi bhi message karein.";
+// Pehle sawal ke jawab ke baad ye doosra sawal khud ba khud jata hai
+export const SURVEY_MESSAGE_2 =
+  "Aakhri sawal — hamari team ka behaviour kaisa laga?\n\n" +
+  "1 = Bohot achha\n" +
+  "2 = Theek tha\n" +
+  "3 = Achha nahi\n\n" +
+  "Sirf number likh kar bhej dein.";
 
-// Student "2" likhe to ye jawab jayega (chat wapas team ke paas aa jayegi)
+// Pehla sawal: "1" (masla hal ho gaya)
+export const SURVEY_REPLY_YES =
+  "Shukriya!";
+
+// Pehla sawal: "2" (masla hal nahi hua)
 export const SURVEY_REPLY_NO =
-  "Maazrat. Hamari team dobara aap se rabta karegi.\n\n" +
-  "Apna masla thora tafseel se likh dein taake behtar madad kar sakein.";
+  "Maazrat. Hamari team dobara aap se rabta karegi.";
+
+// Doosre sawal ke baad — sab ke liye ek hi
+export const SURVEY_REPLY_DONE =
+  "Aap ka waqt dene ka shukriya!\n\n" +
+  "Koi aur sawal ho to kabhi bhi message karein.";
 
 // ============================================================
 //  LABELS
