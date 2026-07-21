@@ -571,9 +571,9 @@ const labelById = (id) => LABELS.find(l => l.id === id);
 // 30 minute se zyada intezar = urgent (laal)
 const URGENT_MINUTES = 30;
 // Chat khole rakhne pe har itne second baad presence refresh
-const PRESENCE_REFRESH_SEC = 20;
+const PRESENCE_REFRESH_SEC = 45;
 // Presence itne second purani ho to samjho banda chala gaya
-const PRESENCE_STALE_SEC = 60;
+const PRESENCE_STALE_SEC = 120;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -859,7 +859,7 @@ function renderSrList() {
 
 // ---------- Conversation list ----------
 function watchConversations() {
-  const q = query(collection(db, "conversations"), orderBy("lastMessageAt", "desc"), limit(150));
+  const q = query(collection(db, "conversations"), orderBy("lastMessageAt", "desc"), limit(40));
   onSnapshot(q, (snap) => {
     const next = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
@@ -1240,7 +1240,7 @@ function paintChatHead() {
 async function watchMessages(id) {
   try { await getToken(); } catch (e) {}
   if (unsubMessages) unsubMessages();
-  const mq = query(collection(db, "conversations", id, "messages"), orderBy("timestamp", "asc"), limit(300));
+  const mq = query(collection(db, "conversations", id, "messages"), orderBy("timestamp", "asc"), limit(100));
   unsubMessages = onSnapshot(mq, (snap) => {
     const box = $("messages");
     if (!box) return;
@@ -1850,12 +1850,12 @@ async function openStats() {
   const recent = convos.filter(c => {
     const t = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
     return t > weekAgo;
-  }).slice(0, 80);
+  }).slice(0, 25);
 
   for (const c of recent) {
     try {
       const snap = await getDocs(
-        query(collection(db, "conversations", c.id, "messages"), orderBy("timestamp", "desc"), limit(120))
+        query(collection(db, "conversations", c.id, "messages"), orderBy("timestamp", "desc"), limit(60))
       );
       snap.forEach(d => {
         const m = d.data();
