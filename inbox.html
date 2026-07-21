@@ -298,6 +298,119 @@
   .modal.wide{max-width:720px}
   .survey-yes{color:#15803d;font-weight:600}
   .survey-no{color:#b91c1c;font-weight:600}
+  /* ---------- Media bubbles ---------- */
+  .bubble.media{padding:5px;max-width:300px}
+  .bubble.media img,.bubble.media video{
+    width:100%;border-radius:9px;display:block;cursor:pointer;background:var(--panel2);
+  }
+  .bubble.media img{max-height:320px;object-fit:cover}
+  .bubble.media .cap{padding:6px 8px 2px;font-size:14px;line-height:1.45;white-space:pre-wrap}
+  .bubble.media .meta{padding:0 8px 4px}
+  .media-load{
+    padding:26px 20px;text-align:center;color:var(--faint);font-size:12px;
+    background:var(--panel2);border-radius:9px;
+  }
+  .media-fail{
+    padding:16px;text-align:center;color:var(--warn);font-size:12px;
+    background:rgba(180,83,9,.07);border-radius:9px;line-height:1.5;
+  }
+  .doc-row{
+    display:flex;align-items:center;gap:10px;padding:9px 11px;
+    background:var(--panel2);border-radius:9px;text-decoration:none;color:var(--text);
+  }
+  .doc-row:hover{background:#EEF3FE}
+  .doc-icon{font-size:20px;flex-shrink:0}
+  .doc-name{font-size:13px;font-weight:500;word-break:break-word}
+  .doc-sub{font-size:11px;color:var(--faint)}
+  .aud{display:flex;align-items:center;gap:9px;padding:6px 4px}
+  .aud audio{height:34px;max-width:230px}
+
+  /* ---------- Lightbox ---------- */
+  .lightbox{
+    position:fixed;inset:0;background:rgba(15,18,34,.9);z-index:200;
+    display:none;align-items:center;justify-content:center;padding:30px;
+  }
+  .lightbox.show{display:flex}
+  .lightbox img,.lightbox video{max-width:100%;max-height:100%;border-radius:11px}
+  .lightbox-close{
+    position:absolute;top:18px;right:22px;background:rgba(255,255,255,.15);
+    border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer;
+  }
+
+  /* ---------- Message menu ---------- */
+  .bubble{position:relative}
+  .msg-menu{
+    position:absolute;top:3px;right:5px;width:22px;height:22px;
+    border:none;background:rgba(15,18,34,.06);border-radius:5px;
+    font-size:13px;line-height:1;color:var(--dim);cursor:pointer;
+    opacity:0;transition:opacity .15s;
+  }
+  .bubble:hover .msg-menu{opacity:1}
+  .bubble.in .msg-menu{right:auto;left:5px}
+
+  /* ---------- Undo bar ---------- */
+  .undo-bar{
+    display:none;align-items:center;justify-content:space-between;gap:10px;
+    background:#0F1222;color:#fff;border-radius:9px;padding:9px 13px;
+    font-size:13px;margin-bottom:9px;
+  }
+  .undo-bar.show{display:flex}
+  .undo-bar button{
+    background:none;border:none;color:#7dabff;font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .undo-count{font-size:11px;color:#8A90A6}
+
+  /* ---------- Attach ---------- */
+  .attach-btn{
+    width:40px;height:40px;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--panel2);color:var(--dim);font-size:17px;flex-shrink:0;
+  }
+  .attach-btn:hover{border-color:var(--brand1);color:var(--brand1)}
+  .file-preview{
+    display:none;align-items:center;gap:10px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin-bottom:9px;
+  }
+  .file-preview.show{display:flex}
+  .file-preview img{width:42px;height:42px;object-fit:cover;border-radius:6px}
+  .file-preview .fp-name{font-size:12px;font-weight:500;flex:1;word-break:break-all}
+  .file-preview .fp-size{font-size:11px;color:var(--faint)}
+  .drop-hint{
+    position:absolute;inset:0;background:rgba(37,99,235,.08);
+    border:2px dashed var(--brand1);border-radius:11px;
+    display:none;align-items:center;justify-content:center;
+    font-size:14px;color:var(--brand1);font-weight:600;z-index:30;
+  }
+  .drop-hint.show{display:flex}
+
+  /* ---------- Assign dropdown ---------- */
+  .assign-wrap{position:relative}
+  .assign-menu{
+    position:absolute;top:100%;right:0;margin-top:5px;min-width:170px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 6px 24px rgba(15,18,34,.12);z-index:50;display:none;overflow:hidden;
+  }
+  .assign-menu.show{display:block}
+  .assign-item{
+    padding:9px 13px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;
+  }
+  .assign-item:last-child{border-bottom:none}
+  .assign-item:hover{background:#EEF3FE}
+  .assign-item.cur{font-weight:600;color:var(--brand1)}
+  .who-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+  /* ---------- Stats graph ---------- */
+  .graph{display:flex;align-items:flex-end;gap:7px;height:110px;margin:14px 0 6px}
+  .graph-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+  .graph-bar{
+    width:100%;border-radius:5px 5px 0 0;min-height:3px;
+    background:linear-gradient(180deg,var(--brand1),var(--brand2));
+  }
+  .graph-lbl{font-size:10px;color:var(--faint)}
+  .graph-val{font-size:11px;font-weight:600}
+  .rate-bar{height:7px;border-radius:4px;background:var(--panel2);overflow:hidden;margin-top:4px}
+  .rate-fill{height:100%;border-radius:4px}
+
 
 </style>
 </head>
@@ -326,7 +439,7 @@
     </div>
     <div class="topbar-right">
       <span id="totalUnread" class="total-badge" style="display:none">0</span>
-      <button class="icon-btn" id="statsBtn" title="Stats">&#128202;</button>
+      <button class="icon-btn" id="statsBtn" title="Stats" style="display:none">&#128202;</button>
       <button class="icon-btn" id="soundBtn" title="Awaaz on/off">&#128266;</button>
       <button class="icon-btn" id="notifBtn" title="Browser notification">&#128276;</button>
       <span id="whoami"></span>
@@ -404,6 +517,13 @@
 </div>
 
 <!-- Stats -->
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose">&times;</button>
+  <div id="lbBody"></div>
+</div>
+<input type="file" id="fileInput" style="display:none" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip">
+
 <div class="modal-bg" id="statsModal">
   <div class="modal wide">
     <div class="modal-head">
@@ -421,7 +541,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getFirestore, collection, query, orderBy, limit, onSnapshot, getDocs,
-  doc, getDoc, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp
+  doc, getDoc, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ============================================================
@@ -459,7 +579,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let me = { uid: null, name: "", email: "" };
+let me = { uid: null, name: "", email: "", role: "" };
+let team = [];        // saare admins
+let pendingSend = null;  // undo ke liye
 let convos = [];
 let activeId = null;
 let unsubMessages = null;
@@ -511,8 +633,13 @@ onAuthStateChanged(auth, async (user) => {
     me.email = user.email;
     try {
       const snap = await getDoc(doc(db, "admins", user.uid));
-      me.name = (snap.exists() && snap.data().name) || user.email;
+      const d = snap.exists() ? snap.data() : {};
+      me.name = d.name || user.email;
+      me.role = d.role || "";
     } catch (e) { me.name = user.email; }
+
+    // Stats sirf owner ko
+    $("statsBtn").style.display = me.role === "owner" ? "flex" : "none";
 
     $("login").style.display = "none";
     $("app").style.display = "flex";
@@ -535,6 +662,7 @@ onAuthStateChanged(auth, async (user) => {
       };
     });
 
+    loadTeam();
     watchConversations();
     watchPresence();
     watchSavedReplies();
@@ -587,6 +715,14 @@ function notify(title, body) {
   try { new Notification(title, { body, icon: "/img/logo.png" }); } catch (e) {}
 }
 
+// ---------- Team list (assign transfer ke liye) ----------
+async function loadTeam() {
+  try {
+    const snap = await getDocs(collection(db, "admins"));
+    team = snap.docs.map(d => ({ uid: d.id, name: d.data().name || d.id, role: d.data().role || "" }));
+  } catch (e) { team = []; }
+}
+
 // ---------- Presence (kaun kaunsi chat khole baitha hai) ----------
 function watchPresence() {
   if (unsubPresence) unsubPresence();
@@ -617,6 +753,11 @@ async function clearMyPresence() {
   if (!me.uid) return;
   try { await deleteDoc(doc(db, "presence", me.uid)); } catch (e) {}
 }
+document.addEventListener("click", () => {
+  const am = document.getElementById("assignMenu");
+  if (am) am.classList.remove("show");
+});
+
 window.addEventListener("beforeunload", () => {
   if (me.uid) navigator.sendBeacon ? clearMyPresence() : clearMyPresence();
 });
@@ -885,7 +1026,9 @@ function renderList() {
 
     if (c.surveyAnswer === "yes") tags.push('<span class="lab lab-green">Survey: Haan</span>');
     if (c.surveyAnswer === "no")  tags.push('<span class="lab lab-red">Survey: Nahi</span>');
-    if (c.surveyPending) tags.push('<span class="lab lab-grey">Survey sent</span>');
+    if (c.surveyPending || c.survey2Pending) tags.push('<span class="lab lab-grey">Survey sent</span>');
+    if (c.behaviourRating === 3) tags.push('<span class="lab lab-green">&#9733; Bohot achha</span>');
+    if (c.behaviourRating === 1) tags.push('<span class="lab lab-red">&#9733; Achha nahi</span>');
 
     if (c.assignedTo) {
       const mine = c.assignedUid === me.uid;
@@ -911,6 +1054,7 @@ setInterval(() => { if (convos.length) renderList(); }, 60000);
 
 // ---------- Chat kholna ----------
 async function openConvo(id) {
+  if (pendingSend) flushPending();
   activeId = id;
   renderList();
   renderInfo();
@@ -931,10 +1075,17 @@ async function openConvo(id) {
     '<div class="chat-head" id="chatHead"></div>' +
     '<div class="viewing-bar" id="viewingBar" style="display:none"></div>' +
     '<div class="messages" id="messages"><div class="empty">Loading&hellip;</div></div>' +
-    '<div class="composer">' +
+    '<div class="composer" id="composer">' +
+      '<div class="drop-hint" id="dropHint">File yahan chhoR dein</div>' +
       '<div class="slash" id="slash"></div>' +
+      '<div class="undo-bar" id="undoBar">' +
+        '<span>Message bheja ja raha hai&hellip; <span class="undo-count" id="undoCount">8</span></span>' +
+        '<button id="undoBtn">Undo</button>' +
+      '</div>' +
+      '<div class="file-preview" id="filePreview"></div>' +
       '<div class="quick" id="quick"></div>' +
       '<div class="composer-row">' +
+        '<button class="attach-btn" id="attachBtn" title="File bhejein">&#128206;</button>' +
         '<textarea id="draft" placeholder="Message likhein&hellip;  ( / se saved reply )" rows="1"></textarea>' +
         '<button class="send-btn" id="sendBtn">&uarr;</button>' +
       '</div>' +
@@ -972,7 +1123,12 @@ function paintChatHead() {
       (c.assignedUid === me.uid
         ? '<button class="mini-btn" id="releaseBtn">Release</button>'
         : '<button class="mini-btn primary" id="takeBtn">Take this</button>') +
+      '<span class="assign-wrap">' +
+        '<button class="mini-btn" id="assignBtn">Assign &#9662;</button>' +
+        '<div class="assign-menu" id="assignMenu"></div>' +
+      '</span>' +
       '<button class="mini-btn" id="unreadBtn">Mark unread</button>' +
+      '<button class="mini-btn" id="delChatBtn" style="color:var(--danger)">Delete chat</button>' +
       (c.surveyPending ? '<span class="mini-btn" style="cursor:default">Survey sent</span>'
                        : '<button class="mini-btn" id="surveyBtn">Send survey</button>') +
     '</div>';
@@ -991,6 +1147,61 @@ function paintChatHead() {
         { assignedUid: null, assignedTo: null });
     } catch (e) {}
   };
+  // Assign dropdown
+  const ab = $("assignBtn"), am = $("assignMenu");
+  if (ab && am) {
+    ab.onclick = (e) => {
+      e.stopPropagation();
+      am.innerHTML =
+        '<div class="assign-item' + (!c.assignedUid ? " cur" : "") + '" data-uid="">' +
+          '<span class="who-dot" style="background:var(--line)"></span>Unassigned</div>' +
+        team.map(t =>
+          '<div class="assign-item' + (c.assignedUid === t.uid ? " cur" : "") + '" data-uid="' + t.uid + '">' +
+            '<span class="who-dot" style="background:' + colorFor(t.name) + '"></span>' +
+            esc(t.name) + (t.uid === me.uid ? " (you)" : "") +
+          '</div>'
+        ).join("");
+      am.classList.toggle("show");
+
+      am.querySelectorAll("[data-uid]").forEach(el => {
+        el.onclick = async (ev) => {
+          ev.stopPropagation();
+          const uid = el.dataset.uid;
+          const t = team.find(x => x.uid === uid);
+          try {
+            await updateDoc(doc(db, "conversations", activeId), {
+              assignedUid: uid || null,
+              assignedTo: t ? t.name : null
+            });
+          } catch (e) {}
+          am.classList.remove("show");
+        };
+      });
+    };
+  }
+
+  // Delete poori chat
+  const dc = $("delChatBtn");
+  if (dc) dc.onclick = async () => {
+    if (!confirm("Poori chat delete kar dein?\n\nSaare messages aur notes mit jayenge. Student ke phone se nahi hatega.")) return;
+    dc.disabled = true;
+    dc.textContent = "Delete ho rahi hai...";
+    try {
+      await deleteConversation(activeId);
+      activeId = null;
+      if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+      if (unsubNotes) { unsubNotes(); unsubNotes = null; }
+      if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+      clearMyPresence();
+      $("chatArea").innerHTML = '<div class="placeholder">Pick a conversation to start</div>';
+      renderInfo();
+    } catch (e) {
+      alert("Delete nahi hui: " + e.message);
+      dc.disabled = false;
+      dc.textContent = "Delete chat";
+    }
+  };
+
   const sv = $("surveyBtn");
   if (sv) sv.onclick = async () => {
     if (!confirm("Student ko survey bhejein? (masla hal hua ya nahi)")) return;
@@ -1026,7 +1237,8 @@ function paintChatHead() {
   };
 }
 
-function watchMessages(id) {
+async function watchMessages(id) {
+  try { await getToken(); } catch (e) {}
   if (unsubMessages) unsubMessages();
   const mq = query(collection(db, "conversations", id, "messages"), orderBy("timestamp", "asc"), limit(300));
   unsubMessages = onSnapshot(mq, (snap) => {
@@ -1035,22 +1247,119 @@ function watchMessages(id) {
     const failed = Array.from(box.querySelectorAll(".bubble.failed"));
     if (snap.empty) { box.innerHTML = '<div class="empty">No messages</div>'; return; }
 
-    box.innerHTML = snap.docs.map(d => {
-      const m = d.data();
-      const t = m.timestamp?.toDate ? m.timestamp.toDate() : new Date();
-      const stamp = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      let by = "";
-      if (m.direction === "out") {
-        if (m.sentBy === "welcome" || m.sentBy === "keyword") by = ' &middot; auto';
-        else if (m.sentBy) by = ' &middot; <span class="agent-chip" style="color:' +
-          colorFor(m.sentBy) + '">' + esc(m.sentBy) + '</span>';
-      }
-      return '<div class="bubble ' + m.direction + '">' + esc(m.text || "") +
-        '<span class="meta">' + stamp + by + '</span></div>';
-    }).join("");
+    box.innerHTML = snap.docs
+      .filter(d => d.data().deleted !== true)
+      .map(d => renderBubble(d.id, d.data())).join("");
+
     failed.forEach(el => box.appendChild(el));
+    wireBubbles();
     box.scrollTop = box.scrollHeight;
   });
+}
+
+function renderBubble(msgId, m) {
+  const t = m.timestamp?.toDate ? m.timestamp.toDate() : new Date();
+  const stamp = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  let by = "";
+  if (m.direction === "out") {
+    if (m.sentBy === "welcome" || m.sentBy === "keyword") by = ' &middot; auto';
+    else if (m.sentBy === "survey") by = ' &middot; survey';
+    else if (m.sentBy) by = ' &middot; <span class="agent-chip" style="color:' +
+      colorFor(m.sentBy) + '">' + esc(m.sentBy) + '</span>';
+  }
+
+  const metaLine = '<span class="meta">' + stamp + by + '</span>';
+  const menu = '<button class="msg-menu" data-del="' + msgId + '" title="Delete">&times;</button>';
+  const hasMedia = !!m.mediaId;
+  const isMedia = hasMedia && ["image", "video", "audio", "sticker", "document"].includes(m.type);
+
+  if (!isMedia) {
+    return '<div class="bubble ' + m.direction + '">' + menu +
+      esc(m.text || "") + metaLine + '</div>';
+  }
+
+  const src = mediaUrl(m.mediaId);
+  let inner = "";
+
+  if (m.type === "image" || m.type === "sticker") {
+    inner = '<img data-full="' + src + '" src="' + src + '" alt="Image" ' +
+      'onerror="this.outerHTML=\'<div class=&quot;media-fail&quot;>Image nahi mili &mdash; 30 din se purani ho sakti hai</div>\'">';
+  } else if (m.type === "video") {
+    inner = '<video controls preload="metadata" src="' + src + '"></video>';
+  } else if (m.type === "audio") {
+    inner = '<div class="aud"><span style="font-size:17px">&#127908;</span>' +
+      '<audio controls preload="none" src="' + src + '"></audio></div>';
+  } else if (m.type === "document") {
+    const nm = m.filename || "Document";
+    inner = '<a class="doc-row" href="' + src + '&download=1&name=' + encodeURIComponent(nm) + '" target="_blank" rel="noopener">' +
+      '<span class="doc-icon">&#128196;</span>' +
+      '<span><span class="doc-name">' + esc(nm) + '</span><br>' +
+      '<span class="doc-sub">Download</span></span></a>';
+  }
+
+  const cap = m.text ? '<div class="cap">' + esc(m.text) + '</div>' : "";
+  return '<div class="bubble media ' + m.direction + '">' + menu + inner + cap + metaLine + '</div>';
+}
+
+function mediaUrl(id) {
+  return "/api/whatsapp-media?id=" + encodeURIComponent(id) +
+         "&token=" + encodeURIComponent(cachedToken || "");
+}
+
+function wireBubbles() {
+  const box = $("messages");
+  if (!box) return;
+
+  box.querySelectorAll("[data-del]").forEach(b => {
+    b.onclick = async (e) => {
+      e.stopPropagation();
+      if (!confirm("Ye message dashboard se hata dein?\n\nStudent ke phone se nahi hatega.")) return;
+      try {
+        await updateDoc(doc(db, "conversations", activeId, "messages", b.dataset.del),
+          { deleted: true, deletedBy: me.name, deletedAt: serverTimestamp() });
+      } catch (e) { alert("Delete nahi hua"); }
+    };
+  });
+
+  box.querySelectorAll("img[data-full]").forEach(img => {
+    img.onclick = () => openLightbox('<img src="' + img.dataset.full + '">');
+  });
+}
+
+// ---------- Lightbox ----------
+function openLightbox(html) {
+  $("lbBody").innerHTML = html;
+  $("lightbox").classList.add("show");
+}
+$("lbClose").onclick = () => {
+  $("lightbox").classList.remove("show");
+  $("lbBody").innerHTML = "";
+};
+$("lightbox").onclick = (e) => {
+  if (e.target.id === "lightbox") $("lbClose").click();
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && $("lightbox").classList.contains("show")) $("lbClose").click();
+});
+
+// ---------- Poori chat delete ----------
+async function deleteConversation(id) {
+  // messages
+  const msgs = await getDocs(collection(db, "conversations", id, "messages"));
+  for (let i = 0; i < msgs.docs.length; i += 400) {
+    const batch = writeBatch(db);
+    msgs.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  }
+  // notes
+  const nts = await getDocs(collection(db, "conversations", id, "notes"));
+  if (nts.docs.length) {
+    const batch = writeBatch(db);
+    nts.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  }
+  await deleteDoc(doc(db, "conversations", id));
 }
 
 // Har team member ka apna rang (naam se hi bana lete hain)
@@ -1104,6 +1413,87 @@ function wireComposer() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
   $("sendBtn").onclick = send;
+
+  // File attach
+  $("attachBtn").onclick = () => $("fileInput").click();
+  $("fileInput").onchange = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) stageFile(f);
+    e.target.value = "";
+  };
+
+  // Drag & drop
+  const comp = $("composer"), hint = $("dropHint");
+  ["dragenter", "dragover"].forEach(ev =>
+    comp.addEventListener(ev, e => { e.preventDefault(); hint.classList.add("show"); })
+  );
+  ["dragleave", "drop"].forEach(ev =>
+    comp.addEventListener(ev, e => {
+      e.preventDefault();
+      if (ev === "dragleave" && comp.contains(e.relatedTarget)) return;
+      hint.classList.remove("show");
+    })
+  );
+  comp.addEventListener("drop", e => {
+    const f = e.dataTransfer?.files?.[0];
+    if (f) stageFile(f);
+  });
+
+  // Paste se image
+  ta.addEventListener("paste", (e) => {
+    const items = e.clipboardData?.items || [];
+    for (const it of items) {
+      if (it.kind === "file") {
+        const f = it.getAsFile();
+        if (f) { e.preventDefault(); stageFile(f); return; }
+      }
+    }
+  });
+}
+
+// ---------- File staging ----------
+let stagedFile = null;
+
+function stageFile(f) {
+  const MAX = 16 * 1024 * 1024;
+  if (f.size > MAX) {
+    $("sendErr").textContent = "File bohot bari hai (16 MB tak)";
+    return;
+  }
+  stagedFile = f;
+  const box = $("filePreview");
+  const kb = f.size < 1024 * 1024
+    ? Math.round(f.size / 1024) + " KB"
+    : (f.size / 1024 / 1024).toFixed(1) + " MB";
+
+  const thumb = f.type.startsWith("image/")
+    ? '<img id="fpThumb" alt="">'
+    : '<span style="font-size:22px">' +
+      (f.type.startsWith("video/") ? "&#127909;" : f.type.startsWith("audio/") ? "&#127925;" : "&#128196;") +
+      '</span>';
+
+  box.innerHTML = thumb +
+    '<span class="fp-name">' + esc(f.name) + '<br><span class="fp-size">' + kb + '</span></span>' +
+    '<button class="tiny-btn" id="fpCancel">Remove</button>';
+  box.classList.add("show");
+
+  if (f.type.startsWith("image/")) {
+    const r = new FileReader();
+    r.onload = () => { const t = $("fpThumb"); if (t) t.src = r.result; };
+    r.readAsDataURL(f);
+  }
+
+  $("fpCancel").onclick = clearStagedFile;
+  $("draft").placeholder = "Caption likhein (optional)&hellip;";
+  $("draft").focus();
+}
+
+function clearStagedFile() {
+  stagedFile = null;
+  const box = $("filePreview");
+  if (box) { box.classList.remove("show"); box.innerHTML = ""; }
+  const ta = $("draft");
+  if (ta) ta.placeholder = "Message likhein\u2026  ( / se saved reply )";
 }
 
 function updateSlash() {
@@ -1155,40 +1545,123 @@ async function getToken() {
   return cachedToken;
 }
 
-async function send() {
+const UNDO_SECONDS = 8;
+
+function send() {
   const c = convos.find(x => x.id === activeId);
   const ta = $("draft"), err = $("sendErr");
-  if (!c || !ta.value.trim()) return;
+  if (!c) return;
 
   const text = ta.value.trim();
-  const to = c.waNumber || c.id;
-  const convoId = c.id;
+  if (!text && !stagedFile) return;
+
+  // Agar pehla message abhi undo window mein hai to usay foran bhej dein
+  if (pendingSend) flushPending();
+
+  const payload = {
+    to: c.waNumber || c.id,
+    convoId: c.id,
+    text,
+    file: stagedFile,
+  };
 
   ta.value = "";
   autoGrow(ta);
   hideSlash();
   err.textContent = "";
-  const pendingEl = addPendingBubble(text);
+  clearStagedFile();
 
+  const bubble = addPendingBubble(
+    payload.file ? (payload.file.name + (text ? "\n" + text : "")) : text
+  );
+
+  // Undo bar chalayen
+  let left = UNDO_SECONDS;
+  $("undoCount").textContent = left;
+  $("undoBar").classList.add("show");
+
+  const tick = setInterval(() => {
+    left--;
+    const el = $("undoCount");
+    if (el) el.textContent = left;
+    if (left <= 0) flushPending();
+  }, 1000);
+
+  pendingSend = { payload, bubble, tick };
+
+  $("undoBtn").onclick = () => {
+    if (!pendingSend) return;
+    clearInterval(pendingSend.tick);
+    if (pendingSend.bubble) pendingSend.bubble.remove();
+    // Wapas composer mein daal dein taake edit kar sakein
+    const ta2 = $("draft");
+    if (ta2 && pendingSend.payload.text) {
+      ta2.value = pendingSend.payload.text;
+      autoGrow(ta2);
+      ta2.focus();
+    }
+    if (pendingSend.payload.file) stageFile(pendingSend.payload.file);
+    pendingSend = null;
+    $("undoBar").classList.remove("show");
+  };
+}
+
+function flushPending() {
+  if (!pendingSend) return;
+  const { payload, bubble, tick } = pendingSend;
+  clearInterval(tick);
+  pendingSend = null;
+  const bar = $("undoBar");
+  if (bar) bar.classList.remove("show");
+  doSend(payload, bubble);
+}
+
+async function doSend(payload, bubble) {
+  const { to, convoId, text, file } = payload;
   try {
     const token = await getToken();
-    const r = await fetch("/api/whatsapp-send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-      body: JSON.stringify({ to, text })
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || "Message nahi gaya");
-    if (pendingEl) pendingEl.remove();
+
+    if (file) {
+      const dataUrl = await fileToDataUrl(file);
+      const r = await fetch("/api/whatsapp-send-media", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ to, dataUrl, filename: file.name, caption: text })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "File nahi gayi");
+    } else {
+      const r = await fetch("/api/whatsapp-send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ to, text })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Message nahi gaya");
+    }
+
+    if (bubble) bubble.remove();
   } catch (e) {
     if (String(e.message).toLowerCase().includes("session")) cachedToken = null;
-    if (pendingEl) {
-      pendingEl.classList.add("failed");
-      const meta = pendingEl.querySelector(".meta");
-      if (meta) meta.textContent = "Nahi gaya — dobara bhejein";
+    if (bubble) {
+      bubble.classList.add("failed");
+      const meta = bubble.querySelector(".meta");
+      if (meta) meta.textContent = "Nahi gaya — " + e.message;
     }
-    if (activeId === convoId) err.textContent = e.message;
+    if (activeId === convoId) {
+      const err = $("sendErr");
+      if (err) err.textContent = e.message;
+    }
   }
+}
+
+function fileToDataUrl(f) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(new Error("File parhi nahi ja saki"));
+    r.readAsDataURL(f);
+  });
 }
 
 function addPendingBubble(text) {
@@ -1322,68 +1795,106 @@ $("statsBtn").onclick = openStats;
 $("statsClose").onclick = () => $("statsModal").classList.remove("show");
 
 async function openStats() {
+  if (me.role !== "owner") return;
   $("statsModal").classList.add("show");
   const box = $("statsBody");
   box.innerHTML = '<div class="empty">Hisab lagaya ja raha hai&hellip;</div>';
 
   const now = Date.now();
-  const dayAgo = now - 24 * 60 * 60 * 1000;
-  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const DAY = 24 * 60 * 60 * 1000;
+  const weekAgo = now - 7 * DAY;
 
-  let openChats = 0, unreadChats = 0, unassigned = 0, waiting = 0;
-  let newToday = 0, surveyYes = 0, surveyNo = 0, surveyPending = 0;
+  // ---- Chats ka hisab ----
+  let openChats = 0, unreadChats = 0, unassigned = 0, waiting = 0, newToday = 0;
+  let surveyYes = 0, surveyNo = 0, surveyPending = 0;
   const labelCount = {};
+  const agentStats = {};   // naam -> { replies, yes, no, ratings[] }
+
+  const bump = (name) => {
+    if (!agentStats[name]) agentStats[name] = { replies: 0, yes: 0, no: 0, ratings: [] };
+    return agentStats[name];
+  };
 
   convos.forEach(c => {
-    const lastAt = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
     if (c.status !== "resolved") openChats++;
     if ((c.unread || 0) > 0) unreadChats++;
     if (!c.assignedUid) unassigned++;
     if (isWaiting(c) && minsSince(c.lastMessageAt) >= URGENT_MINUTES) waiting++;
     const created = c.createdAt?.toMillis ? c.createdAt.toMillis() : 0;
-    if (created > dayAgo) newToday++;
+    if (created > now - DAY) newToday++;
+
     if (c.surveyAnswer === "yes") surveyYes++;
     if (c.surveyAnswer === "no") surveyNo++;
-    if (c.surveyPending) surveyPending++;
+    if (c.surveyPending || c.survey2Pending) surveyPending++;
+
+    // Survey ka credit us member ko jis ne handle kiya
+    const who = c.surveyAgent || c.assignedTo;
+    if (who && c.surveyAnswer) {
+      const a = bump(who);
+      if (c.surveyAnswer === "yes") a.yes++; else a.no++;
+    }
+    const bWho = c.behaviourAgent || c.surveyAgent || c.assignedTo;
+    if (bWho && c.behaviourRating) bump(bWho).ratings.push(c.behaviourRating);
+
     (c.labels || []).forEach(id => { labelCount[id] = (labelCount[id] || 0) + 1; });
   });
 
-  // Team ke replies ginna — har chat ke messages parhne parte hain
-  const perAgent = {};
-  let totalReplies = 0, autoReplies = 0;
+  // ---- Replies ginna + rozana ka graph ----
+  let autoReplies = 0;
+  const perDay = {};
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now - i * DAY);
+    perDay[d.toDateString()] = 0;
+  }
+
   const recent = convos.filter(c => {
     const t = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
     return t > weekAgo;
-  }).slice(0, 60);
+  }).slice(0, 80);
 
   for (const c of recent) {
     try {
       const snap = await getDocs(
-        query(collection(db, "conversations", c.id, "messages"), orderBy("timestamp", "desc"), limit(100))
+        query(collection(db, "conversations", c.id, "messages"), orderBy("timestamp", "desc"), limit(120))
       );
       snap.forEach(d => {
         const m = d.data();
-        if (m.direction !== "out") return;
+        if (m.direction !== "out" || m.deleted === true) return;
         const t = m.timestamp?.toMillis ? m.timestamp.toMillis() : 0;
         if (t < weekAgo) return;
         const by = m.sentBy || "";
-        if (by === "welcome" || by === "keyword" || by === "survey" || by === "system") {
-          autoReplies++;
-        } else if (by) {
-          perAgent[by] = (perAgent[by] || 0) + 1;
-          totalReplies++;
-        }
+        if (["welcome", "keyword", "survey", "system"].includes(by)) { autoReplies++; return; }
+        if (!by) return;
+        bump(by).replies++;
+        const key = new Date(t).toDateString();
+        if (key in perDay) perDay[key]++;
       });
     } catch (e) {}
   }
 
-  const agents = Object.entries(perAgent).sort((a, b) => b[1] - a[1]);
-  const maxAgent = agents.length ? agents[0][1] : 1;
+  // ---- Sorting ----
+  const agents = Object.entries(agentStats)
+    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length)
+    .sort((a, b) => b[1].replies - a[1].replies);
+  const maxRep = agents.length ? Math.max(...agents.map(a => a[1].replies), 1) : 1;
+
+  const days = Object.entries(perDay);
+  const maxDay = Math.max(...days.map(d => d[1]), 1);
+
   const labelRows = Object.entries(labelCount).sort((a, b) => b[1] - a[1]);
   const maxLabel = labelRows.length ? labelRows[0][1] : 1;
+
   const totalSurvey = surveyYes + surveyNo;
   const satisfaction = totalSurvey ? Math.round((surveyYes / totalSurvey) * 100) : null;
 
+  const allRatings = agents.flatMap(([, a]) => a.ratings);
+  const avgBehaviour = allRatings.length
+    ? (allRatings.reduce((x, y) => x + y, 0) / allRatings.length) : null;
+
+  const ratingText = (v) => v >= 2.5 ? "Bohot achha" : v >= 1.7 ? "Theek" : "Behtar karna hai";
+  const ratingColor = (v) => v >= 2.5 ? "#15803d" : v >= 1.7 ? "#b45309" : "#b91c1c";
+
+  // ---- Render ----
   box.innerHTML =
     '<div class="stats-grid">' +
       statCard(convos.length, "Total chats") +
@@ -1394,41 +1905,79 @@ async function openStats() {
       statCard(newToday, "New (24h)") +
     '</div>' +
 
-    '<div class="info-title">Replies — pichhle 7 din</div>' +
+    // Rozana ka graph
+    '<div class="info-title" style="margin-top:22px">Rozana replies &mdash; 7 din</div>' +
+    '<div class="graph">' +
+      days.map(([d, n]) => {
+        const h = Math.round((n / maxDay) * 88) + 3;
+        const lbl = new Date(d).toLocaleDateString([], { weekday: "short" });
+        return '<div class="graph-col">' +
+          '<span class="graph-val">' + n + '</span>' +
+          '<div class="graph-bar" style="height:' + h + 'px"></div>' +
+          '<span class="graph-lbl">' + lbl + '</span></div>';
+      }).join("") +
+    '</div>' +
+
+    // Team performance
+    '<div class="info-title" style="margin-top:24px">Team performance &mdash; 7 din</div>' +
     (agents.length
-      ? '<table class="stat-table"><thead><tr><th>Team member</th><th>Replies</th><th style="width:38%"></th></tr></thead><tbody>' +
-        agents.map(([name, n]) =>
-          '<tr><td><span style="color:' + colorFor(name) + ';font-weight:600">' + esc(name) + '</span></td>' +
-          '<td>' + n + '</td>' +
-          '<td><span class="bar" style="width:' + Math.round((n / maxAgent) * 100) + '%;background:' + colorFor(name) + '"></span></td></tr>'
-        ).join("") +
-        '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies + '</td><td></td></tr>' +
+      ? '<table class="stat-table"><thead><tr>' +
+          '<th>Member</th><th>Replies</th><th>Hal huay</th><th>Behaviour</th>' +
+        '</tr></thead><tbody>' +
+        agents.map(([name, a]) => {
+          const solved = a.yes + a.no;
+          const rate = solved ? Math.round((a.yes / solved) * 100) : null;
+          const avg = a.ratings.length
+            ? (a.ratings.reduce((x, y) => x + y, 0) / a.ratings.length) : null;
+          return '<tr>' +
+            '<td><span style="color:' + colorFor(name) + ';font-weight:600">' + esc(name) + '</span></td>' +
+            '<td>' + a.replies +
+              '<div class="rate-bar"><div class="rate-fill" style="width:' +
+              Math.round((a.replies / maxRep) * 100) + '%;background:' + colorFor(name) + '"></div></div></td>' +
+            '<td>' + (rate === null ? '<span style="color:var(--faint)">&mdash;</span>'
+              : '<b>' + rate + '%</b><br><span style="font-size:11px;color:var(--faint)">' +
+                a.yes + " / " + solved + '</span>') + '</td>' +
+            '<td>' + (avg === null ? '<span style="color:var(--faint)">&mdash;</span>'
+              : '<b style="color:' + ratingColor(avg) + '">' + avg.toFixed(1) + '</b>' +
+                '<br><span style="font-size:11px;color:var(--faint)">' + ratingText(avg) +
+                ' (' + a.ratings.length + ')</span>') + '</td>' +
+          '</tr>';
+        }).join("") +
+        '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies +
+        '</td><td></td><td></td></tr>' +
         '</tbody></table>'
       : '<div class="empty" style="padding:14px 0">Abhi koi reply nahi.</div>') +
 
-    '<div class="info-title" style="margin-top:22px">Survey</div>' +
+    // Survey
+    '<div class="info-title" style="margin-top:24px">Survey</div>' +
     (totalSurvey || surveyPending
       ? '<div class="stats-grid">' +
           statCard('<span class="survey-yes">' + surveyYes + '</span>', "Masla hal hua") +
           statCard('<span class="survey-no">' + surveyNo + '</span>', "Hal nahi hua") +
           statCard(surveyPending, "Jawab ka intezar") +
-          statCard(satisfaction === null ? "&mdash;" : satisfaction + "%", "Satisfaction") +
+          statCard(satisfaction === null ? "&mdash;" : satisfaction + "%", "Resolution rate") +
+          statCard(avgBehaviour === null ? "&mdash;"
+            : '<span style="color:' + ratingColor(avgBehaviour) + '">' + avgBehaviour.toFixed(1) + '</span>',
+            "Behaviour (3 max)") +
         '</div>'
       : '<div class="empty" style="padding:14px 0">Abhi koi survey nahi bheja gaya.</div>') +
 
-    '<div class="info-title" style="margin-top:22px">Labels</div>' +
+    // Labels
+    '<div class="info-title" style="margin-top:24px">Labels</div>' +
     (labelRows.length
       ? '<table class="stat-table"><tbody>' +
         labelRows.map(([id, n]) => {
           const l = labelById(id);
           return '<tr><td><span class="lab lab-' + (l ? l.color : "grey") + '">' +
             esc(l ? l.name : id) + '</span></td><td>' + n + '</td>' +
-            '<td style="width:38%"><span class="bar" style="width:' + Math.round((n / maxLabel) * 100) + '%"></span></td></tr>';
+            '<td style="width:38%"><span class="bar" style="width:' +
+            Math.round((n / maxLabel) * 100) + '%"></span></td></tr>';
         }).join("") + '</tbody></table>'
       : '<div class="empty" style="padding:14px 0">Abhi koi label nahi laga.</div>') +
 
-    '<div class="hint" style="margin-top:18px">Reply counts pichhle 7 din ki 60 chats se ginte hain. ' +
-    'Purani chats 7 din baad khud delete ho jati hain.</div>';
+    '<div class="hint" style="margin-top:20px">' +
+    'Behaviour rating: 3 = bohot achha, 2 = theek, 1 = achha nahi.<br>' +
+    'Chats 7 din baad khud delete ho jati hain, is liye hisab bhi 7 din ka hai.</div>';
 }
 
 function statCard(num, label) {
