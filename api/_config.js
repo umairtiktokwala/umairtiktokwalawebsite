@@ -180,19 +180,19 @@ export const LABELS = [
 export const WORK_START_HOUR = 8;    // subha 8 baje
 export const WORK_END_HOUR = 23;     // raat 11 baje
 
-// Weekend off: Jumeraat shaam 4 baje se Sanichar subha 8 baje tak
-// (0 = Itwar, 1 = Peer, 2 = Mangal, 3 = Budh, 4 = Jumeraat, 5 = Jumma, 6 = Sanichar)
+// Weekend off: Jumeraat shaam 4 baje se Hafta subha 8 baje tak
+// (0 = Itwar, 1 = Peer, 2 = Mangal, 3 = Budh, 4 = Jumeraat, 5 = Jumma, 6 = Hafta)
 export const WEEKEND_START_DAY = 4;    // Jumeraat
 export const WEEKEND_START_HOUR = 16;  // shaam 4 baje
-export const WEEKEND_END_DAY = 6;      // Sanichar
+export const WEEKEND_END_DAY = 6;      // Hafta
 export const WEEKEND_END_HOUR = 8;     // subha 8 baje
 
 // Weekend ke waqt jo message jayega
 export const WEEKEND_MESSAGE =
   "Assalam o alaikum!\n\n" +
   "Abhi hamara *weekend off* chal raha hai.\n\n" +
-  "Off time: *Jumeraat shaam 4 baje se Sanichar subha 8 baje tak*\n\n" +
-  "Aap ka message hamare paas mehfooz hai. Sanichar subha 8 baje ke baad " +
+  "Off time: *Jumeraat shaam 4 baje se Hafta subha 8 baje tak*\n\n" +
+  "Aap ka message hamare paas mehfooz hai. Hafta subha 8 baje ke baad " +
   "team aap se rabta kar legi.\n\n" +
   "Shukriya!";
 
