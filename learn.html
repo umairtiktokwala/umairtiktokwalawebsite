@@ -900,8 +900,9 @@ function render(){
   const inBatch=LESSONS.filter(l=>l.batch===BATCH);
   const allowed=allowedCourses(BATCH);
   const haveLessons=Array.from(new Set(inBatch.map(l=>l.course))).filter(Boolean);
-  let courses=allowed?haveLessons.filter(c=>allowed.includes(c)):haveLessons;
-  if(!courses.length) courses=haveLessons;
+  // show ONLY the courses this student is enrolled in.
+  // never fall back to other courses — that would leak content.
+  const courses=allowed?allowed.slice():haveLessons;
   if(!TAB||!courses.includes(TAB)) TAB=courses[0]||null;
 
   // tabs
