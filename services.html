@@ -807,11 +807,170 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   }
 </style>
 <script>
+
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach((el,i)=>{
+  el.style.transitionDelay=(i%3)*70+'ms';
+  io.observe(el);
+});
+
+/* ===================================================================
+   PROMPT BOOK — loads from your published Google Sheet
+   -------------------------------------------------------------------
+   TO CONNECT A SHEET:
+   1. In your Sheet:  File > Share > Publish to web
+                      Entire document  +  Comma-separated values (.csv)
+                      > Publish
+   2. Copy the link Google gives you (it ends in  /pub?output=csv )
+   3. Paste it below, replacing the whole SHEET_CSV value.
+
+   Sheet columns, in this exact order:
+        Image URL | Title | Prompt | Category | Tool
+   Row 1 = headings. Add a new row = a new prompt appears on the site.
+   =================================================================== */
+const HAS_PB = !!document.getElementById('pbGrid');
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
+const PER_PAGE  = 9;
+
+let ALL = [], filter = 'All', shown = 0;
+const $grid  = document.getElementById('pbGrid');
+const $bar   = document.getElementById('pbBar');
+const $state = document.getElementById('pbState');
+const $more  = document.getElementById('pbMore');
+
+function parseCSV(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
+      else cell+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(cell); cell=''; }
+      else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+      else if(c!=='\r') cell+=c;
+    }
+  }
+  if(cell||row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function render(reset){
+  if(reset) shown = 0;
+  const list = ALL.filter(p => filter==='All' || p.cat===filter);
+  if(!list.length){
+    $grid.hidden = true; $more.hidden = true;
+    $state.hidden = false;
+    $state.textContent = 'Nothing here yet.';
+    return;
+  }
+  $state.hidden = true; $grid.hidden = false;
+  shown = Math.min(shown + PER_PAGE, list.length);
+  const page = list.slice(0, shown);
+
+  $grid.innerHTML = page.map((p,i) => `
+    <article class="pb-card">
+      ${p.img ? `<img class="pb-img" src="${esc(p.img)}" alt="${esc(p.title)}" loading="lazy">` : ''}
+      <div class="pb-body">
+        <div class="pb-meta">
+          ${p.cat  ? `<span class="pb-tag">${esc(p.cat)}</span>`        : ''}
+          ${p.tool ? `<span class="pb-tag tool">${esc(p.tool)}</span>`  : ''}
+        </div>
+        ${p.title ? `<h3 class="pb-title">${esc(p.title)}</h3>` : ''}
+        <div class="pb-prompt" id="pr${i}">${esc(p.prompt)}</div>
+        <div class="pb-acts">
+          <button class="pb-btn copy" data-copy="${i}">Copy prompt</button>
+          <button class="pb-btn" data-open="${i}">Read all</button>
+        </div>
+      </div>
+    </article>`).join('');
+
+  $more.hidden = shown >= list.length;
+
+  $grid.querySelectorAll('[data-copy]').forEach(b=>{
+    b.onclick = () => {
+      navigator.clipboard.writeText(page[+b.dataset.copy].prompt);
+      const t = b.textContent;
+      b.textContent = 'Copied'; b.classList.add('done');
+      setTimeout(()=>{ b.textContent=t; b.classList.remove('done'); }, 1400);
+    };
+  });
+  $grid.querySelectorAll('[data-open]').forEach(b=>{
+    b.onclick = () => {
+      const el = document.getElementById('pr'+b.dataset.open);
+      const open = el.classList.toggle('open');
+      b.textContent = open ? 'Show less' : 'Read all';
+    };
+  });
+}
+
+function buildChips(){
+  const cats = ['All', ...new Set(ALL.map(p=>p.cat).filter(Boolean))];
+  $bar.innerHTML = cats.map(c =>
+    `<button class="pb-chip${c==='All'?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`
+  ).join('');
+  $bar.querySelectorAll('.pb-chip').forEach(b=>{
+    b.onclick = () => {
+      $bar.querySelectorAll('.pb-chip').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      filter = b.dataset.cat;
+      render(true);
+    };
+  });
+}
+
+
+/* A Cloudinary URL can contain commas (f_auto,q_auto). If it was pasted into
+   the sheet unquoted, the CSV splits it across cells. Stitch it back. */
+function fixRow(r){
+  r = r.map(c => (c||'').trim());
+  if(r[0] && r[0].indexOf('http') === 0){
+    // pull following fragments back onto the URL until we hit a real next field
+    while(r.length > 5 && r[1] && !/\s/.test(r[1]) && !/^https?:/.test(r[1])
+          && (r[1].indexOf('/') > -1 || /^[a-z]_[a-z0-9]+$/i.test(r[1]))){
+      r[0] = r[0] + ',' + r[1];
+      r.splice(1,1);
+    }
+  }
+  return { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
+}
+
+async function loadPrompts(){
+  if(!$state || !$grid) return;
+  if(!SHEET_CSV || SHEET_CSV.indexOf('http') !== 0){
+    $state.textContent = 'Prompt book not connected yet — add your published Sheet CSV link in index.html.';
+    return;
+  }
+  try{
+    const res = await fetch(SHEET_CSV);
+    if(!res.ok) throw new Error(res.status);
+    const rows = parseCSV(await res.text()).slice(1);   // drop heading row
+    ALL = rows
+      .map(fixRow)
+      .filter(p => p.prompt)                            // must have a prompt
+      .reverse();                                       // newest first
+    if(!ALL.length){ $state.textContent = 'No prompts in the sheet yet.'; return; }
+    buildChips();
+    render(true);
+  }catch(e){
+    $state.textContent = "Couldn't load the prompt book. Check that the sheet is still published to the web as CSV.";
+  }
+}
+if($more) $more.onclick = () => render(false);
+if(HAS_PB) loadPrompts();
+
+
+
+
+</script>
+<script>
   var t=document.getElementById('navToggle'), l=document.getElementById('navLinks');
   if(t&&l){ t.onclick=function(){ t.classList.toggle('on'); l.classList.toggle('open'); }; }
-  document.querySelectorAll('.faq-q').forEach(function(q){
-    q.onclick=function(){ q.parentElement.classList.toggle('open'); };
-  });
 </script>
 </body>
 </html>
