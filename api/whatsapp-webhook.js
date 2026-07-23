@@ -17,6 +17,15 @@ import {
   SURVEY_REPLY_NO,
   SURVEY_MESSAGE_2,
   SURVEY_REPLY_DONE,
+  WORK_START_HOUR,
+  WORK_END_HOUR,
+  WEEKEND_START_DAY,
+  WEEKEND_START_HOUR,
+  WEEKEND_END_DAY,
+  WEEKEND_END_HOUR,
+  WEEKEND_MESSAGE,
+  NIGHT_MESSAGE,
+  OFFTIME_COOLDOWN_MINUTES,
 } from "./_config.js";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
@@ -236,6 +245,19 @@ async function processWebhook(body) {
       await convoRef.set({ survey2Pending: false }, { merge: true });
     }
 
+    // ---- Off time ka message ----
+    // Working hours ke bahar ho to student ko bata dein.
+    // Keyword replies phir bhi chalti rahengi (neeche).
+    const offMsg = offTimeMessage();
+    if (offMsg) {
+      const lastOff = prev.lastOffTimeMsg?.toMillis ? prev.lastOffTimeMsg.toMillis() : 0;
+      const offCooldown = OFFTIME_COOLDOWN_MINUTES * 60 * 1000;
+      if (now.getTime() - lastOff > offCooldown) {
+        await sendText(from, offMsg, convoRef, "offtime");
+        await convoRef.set({ lastOffTimeMsg: now }, { merge: true });
+      }
+    }
+
     // ---- Auto-reply ----
     let replied = false;
 
@@ -261,6 +283,35 @@ async function processWebhook(body) {
       }
     }
   }
+}
+
+// ---- Pakistan ka waqt (server duniya mein kahin bhi ho) ----
+function pakNow() {
+  const s = new Date().toLocaleString("en-US", { timeZone: "Asia/Karachi" });
+  return new Date(s);
+}
+
+// ---- Abhi off time hai ya nahi ----
+// Off hai to jo message bhejna hai wo wapas karta hai, warna null.
+function offTimeMessage() {
+  const now = pakNow();
+  const day = now.getDay();     // 0 = Itwar ... 6 = Sanichar
+  const hour = now.getHours();
+
+  // ---- Weekend: Jumeraat 4pm se Sanichar 8am tak ----
+  const afterStart =
+    day > WEEKEND_START_DAY ||
+    (day === WEEKEND_START_DAY && hour >= WEEKEND_START_HOUR);
+  const beforeEnd =
+    day < WEEKEND_END_DAY ||
+    (day === WEEKEND_END_DAY && hour < WEEKEND_END_HOUR);
+
+  if (afterStart && beforeEnd) return WEEKEND_MESSAGE;
+
+  // ---- Rozana: subha 8 se raat 11 ke bahar ----
+  if (hour < WORK_START_HOUR || hour >= WORK_END_HOUR) return NIGHT_MESSAGE;
+
+  return null;  // working time hai
 }
 
 function findKeywordMatch(text) {

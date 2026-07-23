@@ -173,6 +173,42 @@ export const LABELS = [
 ];
 
 // ============================================================
+//  OFF TIME (kaam ke auqat) — sab waqt Pakistan ka hai
+// ============================================================
+
+// Rozana kaam ka waqt: subha 8 se raat 11 tak
+export const WORK_START_HOUR = 8;    // subha 8 baje
+export const WORK_END_HOUR = 23;     // raat 11 baje
+
+// Weekend off: Jumeraat shaam 4 baje se Sanichar subha 8 baje tak
+// (0 = Itwar, 1 = Peer, 2 = Mangal, 3 = Budh, 4 = Jumeraat, 5 = Jumma, 6 = Sanichar)
+export const WEEKEND_START_DAY = 4;    // Jumeraat
+export const WEEKEND_START_HOUR = 16;  // shaam 4 baje
+export const WEEKEND_END_DAY = 6;      // Sanichar
+export const WEEKEND_END_HOUR = 8;     // subha 8 baje
+
+// Weekend ke waqt jo message jayega
+export const WEEKEND_MESSAGE =
+  "Assalam o alaikum!\n\n" +
+  "Abhi hamara *weekend off* chal raha hai.\n\n" +
+  "Off time: *Jumeraat shaam 4 baje se Sanichar subha 8 baje tak*\n\n" +
+  "Aap ka message hamare paas mehfooz hai. Sanichar subha 8 baje ke baad " +
+  "team aap se rabta kar legi.\n\n" +
+  "Shukriya!";
+
+// Raat ke waqt (11 se 8) jo message jayega
+export const NIGHT_MESSAGE =
+  "Assalam o alaikum!\n\n" +
+  "Abhi hamara working time nahi hai.\n\n" +
+  "Working hours: *subha 8 baje se raat 11 baje tak* (Pakistan time)\n\n" +
+  "Aap ka message hamare paas mehfooz hai. Subha team aap se rabta kar legi.\n\n" +
+  "Shukriya!";
+
+// Ek hi banday ko off-time ka message dobara bhejne se pehle itne minute ka wait
+// (taake wo 10 message likhe to 10 baar wohi jawab na jaye)
+export const OFFTIME_COOLDOWN_MINUTES = 120;
+
+// ============================================================
 //  DATA CLEANUP
 //  Itne din baad purani chats khud delete ho jayengi
 // ============================================================
