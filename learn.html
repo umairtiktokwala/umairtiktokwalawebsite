@@ -927,7 +927,15 @@ function render(){
   if(!shown.length){ $('mods').innerHTML='<div class="empty"><i class="ti ti-books"></i>No lessons added to this course yet.</div>'; return; }
   const mods={};
   shown.forEach(l=>{(mods[l.module]=mods[l.module]||[]).push(l);});
-  $('mods').innerHTML=Object.keys(mods).map((m,i)=>{
+  // order modules by the smallest lesson Order inside each one
+  const modNames=Object.keys(mods).sort((a,b)=>{
+    const oa=Math.min(...mods[a].map(l=>l.order||9999));
+    const ob=Math.min(...mods[b].map(l=>l.order||9999));
+    return oa-ob;
+  });
+  // and order lessons inside each module too
+  modNames.forEach(m=>mods[m].sort((a,b)=>(a.order||0)-(b.order||0)));
+  $('mods').innerHTML=modNames.map((m,i)=>{
     const ls=mods[m], d=ls.filter(l=>DONE.has(l.id)).length;
     return `<div class="module ${i===0?'open':''}">
       <div class="mod-h">
