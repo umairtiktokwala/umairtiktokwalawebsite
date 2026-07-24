@@ -211,6 +211,7 @@ export const OFFTIME_COOLDOWN_MINUTES = 120;
 // ============================================================
 //  DATA CLEANUP
 //  Itne din baad purani chats khud delete ho jayengi
+//  (30 din — stats mein 28 din ka poora hisab mil sake)
 // ============================================================
 
-export const MESSAGE_RETENTION_DAYS = 7;
+export const MESSAGE_RETENTION_DAYS = 30;
