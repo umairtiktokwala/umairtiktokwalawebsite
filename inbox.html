@@ -140,9 +140,10 @@
   .tag-viewing{background:rgba(22,163,74,.14);color:#15803d;font-weight:600}
   .tag-msgr{background:rgba(0,132,255,.13);color:#0084FF;font-weight:600}
   .tag-wa{background:rgba(37,211,102,.14);color:#128C7E;font-weight:600}
-  .locked-composer{
-    padding:14px 16px;border-top:1px solid var(--line);background:var(--panel2);
-    font-size:12.5px;color:var(--dim);line-height:1.6;text-align:center;
+  .win-warn{
+    padding:10px 16px;border-top:1px solid var(--line);
+    background:rgba(180,83,9,.08);color:#b45309;
+    font-size:12px;line-height:1.55;text-align:center;
   }
   .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px}
   .empty{padding:36px 20px;text-align:center;color:var(--faint);font-size:13px;line-height:1.6}
@@ -1144,29 +1145,30 @@ async function openConvo(id) {
   patch.lastOpenedAt = serverTimestamp();
   try { await updateDoc(doc(db, "conversations", id), patch); } catch (e) {}
 
-  // Messenger chats abhi read-only hain (Phase 1). Reply bhejna Phase 2 mein aayega.
-  const composerHtml = isMessenger(c)
-    ? '<div class="locked-composer">' +
-        'Ye <b>Messenger</b> chat hai. Reply bhejne ka option abhi tayyar nahi hua.<br>' +
-        'Filhal jawab Facebook Page inbox (Meta Business Suite) se dein &mdash; ' +
-        'wo reply yahan bhi apne aap dikh jayega.' +
-      '</div>'
-    : composerMarkup();
+  // Messenger chats mein file bhejna abhi nahi (Phase 3), sirf text
+  const msgr = isMessenger(c);
+  const w2 = windowState(c);
+  const closedWarn = (msgr && w2.cls === "closed")
+    ? '<div class="win-warn">24 ghante ka window band ho chuka hai. ' +
+      'Messenger ab is chat mein reply nahi jane deta &mdash; student ke naye message ka intezar karein.</div>'
+    : '';
 
   $("chatArea").innerHTML =
     '<div class="chat-head" id="chatHead"></div>' +
     '<div class="viewing-bar" id="viewingBar" style="display:none"></div>' +
     '<div class="messages" id="messages"><div class="empty">Loading&hellip;</div></div>' +
-    composerHtml;
+    closedWarn +
+    composerMarkup(!msgr);
 
   paintChatHead();
   paintViewingBar();
-  if (!isMessenger(c)) { renderQuickBar(); wireComposer(); }
+  renderQuickBar();
+  wireComposer();
   watchMessages(id);
   watchNotes(id);
 }
 
-function composerMarkup() {
+function composerMarkup(allowFiles) {
   return '<div class="composer" id="composer">' +
       '<div class="drop-hint" id="dropHint">File yahan chhoR dein</div>' +
       '<div class="slash" id="slash"></div>' +
@@ -1177,7 +1179,8 @@ function composerMarkup() {
       '<div class="file-preview" id="filePreview"></div>' +
       '<div class="quick" id="quick"></div>' +
       '<div class="composer-row">' +
-        '<button class="attach-btn" id="attachBtn" title="File bhejein">&#128206;</button>' +
+        '<button class="attach-btn" id="attachBtn" title="File bhejein"' +
+          (allowFiles ? '' : ' style="display:none"') + '>&#128206;</button>' +
         '<textarea id="draft" placeholder="Message likhein&hellip;  ( / se saved reply )" rows="1"></textarea>' +
         '<button class="send-btn" id="sendBtn">&uarr;</button>' +
       '</div>' +
@@ -1506,16 +1509,21 @@ function wireComposer() {
   };
   $("sendBtn").onclick = send;
 
-  // File attach
-  $("attachBtn").onclick = () => $("fileInput").click();
+  // File attach (Messenger chats mein button chhupa hota hai)
+  const ab = $("attachBtn");
+  if (ab) ab.onclick = () => $("fileInput").click();
   $("fileInput").onchange = (e) => {
     const f = e.target.files && e.target.files[0];
     if (f) stageFile(f);
     e.target.value = "";
   };
 
+  const cNow = convos.find(x => x.id === activeId);
+  const noFiles = isMessenger(cNow);
+
   // Drag & drop
   const comp = $("composer"), hint = $("dropHint");
+  if (!noFiles) {
   ["dragenter", "dragover"].forEach(ev =>
     comp.addEventListener(ev, e => { e.preventDefault(); hint.classList.add("show"); })
   );
@@ -1530,9 +1538,11 @@ function wireComposer() {
     const f = e.dataTransfer?.files?.[0];
     if (f) stageFile(f);
   });
+  }
 
   // Paste se image
   ta.addEventListener("paste", (e) => {
+    if (noFiles) return;
     const items = e.clipboardData?.items || [];
     for (const it of items) {
       if (it.kind === "file") {
@@ -1643,20 +1653,23 @@ function send() {
   const c = convos.find(x => x.id === activeId);
   const ta = $("draft"), err = $("sendErr");
   if (!c) return;
-  if (isMessenger(c)) return;   // Messenger reply Phase 2 mein
   if (!ta) return;
+
+  const msgr = isMessenger(c);
 
   const text = ta.value.trim();
   if (!text && !stagedFile) return;
+  if (msgr && !text) return;   // Messenger mein abhi sirf text
 
   // Agar pehla message abhi undo window mein hai to usay foran bhej dein
   if (pendingSend) flushPending();
 
   const payload = {
-    to: c.waNumber || c.id,
+    to: msgr ? (c.psid || String(c.id).replace(/^fb_/, "")) : (c.waNumber || c.id),
     convoId: c.id,
+    channel: msgr ? "messenger" : "whatsapp",
     text,
-    file: stagedFile,
+    file: msgr ? null : stagedFile,
   };
 
   ta.value = "";
@@ -1711,11 +1724,19 @@ function flushPending() {
 }
 
 async function doSend(payload, bubble) {
-  const { to, convoId, text, file } = payload;
+  const { to, convoId, text, file, channel } = payload;
   try {
     const token = await getToken();
 
-    if (file) {
+    if (channel === "messenger") {
+      const r = await fetch("/api/messenger-send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ psid: to, text })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Message nahi gaya");
+    } else if (file) {
       const dataUrl = await fileToDataUrl(file);
       const r = await fetch("/api/whatsapp-send-media", {
         method: "POST",
