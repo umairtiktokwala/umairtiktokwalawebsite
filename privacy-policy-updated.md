@@ -1,0 +1,84 @@
+# Umair TikTok Wala — Privacy Policy
+
+**Last updated: 28 July 2026**
+
+## Who we are
+
+Umair TikTok Wala ("we", "us") provides online training in social media content creation and monetization. We operate the website umairtiktokwala.com, our student learning portal, and support channels on WhatsApp and Facebook Messenger. We are registered in the United Kingdom as Umair TikTok Wala Limited (company number 15688946).
+
+## Information we collect
+
+We collect only what we need to deliver our courses and support:
+
+- **Enrollment details** — name, email address, phone number, city, and the course or batch you register for.
+- **Payment reference** — transaction ID or reference number you provide so we can verify your enrollment. We do not collect or store card numbers or bank credentials.
+- **Learning activity** — lessons completed, task submissions, and progress within the student portal.
+- **WhatsApp messages** — when you message our support number, we receive your message content, your WhatsApp display name, and your phone number.
+- **Facebook Messenger messages** — when you message our Facebook Page, we receive your message content, your first and last name as shown on your Facebook profile, and a Page-Scoped ID (PSID). A PSID is an identifier issued by Meta that is unique to our Page. It is not your Facebook user ID and cannot be used to identify you outside of conversations with our Page.
+
+## How we use your information
+
+- To confirm your enrollment and give you access to the course.
+- To answer your questions and provide support.
+- To track your progress and issue certificates where applicable.
+- To send you course-related updates such as class schedules and batch announcements.
+
+We do not sell your information. We do not share it with advertisers or use it for advertising purposes. We do not use your messages to build advertising audiences or for any automated decision-making.
+
+## Support conversations (WhatsApp and Messenger)
+
+Our support channels run on the WhatsApp Business Platform and the Messenger Platform, both provided by Meta.
+
+When you message us on either channel, your message is delivered to our internal support dashboard so that our support team can read it and respond. Replies are written manually by a member of our support team. On WhatsApp, you may receive an automated acknowledgement outside our working hours before a team member answers.
+
+Only authenticated members of our support team can access this dashboard. Access requires an individual login, and each team member's account must be explicitly authorised by us.
+
+**Retention:** support conversations, including message content and any attachments referenced in them, are automatically deleted 30 days after they are received. We do not keep archives or backups of messages beyond this period.
+
+Attachments you send us (images, videos, voice notes, documents) are displayed in our dashboard by reference to Meta's servers. We do not download or store copies of these files on our own systems.
+
+Your use of WhatsApp and Facebook Messenger is also governed by Meta's own privacy policies.
+
+**To stop receiving messages from us**, reply STOP on WhatsApp, or ask our support team on either channel to remove you. We will action this promptly.
+
+## Where your data is stored
+
+Student records and support conversations are stored using Google Firebase (Firestore), hosted in the Asia South region. Our website is hosted on Vercel. All data is transmitted over encrypted HTTPS connections. Both providers apply industry-standard security measures. Access to student data is limited to authorised team members.
+
+## How long we keep it
+
+- **Enrollment and course records** — kept while you are a student and afterwards for our own records, unless you ask us to delete them.
+- **WhatsApp and Messenger support conversations** — automatically deleted 30 days after they are received.
+
+## Your rights
+
+You can ask us at any time to:
+
+- See what information we hold about you.
+- Correct anything that is wrong.
+- Delete your information, where we are not required to keep it.
+- Stop contacting you.
+
+### How to request deletion of your data
+
+Email us at **info@umairtiktokwala.com** with the subject line "Data deletion request", and include the phone number or Facebook name you used to contact us. You may also send this request as a message on the same WhatsApp number or Facebook Page you used to reach us.
+
+We will confirm receipt and complete the deletion within 30 days. Once deleted, your support conversation history and any associated identifiers are permanently removed from our systems and cannot be recovered.
+
+## Children
+
+Our courses are intended for adults. We do not knowingly collect information from anyone under 13. If you believe a child has provided us with personal information, please contact us and we will delete it.
+
+## Third-party services
+
+We use Meta (WhatsApp Business Platform and Messenger Platform), Google Firebase, Google Forms and Sheets, and Vercel to run our services. Each of these providers handles data under their own privacy policies. We do not share your data with any other third parties.
+
+## Changes to this policy
+
+If we change this policy, we will update the date at the top of this page. Significant changes will be communicated to enrolled students directly.
+
+## Contact us
+
+**Umair TikTok Wala Limited**
+Email: info@umairtiktokwala.com
+Website: umairtiktokwala.com
