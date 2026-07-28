@@ -489,7 +489,7 @@
       </div>
       <div class="filters" id="filters">
         <button data-f="all" class="active">All</button>
-        <button data-f="unread">Unread</button>
+        <button data-f="unread">Unread <span id="unreadCount"></span></button>
         <button data-f="mine">Mine</button>
         <button data-f="unassigned">Unassigned</button>
         <button data-f="waiting">Waiting</button>
@@ -577,7 +577,7 @@ import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, collection, query, orderBy, limit, onSnapshot, getDocs,
+  getFirestore, collection, collectionGroup, query, orderBy, limit, onSnapshot, getDocs, where,
   doc, getDoc, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -645,6 +645,12 @@ const CONVO_PAGE = 150;    // "load more" pe kitni aur
 let unsubConvos = null;
 let allLoaded = false;   // saari chats aa gayin?
 
+// Unread chats ka alag listener — taake purani unread chat kabhi na chhupe
+let convosRecent = [];     // list mein aane wali nayi chats
+let convosUnread = [];     // har wo chat jis mein unread baqi hai
+let unsubUnread = null;
+const UNREAD_MAX = 1000;   // itni unread chats tak
+
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s)
   .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
@@ -677,6 +683,8 @@ onAuthStateChanged(auth, async (user) => {
       const d = snap.exists() ? snap.data() : {};
       me.name = d.name || user.email;
       me.role = d.role || "";
+      // Review mode: sirf Messenger chats, delete band
+      me.reviewer = d.reviewer === true;
     } catch (e) { me.name = user.email; }
 
     // Stats sirf owner ko
@@ -899,34 +907,70 @@ function renderSrList() {
 }
 
 // ---------- Conversation list ----------
+// Do listener chalte hain:
+//   1. Nayi 150 chats (lastMessageAt ke hisaab se)
+//   2. HAR wo chat jis mein unread baqi hai — chahe kitni bhi purani ho
+// Dono ko mila kar list banti hai, is liye unread chat kabhi neeche nahi chhupti.
 function watchConversations() {
   if (unsubConvos) unsubConvos();
   const q = query(collection(db, "conversations"), orderBy("lastMessageAt", "desc"), limit(convoLimit));
   unsubConvos = onSnapshot(q, (snap) => {
-    const next = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // Naye messages ka pata lagana (notification ke liye)
-    if (!firstLoad) {
-      next.forEach(c => {
-        const prev = convos.find(x => x.id === c.id);
-        const prevAt = prev?.lastMessageAt?.toMillis ? prev.lastMessageAt.toMillis() : 0;
-        const nowAt = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
-        const isNewIncoming = nowAt > prevAt && (c.unread || 0) > (prev?.unread || 0);
-        if (isNewIncoming && c.id !== activeId) {
-          beep();
-          notify(displayNameOf(c), c.lastMessage || "New message");
-        }
-      });
-    }
-    firstLoad = false;
-
-    convos = next;
-    allLoaded = next.length < convoLimit;
-    refreshBatchOptions();
-    renderList();
-    updateTotalBadge();
-    if (activeId) { renderInfo(); paintChatHead(); }
+    convosRecent = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allLoaded = convosRecent.length < convoLimit;
+    mergeConvos();
   });
+
+  watchUnread();
+}
+
+function watchUnread() {
+  if (unsubUnread) unsubUnread();
+  const uq = query(
+    collection(db, "conversations"),
+    where("unread", ">", 0),
+    orderBy("unread", "desc"),
+    limit(UNREAD_MAX)
+  );
+  unsubUnread = onSnapshot(uq, (snap) => {
+    convosUnread = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    mergeConvos();
+  }, (err) => {
+    // Index na bane to app chalti rahe — sirf console mein warning
+    console.warn("Unread listener error:", err.message);
+  });
+}
+
+function mergeConvos() {
+  const byId = new Map();
+  for (const c of convosRecent) byId.set(c.id, c);
+  for (const c of convosUnread) if (!byId.has(c.id)) byId.set(c.id, c);
+
+  const next = [...byId.values()].sort((a, b) => {
+    const ta = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : 0;
+    const tb = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : 0;
+    return tb - ta;
+  });
+
+  // Naye messages ka pata lagana (notification ke liye)
+  if (!firstLoad) {
+    next.forEach(c => {
+      const prev = convos.find(x => x.id === c.id);
+      const prevAt = prev?.lastMessageAt?.toMillis ? prev.lastMessageAt.toMillis() : 0;
+      const nowAt = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
+      const isNewIncoming = nowAt > prevAt && (c.unread || 0) > (prev?.unread || 0);
+      if (isNewIncoming && c.id !== activeId) {
+        beep();
+        notify(displayNameOf(c), c.lastMessage || "New message");
+      }
+    });
+  }
+  firstLoad = false;
+
+  convos = next;
+  refreshBatchOptions();
+  renderList();
+  updateTotalBadge();
+  if (activeId) { renderInfo(); paintChatHead(); }
 }
 
 $("search").oninput = (e) => { searchTerm = e.target.value.toLowerCase(); renderList(); };
@@ -1002,10 +1046,17 @@ function updateTotalBadge() {
   el.textContent = n;
   el.style.display = n > 0 ? "inline-block" : "none";
   document.title = n > 0 ? "(" + n + ") Support inbox" : "Support inbox — Umair TikTok Wala";
+
+  // Unread filter button pe bhi ginti
+  const uc = $("unreadCount");
+  if (uc) uc.textContent = n > 0 ? "(" + n + ")" : "";
 }
 
 function filteredConvos() {
   return convos.filter(c => {
+    // Review account ko sirf Messenger chats dikhti hain
+    if (me.reviewer && !isMessenger(c)) return false;
+
     if (searchTerm) {
       const hay = (displayNameOf(c) + " " + (c.waNumber || "")).toLowerCase();
       if (!hay.includes(searchTerm)) return false;
@@ -1098,7 +1149,13 @@ function renderList() {
   }).join("");
 
   // "Aur purani chats" ka button
-  if (!allLoaded && !searchTerm) {
+  // Unread filter pe zaroorat nahi — saari unread chats pehle se list mein hain
+  if (currentFilter === "unread") {
+    list.innerHTML +=
+      '<div class="empty" style="padding:16px;font-size:12px">' +
+        'Saari unread chats yahan hain (' + shown.length + ')' +
+      '</div>';
+  } else if (!allLoaded && !searchTerm) {
     list.innerHTML +=
       '<div style="padding:14px">' +
         '<button class="mini-btn" id="loadMoreBtn" style="width:100%">' +
@@ -1217,7 +1274,7 @@ function paintChatHead() {
         '<div class="assign-menu" id="assignMenu"></div>' +
       '</span>' +
       '<button class="mini-btn" id="unreadBtn">Mark unread</button>' +
-      '<button class="mini-btn" id="delChatBtn" style="color:var(--danger)">Delete chat</button>' +
+      (me.reviewer ? '' : '<button class="mini-btn" id="delChatBtn" style="color:var(--danger)">Delete chat</button>') +
       (isMessenger(c) ? ''
         : c.surveyPending ? '<span class="mini-btn" style="cursor:default">Survey sent</span>'
                           : '<button class="mini-btn" id="surveyBtn">Send survey</button>') +
@@ -1361,7 +1418,8 @@ function renderBubble(msgId, m) {
   }
 
   const metaLine = '<span class="meta">' + stamp + by + '</span>';
-  const menu = '<button class="msg-menu" data-del="' + msgId + '" title="Delete">&times;</button>';
+  const menu = me.reviewer ? ''
+    : '<button class="msg-menu" data-del="' + msgId + '" title="Delete">&times;</button>';
   // WhatsApp media proxy se aati hai (mediaId), Messenger ki media seedha link hoti hai
   const hasMedia = !!(m.mediaId || m.mediaUrlDirect);
   const isMedia = hasMedia && ["image", "video", "audio", "sticker", "document"].includes(m.type);
@@ -1982,11 +2040,10 @@ async function runStats() {
   // ---- Chats ka hisab ----
   let openChats = 0, unreadChats = 0, unassigned = 0, waiting = 0, newInRange = 0;
   let surveyYes = 0, surveyNo = 0, surveyPending = 0;
-  const labelCount = {};
   const agentStats = {};
 
   const bump = (name) => {
-    if (!agentStats[name]) agentStats[name] = { replies: 0, yes: 0, no: 0, ratings: [] };
+    if (!agentStats[name]) agentStats[name] = { replies: 0, yes: 0, no: 0, ratings: [], waits: [] };
     return agentStats[name];
   };
 
@@ -2018,8 +2075,6 @@ async function runStats() {
     if (bWho && c.behaviourRating && (!bAt || (bAt >= from && bAt <= to))) {
       bump(bWho).ratings.push(c.behaviourRating);
     }
-
-    (c.labels || []).forEach(id => { labelCount[id] = (labelCount[id] || 0) + 1; });
   });
 
   // ---- Rozana ka khaka ----
@@ -2032,59 +2087,103 @@ async function runStats() {
   let autoReplies = 0, totalIn = 0, totalOut = 0;
 
   // Range ke andar jin chats mein kuch hua
-  const relevant = convos.filter(c => {
-    const t = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
-    return t >= from;
-  }).slice(0, days > 14 ? 80 : 50);
+  // ---- Saare messages ek hi query mein ----
+  // Pehle sirf chand chats ke messages parhe jate the, is liye ginti kam aati thi.
+  // Ab poore arse ke SAARE messages aate hain — ginti bilkul sahi.
+  const AUTO_SENDERS = ["welcome", "keyword", "survey", "system", "offtime"];
+  const byConvo = new Map();
+  let statsError = "";
+  let msgCount = 0;
 
-  for (const c of relevant) {
-    try {
-      const snap = await getDocs(
-        query(collection(db, "conversations", c.id, "messages"),
-              orderBy("timestamp", "desc"), limit(days > 14 ? 150 : 80))
-      );
-      snap.forEach(d => {
-        const m = d.data();
-        if (m.deleted === true) return;
-        const t = m.timestamp?.toMillis ? m.timestamp.toMillis() : 0;
-        if (t < from || t > to) return;
+  try {
+    const snap = await getDocs(
+      query(
+        collectionGroup(db, "messages"),
+        where("timestamp", ">=", new Date(from)),
+        where("timestamp", "<=", new Date(to)),
+        orderBy("timestamp", "asc")
+      )
+    );
 
-        const key = new Date(t).toDateString();
-        const bucket = perDay[key];
+    snap.forEach(d => {
+      const m = d.data();
+      if (m.deleted === true) return;
+      const t = m.timestamp?.toMillis ? m.timestamp.toMillis() : 0;
+      if (!t) return;
+      msgCount++;
 
-        if (m.direction === "in") {
-          totalIn++;
-          if (bucket) bucket.inMsg++;
-          perHour[new Date(t).getHours()]++;
-          return;
-        }
+      const key = new Date(t).toDateString();
+      const bucket = perDay[key];
+      const by = m.sentBy || "";
 
-        // out
+      if (m.direction === "in") {
+        totalIn++;
+        if (bucket) bucket.inMsg++;
+        perHour[new Date(t).getHours()]++;
+      } else {
         totalOut++;
         if (bucket) bucket.outMsg++;
-        const by = m.sentBy || "";
-        if (["welcome", "keyword", "survey", "system", "offtime"].includes(by)) {
-          autoReplies++;
-          return;
-        }
-        if (!by) return;
-        bump(by).replies++;
-      });
-    } catch (e) {}
+        if (AUTO_SENDERS.includes(by)) autoReplies++;
+        else if (by) bump(by).replies++;
+      }
+
+      // Reply time ke liye har chat ke messages alag jama karein
+      const cid = d.ref.parent.parent ? d.ref.parent.parent.id : "";
+      if (!cid) return;
+      if (!byConvo.has(cid)) byConvo.set(cid, []);
+      byConvo.get(cid).push({ t, dir: m.direction, by });
+    });
+  } catch (e) {
+    statsError = e.message || "Messages nahi parhe ja sake";
+    console.error("Stats error:", e);
   }
+
+  // ---- Reply ka waqt ----
+  // Har incoming message ke baad pehla INSAANI reply — us ka farq.
+  const waits = [];
+  byConvo.forEach(list => {
+    list.sort((a, b) => a.t - b.t);
+    let pendingIn = null;
+    for (const m of list) {
+      if (m.dir === "in") {
+        if (pendingIn === null) pendingIn = m.t;   // pehla message jis ka jawab nahi aaya
+        continue;
+      }
+      if (AUTO_SENDERS.includes(m.by) || !m.by) continue;   // auto reply ginti mein nahi
+      if (pendingIn !== null) {
+        const d = m.t - pendingIn;
+        if (d >= 0) {
+          waits.push(d);
+          bump(m.by).waits.push(d);
+        }
+        pendingIn = null;
+      }
+    }
+  });
+
+  const avgOf = (arr) => arr.length
+    ? Math.round(arr.reduce((x, y) => x + y, 0) / arr.length) : null;
+  const medianOf = (arr) => {
+    if (!arr.length) return null;
+    const s = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(s.length / 2);
+    return s.length % 2 ? s[mid] : Math.round((s[mid - 1] + s[mid]) / 2);
+  };
+
+  const avgWait = avgOf(waits);
+  const medWait = medianOf(waits);
+  const within1h = waits.length
+    ? Math.round((waits.filter(w => w <= 3600000).length / waits.length) * 100) : null;
 
   // ---- Sorting ----
   const agents = Object.entries(agentStats)
-    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length)
+    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length || a.waits.length)
     .sort((a, b) => b[1].replies - a[1].replies);
   const maxRep = agents.length ? Math.max(...agents.map(a => a[1].replies), 1) : 1;
 
   const dayRows = Object.entries(perDay);
   const maxDay = Math.max(...dayRows.map(d => Math.max(d[1].inMsg, d[1].outMsg)), 1);
   const maxHour = Math.max(...perHour, 1);
-
-  const labelRows = Object.entries(labelCount).sort((a, b) => b[1] - a[1]);
-  const maxLabel = labelRows.length ? labelRows[0][1] : 1;
 
   const totalSurvey = surveyYes + surveyNo;
   const satisfaction = totalSurvey ? Math.round((surveyYes / totalSurvey) * 100) : null;
@@ -2097,6 +2196,22 @@ async function runStats() {
   const ratingColor = (v) => v >= 2.5 ? "#15803d" : v >= 1.7 ? "#b45309" : "#b91c1c";
 
   const avgPerDay = days ? Math.round(totalIn / days) : 0;
+
+  // Waqt ko parhne layak banana: 45s / 12m / 2h 15m / 1d 3h
+  const fmtDur = (ms) => {
+    if (ms === null || ms === undefined) return "&mdash;";
+    const s = Math.round(ms / 1000);
+    if (s < 60) return s + "s";
+    const m = Math.round(s / 60);
+    if (m < 60) return m + "m";
+    const h = Math.floor(m / 60), rm = m % 60;
+    if (h < 24) return h + "h" + (rm ? " " + rm + "m" : "");
+    const d2 = Math.floor(h / 24), rh = h % 24;
+    return d2 + "d" + (rh ? " " + rh + "h" : "");
+  };
+  const waitColor = (ms) => ms === null ? "var(--faint)"
+    : ms <= 1800000 ? "#15803d" : ms <= 7200000 ? "#b45309" : "#b91c1c";
+
   const rangeLabel = statsRange === "custom"
     ? (customFrom + " se " + customTo)
     : (days + " din");
@@ -2119,6 +2234,24 @@ async function runStats() {
       statCard(unreadChats, "Abhi unread") +
       statCard(waiting, URGENT_MINUTES + "m+ waiting") +
     '</div>' +
+
+    // Reply ka waqt
+    '<div class="info-title" style="margin-top:22px">Reply ka waqt &mdash; ' + esc(rangeLabel) + '</div>' +
+    (waits.length
+      ? '<div class="stats-grid">' +
+          statCard('<span style="color:' + waitColor(medWait) + '">' + fmtDur(medWait) + '</span>',
+                   "Aam tor pe (median)") +
+          statCard('<span style="color:' + waitColor(avgWait) + '">' + fmtDur(avgWait) + '</span>',
+                   "Average") +
+          statCard(within1h + "%", "1 ghante ke andar") +
+          statCard(waits.length, "Kitne replies ka hisab") +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--faint);margin-top:6px">' +
+          'Student ke message se le kar team ke pehle jawab tak ka waqt. ' +
+          'Auto replies shamil nahi. Raat ko aaye messages average ko barha dete hain &mdash; ' +
+          'is liye <b>median</b> zyada sacha number hai.' +
+        '</div>'
+      : '<div class="empty" style="padding:14px 0">Is arse mein koi reply nahi mila.</div>') +
 
     // Rozana graph
     '<div class="info-title" style="margin-top:22px">Rozana messages &mdash; ' + esc(rangeLabel) + '</div>' +
@@ -2155,7 +2288,7 @@ async function runStats() {
     '<div class="info-title" style="margin-top:24px">Team performance &mdash; ' + esc(rangeLabel) + '</div>' +
     (agents.length
       ? '<table class="stat-table"><thead><tr>' +
-          '<th>Member</th><th>Replies</th><th>Hal huay</th><th>Behaviour</th>' +
+          '<th>Member</th><th>Replies</th><th>Reply time</th><th>Hal huay</th><th>Behaviour</th>' +
         '</tr></thead><tbody>' +
         agents.map(([name, a]) => {
           const solved = a.yes + a.no;
@@ -2169,6 +2302,10 @@ async function runStats() {
               '<span style="font-size:11px;color:var(--faint)"> (' + share + '%)</span>' +
               '<div class="rate-bar"><div class="rate-fill" style="width:' +
               Math.round((a.replies / maxRep) * 100) + '%;background:' + colorFor(name) + '"></div></div></td>' +
+            '<td>' + (a.waits.length
+              ? '<b style="color:' + waitColor(medianOf(a.waits)) + '">' + fmtDur(medianOf(a.waits)) + '</b>' +
+                '<br><span style="font-size:11px;color:var(--faint)">' + a.waits.length + ' replies</span>'
+              : '<span style="color:var(--faint)">&mdash;</span>') + '</td>' +
             '<td>' + (rate === null ? '<span style="color:var(--faint)">&mdash;</span>'
               : '<b>' + rate + '%</b><br><span style="font-size:11px;color:var(--faint)">' +
                 a.yes + " / " + solved + '</span>') + '</td>' +
@@ -2179,7 +2316,7 @@ async function runStats() {
           '</tr>';
         }).join("") +
         '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies +
-        '</td><td></td><td></td></tr>' +
+        '</td><td></td><td></td><td></td></tr>' +
         '</tbody></table>'
       : '<div class="empty" style="padding:14px 0">Is arse mein koi reply nahi.</div>') +
 
@@ -2197,22 +2334,17 @@ async function runStats() {
         '</div>'
       : '<div class="empty" style="padding:14px 0">Is arse mein koi survey nahi.</div>') +
 
-    // Labels
-    '<div class="info-title" style="margin-top:24px">Labels</div>' +
-    (labelRows.length
-      ? '<table class="stat-table"><tbody>' +
-        labelRows.map(([id, n]) => {
-          const l = labelById(id);
-          return '<tr><td><span class="lab lab-' + (l ? l.color : "grey") + '">' +
-            esc(l ? l.name : id) + '</span></td><td>' + n + '</td>' +
-            '<td style="width:38%"><span class="bar" style="width:' +
-            Math.round((n / maxLabel) * 100) + '%"></span></td></tr>';
-        }).join("") + '</tbody></table>'
-      : '<div class="empty" style="padding:14px 0">Abhi koi label nahi laga.</div>') +
+    // Aakhir mein
+    (statsError
+      ? '<div class="hint" style="margin-top:20px;color:#b91c1c">' +
+        'Messages ka hisab nahi ho saka: ' + esc(statsError) + '<br>' +
+        'Agar is mein "index" ka zikr hai to browser console (F12) kholein &mdash; ' +
+        'wahan ek link hoga, us pe click kar ke index bana dein.</div>'
+      : '') +
 
     '<div class="hint" style="margin-top:20px">' +
     'Behaviour: 3 = bohot achha, 2 = theek, 1 = achha nahi.<br>' +
-    'Hisab un ' + relevant.length + ' chats se hai jin mein is arse mein baat hui.<br>' +
+    'Is arse ke <b>' + msgCount + '</b> messages ka hisab.<br>' +
     'Chats 30 din baad khud delete ho jati hain.</div>';
 }
 
