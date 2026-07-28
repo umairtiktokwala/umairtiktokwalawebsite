@@ -25,6 +25,7 @@ import {
   WEEKEND_END_HOUR,
   WEEKEND_MESSAGE,
   NIGHT_MESSAGE,
+  OFFTIME_ENABLED,
   OFFTIME_COOLDOWN_MINUTES,
 } from "./_config.js";
 
@@ -248,7 +249,7 @@ async function processWebhook(body) {
     // ---- Off time ka message ----
     // Working hours ke bahar ho to student ko bata dein.
     // Keyword replies phir bhi chalti rahengi (neeche).
-    const offMsg = offTimeMessage();
+    const offMsg = OFFTIME_ENABLED ? offTimeMessage() : null;
     if (offMsg) {
       const lastOff = prev.lastOffTimeMsg?.toMillis ? prev.lastOffTimeMsg.toMillis() : 0;
       const offCooldown = OFFTIME_COOLDOWN_MINUTES * 60 * 1000;

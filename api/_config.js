@@ -10,10 +10,16 @@ export const WELCOME_MESSAGE =
   "Assalam o alaikum, apki kia help kr skta hun me ?";
 
 // Welcome message on/off
-export const WELCOME_ENABLED = true;
+// BAND — team khud jawab degi
+export const WELCOME_ENABLED = false;
 
 // Keyword replies on/off
-export const KEYWORDS_ENABLED = true;
+// BAND — team khud jawab degi
+export const KEYWORDS_ENABLED = false;
+
+// Off-time (raat aur weekend) ke auto message on/off
+// BAND — team khud jawab degi
+export const OFFTIME_ENABLED = false;
 
 // Ek hi keyword ka jawab dobara bhejne se pehle itne minute ka wait
 // (taake student baar baar "fees" likhe to spam na ho)
