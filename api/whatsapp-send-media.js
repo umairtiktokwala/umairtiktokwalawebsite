@@ -2,6 +2,16 @@
 //  SEND MEDIA
 //  Team dashboard se image / document bhejti hai.
 //  Do step: pehle Meta pe upload, phir message bhejein.
+//
+//  SIZE KI ASLI HAD:
+//  Vercel ki serverless function ek request mein sirf 4.5 MB leti hai.
+//  Ye Vercel ki apni had hai — code se badli nahi ja sakti.
+//  File base64 mein badalne se ~33% aur bhaari ho jati hai,
+//  is liye asli had ~3.3 MB banti hai. Hum ne 3 MB rakhi hai.
+//
+//  (Pehle yahan `export const config = { api: { bodyParser: ... } }`
+//   likha tha — wo Next.js ki line hai. Ye project Next.js nahi hai,
+//   is liye us line ka koi asar nahi tha. Hata di gayi hai.)
 // ============================================================
 
 import { getDb, normalizePhone } from "./_firebase.js";
@@ -9,19 +19,9 @@ import { getAuth } from "firebase-admin/auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
-export const config = {
-  api: {
-    bodyParser: { sizeLimit: "18mb" },
-  },
-};
-
-// WhatsApp ki limits
-const LIMITS = {
-  image: 5 * 1024 * 1024,
-  video: 16 * 1024 * 1024,
-  audio: 16 * 1024 * 1024,
-  document: 95 * 1024 * 1024,
-};
+// Har qism ke liye ek hi had — kyunke rukawat Vercel ki taraf se hai,
+// WhatsApp ki taraf se nahi.
+const MAX_BYTES = 3 * 1024 * 1024;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -58,16 +58,18 @@ export default async function handler(req, res) {
     const mime = m[1];
     const buf = Buffer.from(m[2], "base64");
 
+    if (buf.length > MAX_BYTES) {
+      const mb = (buf.length / 1024 / 1024).toFixed(1);
+      return res.status(400).json({
+        error: `File 3 MB se bari hai (${mb} MB). Chhoti kar ke bhejein.`,
+      });
+    }
+
     // ---- Kis qism ki file hai ----
     let waType = "document";
     if (mime.startsWith("image/") && mime !== "image/svg+xml") waType = "image";
     else if (mime.startsWith("video/")) waType = "video";
     else if (mime.startsWith("audio/")) waType = "audio";
-
-    if (buf.length > LIMITS[waType]) {
-      const mb = Math.round(LIMITS[waType] / 1024 / 1024);
-      return res.status(400).json({ error: `File bohot bari hai — ${waType} ke liye ${mb} MB tak` });
-    }
 
     // ---- Step 1: Meta pe upload ----
     const form = new FormData();
@@ -86,6 +88,7 @@ export default async function handler(req, res) {
 
     const upData = await upRes.json();
     if (!upRes.ok || !upData.id) {
+      console.error("Media upload failed:", JSON.stringify(upData));
       return res.status(400).json({
         error: upData?.error?.message || "Upload nahi ho saka",
       });
@@ -98,6 +101,7 @@ export default async function handler(req, res) {
       type: waType,
       [waType]: { id: upData.id },
     };
+    // Audio pe caption WhatsApp support nahi karta
     if (caption && (waType === "image" || waType === "video" || waType === "document")) {
       payload[waType].caption = String(caption).slice(0, 1000);
     }
@@ -119,6 +123,7 @@ export default async function handler(req, res) {
 
     const sendData = await sendRes.json();
     if (!sendRes.ok) {
+      console.error("Media send failed:", JSON.stringify(sendData));
       return res.status(400).json({
         error: sendData?.error?.message || "Message nahi gaya",
       });
