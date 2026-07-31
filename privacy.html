@@ -107,6 +107,13 @@
   .foot-in a{color:var(--dim)}
   .foot-in a:hover{color:var(--ink)}
 </style>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="UTW Academy">
 </head>
 <body>
 
@@ -212,5 +219,8 @@
   </div>
 </footer>
 
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
+</script>
 </body>
 </html>

@@ -229,6 +229,13 @@ button{font-family:var(--body)}
 .empty{padding:60px 24px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:var(--r);font-size:15px}
 .empty i{font-size:38px;color:var(--muted-2);display:block;margin-bottom:12px}
 </style>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="UTW Academy">
 </head>
 <body>
 
@@ -726,6 +733,9 @@ async function delAnn(id){
   try{ await deleteDoc(doc(db,'announcements',id)); ANN=ANN.filter(a=>a.id!==id); renderAnnouncements(); }
   catch(e){ alert('Could not delete.'); }
 }
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
 </script>
 </body>
 </html>

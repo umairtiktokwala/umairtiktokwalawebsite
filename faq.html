@@ -635,6 +635,13 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 .hub-go{display:inline-block;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--blue)}
 
 </style>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="UTW Academy">
 </head>
 <body>
 <nav>
@@ -970,6 +977,9 @@ if(HAS_PB) loadPrompts();
 <script>
   var t=document.getElementById('navToggle'), l=document.getElementById('navLinks');
   if(t&&l){ t.onclick=function(){ t.classList.toggle('on'); l.classList.toggle('open'); }; }
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
 </script>
 </body>
 </html>
