@@ -291,6 +291,13 @@ button{font-family:var(--body)}
 .nb-del i{font-size:15px}
 .nb-del:hover{color:var(--red);background:#FEF2F2}
 </style>
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="UTW Academy">
 </head>
 <body>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css">
@@ -1101,6 +1108,28 @@ function renderNotes(){
   </div>`).join('');
   $('nbList').querySelectorAll('[data-del]').forEach(b=>{ b.onclick=()=>{ if(confirm('Delete this note?')) delNote(b.dataset.del); }; });
 }
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
+
+/* ---- Install app button ---- */
+(function(){
+  var deferred=null;
+  var btn=document.createElement('button');
+  btn.textContent='📲 Install app';
+  btn.style.cssText='position:fixed;left:16px;bottom:16px;z-index:9999;background:linear-gradient(90deg,#4f46e5,#9333ea,#e11d48);color:#fff;border:0;padding:12px 18px;border-radius:999px;font:600 14px system-ui;box-shadow:0 8px 24px rgba(80,40,160,.35);cursor:pointer;display:none';
+  document.body.appendChild(btn);
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault(); deferred=e; btn.style.display='block';
+  });
+  btn.onclick=async function(){
+    if(!deferred) return;
+    deferred.prompt();
+    await deferred.userChoice;
+    deferred=null; btn.style.display='none';
+  };
+  window.addEventListener('appinstalled',function(){ btn.style.display='none'; });
+})();
 </script>
 </body>
 </html>
