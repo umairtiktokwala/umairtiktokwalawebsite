@@ -1,0 +1,23 @@
+{
+  "name": "Umair TikTok Wala Academy",
+  "short_name": "UTW Academy",
+  "description": "Facebook & TikTok monetization training — courses, tasks, and your student portal.",
+  "start_url": "/learn.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#6d28d9",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "My Course", "short_name": "Course", "url": "/learn.html" },
+    { "name": "Prompt Book", "short_name": "Prompts", "url": "/prompt-book.html" }
+  ]
+}
