@@ -291,13 +291,6 @@ button{font-family:var(--body)}
 .nb-del i{font-size:15px}
 .nb-del:hover{color:var(--red);background:#FEF2F2}
 </style>
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#6d28d9">
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="UTW Academy">
 </head>
 <body>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css">
@@ -542,8 +535,10 @@ function clearNote(){ note.className = 'note'; }
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 function normalize(n){
   n=String(n||'').replace(/\D/g,'');
-  if(n.startsWith('0')) n='92'+n.slice(1);
-  if(n.startsWith('3')&&n.length===10) n='92'+n;
+  if(n.startsWith('00'))  n=n.slice(2);           // 00923001234567 -> 923001234567
+  if(n.startsWith('0'))   n='92'+n.slice(1);      // 03001234567    -> 923001234567
+  if(n.startsWith('920')) n='92'+n.slice(3);      // 9203001234567  -> 923001234567
+  if(n.startsWith('3')&&n.length===10) n='92'+n;  // 3001234567     -> 923001234567
   return n;
 }
 function ytId(url){
@@ -595,13 +590,64 @@ function fmt(sec){
 let ME=null, LESSONS=[], TASKS=[], DONE=new Set(), DAYS={}, SUBS={}, NOTES=[], ANN=[];
 let BATCH=null, TAB=null, OPEN=null, T0=0, SESSION=Date.now(), SECTION='course';
 let watchTimer=null;
+/* Jo number student ne abhi form mein likha — agar record adhoora nikla
+   to isi se dobara bana lete hain. */
+let PENDING_NUM='';
 
 /* ===== auth screens ===== */
 $('toSignup').onclick=()=>{clearNote();$('loginView').style.display='none';$('signupView').style.display='block';};
 $('toLogin').onclick =()=>{clearNote();$('signupView').style.display='none';$('loginView').style.display='block';};
 
+/* Number se email dhoondna.
+   Wapas: {email:'...', ok:true}  = mil gaya
+          {email:null,  ok:true}  = waqai koi account nahi hai
+          {email:null,  ok:false} = check hi nahi ho saka (net/Firestore ka masla)
+   Teesri soorat mein student ko "No account found" DIKHANA GHALAT hai. */
 async function emailForNumber(num){
-  try{ const s=await getDoc(doc(db,'numbers',num)); return s.exists()?s.data().email:null; }catch(e){ return null; }
+  let firestoreFailed=false;
+
+  // 1. numbers/{number} — sab se tez raasta
+  try{
+    const s=await getDoc(doc(db,'numbers',num));
+    if(s.exists() && s.data().email) return {email:String(s.data().email).toLowerCase(), ok:true};
+  }catch(e){ firestoreFailed=true; }
+
+  // 2. Server se — students collection mein har shakal ka number check hota hai,
+  //    aur ghayab entry khud ba khud ban jati hai.
+  try{
+    const r=await fetch('/api/lookup-email',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({number:num})
+    });
+    const v=await r.json();
+    if(v && v.found && v.email) return {email:String(v.email).toLowerCase(), ok:true};
+    if(r.ok) return {email:null, ok:true};
+  }catch(e){ /* neeche */ }
+
+  // Yahan tak pohanche to na Firestore ne jawab diya na server ne —
+  // "account nahi hai" kehna ghalat hoga.
+  return {email:null, ok:false, firestoreFailed:firestoreFailed};
+}
+
+/* Firestore ka kaam kabhi kabhi ek baar mein nahi hota (net, quota).
+   Teen baar koshish karta hai, phir haar manta hai. */
+async function withRetry(fn){
+  let last=null;
+  for(let i=0;i<3;i++){
+    try{ return await fn(); }
+    catch(e){ last=e; await new Promise(r=>setTimeout(r, 400*(i+1))); }
+  }
+  throw last;
+}
+
+/* Account ke dono record likhna — ek hi jagah, taake kabhi adhoore na rahen. */
+async function writeAccountDocs(uid, num, email, name, batches, enrollments){
+  await withRetry(()=>setDoc(doc(db,'students',uid),{
+    number:num, phone10:num.slice(-10), email:email, name:name||'',
+    batches:batches, enrollments:enrollments,
+    verified:true, joined:serverTimestamp(),
+  },{merge:true}));
+  await withRetry(()=>setDoc(doc(db,'numbers',num),{email:email},{merge:true}));
 }
 
 /* signup */
@@ -625,12 +671,26 @@ $('signupView').addEventListener('submit', async ev=>{
     let batches=Array.isArray(v.batches)?v.batches:[];
     if(!batches.length && v.current) batches=[v.current];
     if(!enrollments.length) enrollments=batches.map(b=>({batch:b,courses:['facebook','tiktok']}));
-    const cred=await createUserWithEmailAndPassword(auth,email,pw);
-    await setDoc(doc(db,'students',cred.user.uid),{
-      number:num,email:email,name:v.name||'',batches:batches,enrollments:enrollments,
-      verified:true,joined:serverTimestamp(),
-    });
-    await setDoc(doc(db,'numbers',num),{email:email});
+
+    PENDING_NUM=num;
+    let cred=null;
+    try{
+      cred=await createUserWithEmailAndPassword(auth,email,pw);
+    }catch(e1){
+      // Ho sakta hai pichli baar signup beech mein ruk gaya ho: Auth account
+      // ban gaya, lekin record nahi bane. Us soorat mein wohi password chalega —
+      // andar aa kar adhoore record mukammal kar dete hain.
+      if(!String(e1.code||e1.message||'').includes('email-already-in-use')) throw e1;
+      btn.textContent='Fixing your account…';
+      try{
+        cred=await signInWithEmailAndPassword(auth,email,pw);
+      }catch(e2){
+        btn.disabled=false; btn.textContent='Verify & create account';
+        return say('An account with this email already exists. Please <b>log in</b> instead — or tap <b>Forgot password?</b> on the login screen if you do not remember the password.');
+      }
+    }
+
+    await writeAccountDocs(cred.user.uid, num, email, v.name||'', batches, enrollments);
   }catch(e){
     btn.disabled=false; btn.textContent='Verify & create account';
     const m=String(e.code||e.message||e);
@@ -650,9 +710,17 @@ $('loginView').addEventListener('submit', async ev=>{
   if(!pw) return say('Please enter your password.');
   btn.disabled=true; btn.textContent='Logging in…';
   try{
-    const email=await emailForNumber(num);
-    if(!email){ btn.disabled=false; btn.textContent='Log in'; return say('No account found for this number. Please <b>create an account</b> first.'); }
-    await signInWithEmailAndPassword(auth,email,pw);
+    const look=await emailForNumber(num);
+    if(!look.ok){
+      btn.disabled=false; btn.textContent='Log in';
+      return say('We could not check your number just now — it looks like a connection problem. Please try again in a moment.');
+    }
+    if(!look.email){
+      btn.disabled=false; btn.textContent='Log in';
+      return say('No account found for this number. Please <b>create an account</b> first.');
+    }
+    PENDING_NUM=num;
+    await signInWithEmailAndPassword(auth,look.email,pw);
   }catch(e){
     btn.disabled=false; btn.textContent='Log in';
     const m=String(e.message||e);
@@ -670,8 +738,10 @@ $('forgot').onclick=async()=>{
   if(num.length<11) return say('Enter your number above first, then tap "Forgot password?".');
   const btn=$('forgot'); btn.disabled=true; btn.textContent='Sending…';
   try{
-    const email=await emailForNumber(num);
-    if(!email){ btn.disabled=false; btn.textContent='Forgot password?'; return say('No account found for this number. Or contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>'); }
+    const look=await emailForNumber(num);
+    if(!look.ok){ btn.disabled=false; btn.textContent='Forgot password?'; return say('We could not check your number just now. Please try again in a moment.'); }
+    if(!look.email){ btn.disabled=false; btn.textContent='Forgot password?'; return say('No account found for this number. Or contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>'); }
+    const email=look.email;
     await sendPasswordResetEmail(auth,email);
     btn.disabled=false; btn.textContent='Forgot password?';
     const masked=email.replace(/^(.{2}).*(@.*)$/,'$1***$2');
@@ -682,6 +752,43 @@ $('forgot').onclick=async()=>{
   }
 };
 
+/* Har kamyab login pe khamoshi se adhoora record mukammal kar dete hain:
+   phone10 field aur numbers/{number} entry. Student ko kuch nazar nahi aata. */
+async function healOwnRecord(d){
+  const num=normalize(d.number||PENDING_NUM||'');
+  if(!num||num.length<11) return;
+  if(d.phone10!==num.slice(-10)){
+    try{ await updateDoc(doc(db,'students',ME.uid),{phone10:num.slice(-10)}); }catch(e){}
+  }
+  if(d.email){
+    try{
+      const s=await getDoc(doc(db,'numbers',num));
+      if(!s.exists()||!s.data().email){
+        await setDoc(doc(db,'numbers',num),{email:String(d.email).toLowerCase()},{merge:true});
+      }
+    }catch(e){}
+  }
+}
+
+/* Auth account maujood hai magar students record ghayab hai —
+   yani signup beech mein ruk gaya tha. Jo number student ne abhi likha,
+   usi se verify kar ke record dobara bana dete hain. */
+async function rebuildRecord(user){
+  const num=PENDING_NUM;
+  if(!num) return null;
+  try{
+    const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:num})});
+    const v=await r.json();
+    if(!v||!v.verified) return null;
+    let enrollments=Array.isArray(v.enrollments)?v.enrollments:[];
+    let batches=Array.isArray(v.batches)?v.batches:[];
+    if(!batches.length && v.current) batches=[v.current];
+    if(!enrollments.length) enrollments=batches.map(b=>({batch:b,courses:['facebook','tiktok']}));
+    await writeAccountDocs(user.uid, num, (user.email||'').toLowerCase(), v.name||'', batches, enrollments);
+    return await getDoc(doc(db,'students',user.uid));
+  }catch(e){ return null; }
+}
+
 /* ===== auth state ===== */
 onAuthStateChanged(auth, async user=>{
   const splash=$('splash');
@@ -690,12 +797,21 @@ onAuthStateChanged(auth, async user=>{
     $('auth').style.display='grid'; $('app').style.display='none';
     ME=null; DONE.clear(); return;
   }
-  const snap=await getDoc(doc(db,'students',user.uid));
-  if(!snap.exists()){ if(splash)splash.style.display='none'; await signOut(auth); return say('Account record not found. Please contact us on WhatsApp.'); }
+  let snap=await getDoc(doc(db,'students',user.uid));
+  if(!snap.exists()){
+    const rebuilt=await rebuildRecord(user);
+    if(rebuilt && rebuilt.exists()) snap=rebuilt;
+    else{
+      if(splash)splash.style.display='none';
+      await signOut(auth);
+      return say('Your account setup was not finished. Please <b>log in</b> once more with your number — it will complete automatically. If it still fails, contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>');
+    }
+  }
   const d=snap.data();
   if(d.suspended){ if(splash)splash.style.display='none'; await signOut(auth); return say('Your access is currently paused. Contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>'); }
 
   ME={uid:user.uid,number:d.number,name:d.name,email:d.email,batches:d.batches||[],enrollments:d.enrollments||[]};
+  healOwnRecord(d).catch(()=>{});
   await refreshBatches();
 
   $('auth').style.display='none'; $('app').style.display='block';
@@ -1108,28 +1224,6 @@ function renderNotes(){
   </div>`).join('');
   $('nbList').querySelectorAll('[data-del]').forEach(b=>{ b.onclick=()=>{ if(confirm('Delete this note?')) delNote(b.dataset.del); }; });
 }
-</script>
-<script>
-if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
-
-/* ---- Install app button ---- */
-(function(){
-  var deferred=null;
-  var btn=document.createElement('button');
-  btn.textContent='📲 Install app';
-  btn.style.cssText='position:fixed;left:16px;bottom:16px;z-index:9999;background:linear-gradient(90deg,#4f46e5,#9333ea,#e11d48);color:#fff;border:0;padding:12px 18px;border-radius:999px;font:600 14px system-ui;box-shadow:0 8px 24px rgba(80,40,160,.35);cursor:pointer;display:none';
-  document.body.appendChild(btn);
-  window.addEventListener('beforeinstallprompt',function(e){
-    e.preventDefault(); deferred=e; btn.style.display='block';
-  });
-  btn.onclick=async function(){
-    if(!deferred) return;
-    deferred.prompt();
-    await deferred.userChoice;
-    deferred=null; btn.style.display='none';
-  };
-  window.addEventListener('appinstalled',function(){ btn.style.display='none'; });
-})();
 </script>
 </body>
 </html>

@@ -1615,9 +1615,15 @@ function wireComposer() {
 let stagedFile = null;
 
 function stageFile(f) {
-  const MAX = 16 * 1024 * 1024;
+  // Vercel ki serverless function ek request mein sirf 4.5 MB leti hai,
+  // aur file base64 mein badalne se wo ~33% aur bhaari ho jati hai.
+  // Is liye asli had ~3.3 MB banti hai — 3 MB rakha hai taake mehfooz rahe.
+  const MAX = 3 * 1024 * 1024;
   if (f.size > MAX) {
-    $("sendErr").textContent = "File bohot bari hai (16 MB tak)";
+    const mb = (f.size / 1024 / 1024).toFixed(1);
+    $("sendErr").textContent =
+      "File 3 MB se bari hai (" + mb + " MB). Chhoti kar ke bhejein — " +
+      "ya student ko link bhej dein.";
     return;
   }
   stagedFile = f;
@@ -1781,6 +1787,19 @@ function flushPending() {
   doSend(payload, bubble);
 }
 
+// Vercel kabhi JSON ke bajaye saada text bhejta hai (misaal: file bohot bari
+// ho to 413 aata hai). Aise mein r.json() khud crash kar jata hai aur team ko
+// "Unexpected token..." jaisa bekaar error dikhta hai. Ye function har soorat
+// mein saaf paighaam deta hai.
+async function readJson(r, fallbackMsg) {
+  let data = null;
+  try { data = await r.json(); } catch (e) { data = null; }
+  if (r.ok) return data || {};
+  if (r.status === 413) throw new Error("File bohot bari hai — 3 MB tak bhej sakte hain");
+  if (r.status === 401 || r.status === 403) throw new Error((data && data.error) || "Session khatam — dobara login karein");
+  throw new Error((data && data.error) || fallbackMsg || ("Masla aaya (" + r.status + ")"));
+}
+
 async function doSend(payload, bubble) {
   const { to, convoId, text, file, channel } = payload;
   try {
@@ -1792,8 +1811,7 @@ async function doSend(payload, bubble) {
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ psid: to, text })
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Message nahi gaya");
+      await readJson(r, "Message nahi gaya");
     } else if (file) {
       const dataUrl = await fileToDataUrl(file);
       const r = await fetch("/api/whatsapp-send-media", {
@@ -1801,16 +1819,14 @@ async function doSend(payload, bubble) {
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ to, dataUrl, filename: file.name, caption: text })
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "File nahi gayi");
+      await readJson(r, "File nahi gayi");
     } else {
       const r = await fetch("/api/whatsapp-send", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ to, text })
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Message nahi gaya");
+      await readJson(r, "Message nahi gaya");
     }
 
     if (bubble) bubble.remove();
