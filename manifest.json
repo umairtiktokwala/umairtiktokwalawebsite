@@ -2,7 +2,7 @@
   "name": "Umair TikTok Wala Academy",
   "short_name": "UTW Academy",
   "description": "Facebook & TikTok monetization training — courses, tasks, and your student portal.",
-  "start_url": "/learn.html",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
