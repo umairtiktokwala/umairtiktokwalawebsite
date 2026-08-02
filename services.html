@@ -372,6 +372,39 @@ h2{
   font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--purple);
 }
+
+.svc-paypal{
+  grid-column:1 / -1;
+  background:linear-gradient(135deg,#ffffff 0%,#f7fff9 100%);
+  border-color:rgba(37,211,102,.32);
+}
+.svc-paypal .svc-dot{background:#25D366}
+.paypal-contact{
+  display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+  margin-top:4px;padding-top:18px;border-top:1px solid var(--line);
+}
+.paypal-name{
+  font-family:var(--display);font-weight:700;font-size:17px;
+  color:var(--ink);margin-bottom:3px;
+}
+.paypal-meta{font-size:13.5px;color:var(--muted);line-height:1.55}
+.paypal-number{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin-top:4px}
+.btn-whatsapp{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  background:#25D366;color:#fff;padding:13px 22px;border-radius:99px;
+  font-weight:700;font-size:14px;white-space:nowrap;
+  box-shadow:0 8px 22px rgba(37,211,102,.24);
+  transition:transform .2s,box-shadow .2s,background .2s;
+}
+.btn-whatsapp:hover{
+  transform:translateY(-2px);
+  background:#20bd5a;
+  box-shadow:0 12px 28px rgba(37,211,102,.34);
+}
+@media(max-width:680px){
+  .paypal-contact{grid-template-columns:1fr}
+  .btn-whatsapp{width:100%}
+}
 .svc-foot{
   margin-top:36px;padding:28px 30px;
   background:var(--paper-2);border:1px solid var(--line);border-radius:16px;
@@ -696,6 +729,24 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
         <div class="svc-top"><span class="svc-dot"></span><h3>TikTok tax verification</h3></div>
         <p>The tax form is where most creators get stuck, and a wrong answer holds your payout indefinitely. We fill it correctly with your information so the money isn't sitting behind a form you didn't understand.</p>
         <div class="svc-note">Your information · Filed once, filed right</div>
+      </article>
+      <article class="svc svc-paypal reveal">
+        <div class="svc-top"><span class="svc-dot"></span><h3>PayPal Withdrawal Service</h3></div>
+        <p>Dedicated PayPal withdrawal support for academy students and creators who need a clear, managed payout process.</p>
+        <div class="paypal-contact">
+          <div>
+            <div class="paypal-name">Muhammad Umair &#10003;</div>
+            <div class="paypal-meta">WhatsApp (PayPal Support)</div>
+            <div class="paypal-number">+92 329 9655742</div>
+          </div>
+          <a
+            href="https://wa.me/923299655742?text=Assalam%20o%20alaikum%2C%20I%20need%20help%20with%20PayPal%20withdrawal."
+            class="btn-whatsapp"
+            target="_blank"
+            rel="noopener"
+          >Open WhatsApp</a>
+        </div>
+        <div class="svc-note">Business Support</div>
       </article>
     </div>
     <div class="svc-foot reveal">
