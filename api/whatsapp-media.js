@@ -3,29 +3,14 @@
 //  Meta ka media URL public nahi hota — har baar token chahiye.
 //  Ye function beech mein khara ho kar media dashboard tak pohanchata hai.
 //
-//  Istemal: /api/whatsapp-media?id=MEDIA_ID&token=ID_TOKEN
-//
-//  --- 3 Aug 2026: CACHE KA MASLA THEEK KIYA ---
-//  Pehle cache sirf 1 ghante ka tha, is liye team jab bhi koi chat
-//  kholti thi to wohi image/video dobara Vercel se guzarti thi.
-//  Us se Vercel ka "Fast Origin Transfer" (10 GB/mahina) bhar raha tha.
-//
-//  Ab do cheezein hain:
-//    s-maxage  -> Vercel ka apna CDN media sambhal leta hai,
-//                 yani ye function dobara chalta hi nahi
-//    max-age   -> browser bhi 30 din tak apne paas rakhta hai
-//
-//  Ye mehfooz hai kyunke ek media ID ka content kabhi badalta nahi.
-//  (Meta 30 din baad media delete kar deta hai — us waqt naya ID banta hai.)
+//  Istemal: /api/whatsapp-media?id=MEDIA_ID
+//  Note: Meta media sirf 30 din rakhta hai, us ke baad ghayab.
 // ============================================================
 
 import { getDb } from "./_firebase.js";
 import { getAuth } from "firebase-admin/auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
-
-// 30 din — Meta bhi itna hi rakhta hai
-const CACHE_SECONDS = 30 * 24 * 60 * 60;
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -58,20 +43,14 @@ export default async function handler(req, res) {
 
     if (!metaRes.ok) {
       const err = await metaRes.json().catch(() => ({}));
-      // 30 din purana media Meta delete kar deta hai.
-      // Error ko thora sa cache karein taake gayab media baar baar
-      // function na chalaye — magar zyada nahi, shayad waqti masla ho.
-      res.setHeader("Cache-Control", "public, max-age=300");
+      // 30 din purana media Meta delete kar deta hai
       return res.status(404).json({
         error: err?.error?.message || "Media nahi mila (shayad 30 din purana hai)",
       });
     }
 
     const meta = await metaRes.json();
-    if (!meta.url) {
-      res.setHeader("Cache-Control", "public, max-age=300");
-      return res.status(404).json({ error: "Media URL nahi mila" });
-    }
+    if (!meta.url) return res.status(404).json({ error: "Media URL nahi mila" });
 
     // ---- Step 2: file download karein ----
     const fileRes = await fetch(meta.url, {
@@ -83,27 +62,12 @@ export default async function handler(req, res) {
     }
 
     const buf = Buffer.from(await fileRes.arrayBuffer());
-    const mime =
-      meta.mime_type ||
-      fileRes.headers.get("content-type") ||
-      "application/octet-stream";
+    const mime = meta.mime_type || fileRes.headers.get("content-type") || "application/octet-stream";
 
     res.setHeader("Content-Type", mime);
     res.setHeader("Content-Length", buf.length);
-
-    // ---- YEHI ASLI FIX HAI ----
-    // s-maxage      : Vercel ke CDN ke liye — function dobara nahi chalega
-    // max-age       : browser ke liye
-    // immutable     : browser dobara poochega bhi nahi
-    // Media ID kabhi badalti nahi, is liye ye bilkul mehfooz hai.
-    res.setHeader(
-      "Cache-Control",
-      `public, max-age=${CACHE_SECONDS}, s-maxage=${CACHE_SECONDS}, immutable`
-    );
-    // Vercel ka apna header — CDN ko saaf batata hai
-    res.setHeader("CDN-Cache-Control", `public, s-maxage=${CACHE_SECONDS}`);
-    // Har media ID ka apna cache
-    res.setHeader("ETag", `"wa-${mediaId}"`);
+    // Browser thori der cache kar le taake baar baar download na ho
+    res.setHeader("Cache-Control", "private, max-age=3600");
 
     // Document ho to download ka naam bhi de dein
     if (req.query.download === "1") {
