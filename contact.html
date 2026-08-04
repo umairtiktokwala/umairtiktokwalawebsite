@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us — Umair TikTok Wala Academy</title>
+<meta name="description" content="Contact Umair TikTok Wala Academy for course, app, account, PayPal service and creator support.">
+<link rel="canonical" href="https://www.umairtiktokwala.com/contact.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --ink:#0B0D14;
+  --ink-2:#161A26;
+  --paper:#FAFAF8;
+  --paper-2:#F1F1EE;
+  --muted:#6B7183;
+  --line:#E2E2DE;
+  --blue:#2B4EFF;
+  --purple:#8B31E8;
+  --red:#F0333E;
+  --green:#16A765;
+  --grad:linear-gradient(103deg,var(--blue) 0%,var(--purple) 52%,var(--red) 100%);
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --wrap:1140px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+::selection{background:var(--purple);color:#fff}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,250,248,.86);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-in{
+  max-width:var(--wrap);margin:0 auto;padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.logo{
+  font-family:var(--display);font-weight:800;font-size:17px;
+  letter-spacing:-.02em;display:flex;align-items:center;gap:11px;
+  line-height:1.1;
+}
+.logo img{width:38px;height:38px;object-fit:contain;flex-shrink:0}
+.logo span{display:flex;flex-direction:column}
+.logo em{
+  font-family:var(--mono);font-style:normal;font-weight:500;
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--purple);margin-top:2px;
+}
+.nav-links{display:flex;gap:28px;font-size:14.5px;font-weight:500;color:var(--muted)}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{
+  background:var(--ink);color:#fff;padding:10px 20px;border-radius:99px;
+  font-size:14px;font-weight:600;white-space:nowrap;
+}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:540px){.nav-cta{display:none}}
+
+/* HERO */
+.hero{padding:84px 0 54px;position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:auto -120px 0 auto;width:420px;height:420px;
+  border-radius:50%;background:var(--grad);filter:blur(120px);opacity:.16;pointer-events:none;
+}
+.hero-in{position:relative;z-index:1;max-width:790px}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:11px;margin-bottom:24px;
+}
+.eyebrow::before{content:"";width:32px;height:2px;background:var(--grad);border-radius:2px}
+h1{
+  font-family:var(--display);font-size:clamp(42px,7vw,76px);
+  letter-spacing:-.055em;line-height:.98;margin-bottom:24px;
+}
+.lead{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:680px}
+
+/* CONTACT CARDS */
+.section{padding:20px 0 84px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;
+  box-shadow:0 10px 34px rgba(11,13,20,.055);
+  display:flex;flex-direction:column;min-height:255px;
+}
+.card-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.icon{
+  width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+  background:var(--paper-2);font-size:23px;flex-shrink:0;
+}
+.icon.mail{color:var(--blue);background:#EEF1FF}
+.icon.wa{color:#0B7A47;background:#E7F9F0}
+.icon.app{color:var(--purple);background:#F7EEFE}
+.icon.legal{color:var(--red);background:#FEECEC}
+.card h2{font-family:var(--display);font-size:22px;letter-spacing:-.025em}
+.card p{color:var(--muted);margin-bottom:18px}
+.card small{color:var(--muted);display:block;margin-top:10px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 18px;border-radius:99px;font-weight:700;font-size:14px;
+  border:1px solid var(--line);background:#fff;
+}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.green{background:var(--green);border-color:var(--green);color:#fff}
+.btn:hover{transform:translateY(-1px)}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.card{min-height:auto}}
+
+/* HELP */
+.help{padding:0 0 88px}
+.help-box{
+  border-radius:26px;background:var(--ink);color:#fff;padding:34px;
+  display:grid;grid-template-columns:1.3fr .7fr;gap:30px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.help-box::after{
+  content:"";position:absolute;right:-90px;top:-120px;width:330px;height:330px;border-radius:50%;
+  background:var(--grad);filter:blur(75px);opacity:.52;
+}
+.help-copy{position:relative;z-index:1}
+.help h2{font-family:var(--display);font-size:30px;letter-spacing:-.03em;margin-bottom:10px}
+.help p{color:#A9AFC0;max-width:610px}
+.help-list{position:relative;z-index:1;display:grid;gap:10px}
+.help-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:12px 14px;font-size:14px}
+@media(max-width:820px){.help-box{grid-template-columns:1fr}}
+
+/* COMPANY */
+.company{padding:0 0 86px}
+.company-in{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+  background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;
+}
+.company h2{font-family:var(--display);font-size:24px;margin-bottom:12px}
+.company p{color:var(--muted)}
+.detail{display:grid;gap:11px}
+.detail div{display:flex;gap:10px;align-items:flex-start}
+.detail i{font-size:19px;color:var(--purple);margin-top:2px}
+@media(max-width:760px){.company-in{grid-template-columns:1fr}}
+
+/* FOOTER */
+footer{background:#0D0F18;color:#fff;border-top:1px solid #1F2330}
+.foot-grid{
+  max-width:var(--wrap);margin:0 auto;padding:66px 24px 46px;
+  display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:42px;
+}
+.foot-brand{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+.foot-brand img{width:50px;height:50px;object-fit:contain}
+.foot-brand strong{font-family:var(--display);font-size:20px;line-height:1.2}
+.foot-desc{color:#8F96AA;max-width:320px}
+.foot-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#70788E;margin-bottom:22px}
+.foot-links{list-style:none;display:grid;gap:14px}
+.foot-links a{color:#AEB5C8}
+.foot-links a:hover{color:#fff}
+.foot-bottom{
+  max-width:var(--wrap);margin:0 auto;padding:22px 24px;border-top:1px solid #1D2130;
+  display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;color:#71798E;font-size:13px;
+}
+@media(max-width:1050px){.foot-grid{grid-template-columns:1.4fr repeat(2,1fr)}}
+@media(max-width:820px){.foot-grid{grid-template-columns:1fr;gap:36px}}
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6d28d9">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="index.html" class="logo">
+      <img src="img/logo-mark.png" alt="Umair TikTok Wala Academy">
+      <span>Umair TikTok Wala<em>Academy</em></span>
+    </a>
+    <div class="nav-links">
+      <a href="courses.html">Courses</a>
+      <a href="support-program.html">Support Program</a>
+      <a href="services.html">Services</a>
+      <a href="results.html">Results</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <a href="learn.html" class="nav-cta">Student login</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="eyebrow">Contact & Support</div>
+    <h1>How can we help?</h1>
+    <p class="lead">Contact the right team for course access, the Android app, account deletion, student earnings or PayPal service support.</p>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="wrap grid">
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon mail"><i class="ti ti-mail"></i></div>
+          <div><h2>General support</h2></div>
+        </div>
+        <p>For courses, enrollment, website access, the Android app, student accounts, privacy requests and general questions.</p>
+        <div class="actions">
+          <a class="btn primary" href="mailto:info@umairtiktokwala.com?subject=Support%20Request">
+            <i class="ti ti-mail"></i> Email support
+          </a>
+        </div>
+        <small>info@umairtiktokwala.com</small>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon wa"><i class="ti ti-brand-whatsapp"></i></div>
+          <div><h2>PayPal service support</h2></div>
+        </div>
+        <p>For PayPal dashboard access, assigned accounts, payment methods, settlement status or service-related issues.</p>
+        <div class="actions">
+          <a class="btn green" href="https://wa.me/923299655742?text=Assalam%20o%20alaikum%2C%20I%20need%20help%20with%20the%20PayPal%20service." target="_blank" rel="noopener">
+            <i class="ti ti-brand-whatsapp"></i> Open WhatsApp
+          </a>
+        </div>
+        <small>+92 329 9655742</small>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon app"><i class="ti ti-device-mobile"></i></div>
+          <div><h2>App & student portal</h2></div>
+        </div>
+        <p>For login problems, missing course or service access, earnings submissions, screenshots, tasks, notes and dashboard issues.</p>
+        <div class="actions">
+          <a class="btn primary" href="mailto:info@umairtiktokwala.com?subject=App%20or%20Student%20Portal%20Support">
+            <i class="ti ti-lifebuoy"></i> Get app help
+          </a>
+          <a class="btn" href="learn.html"><i class="ti ti-login"></i> Student login</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div class="icon legal"><i class="ti ti-shield-lock"></i></div>
+          <div><h2>Privacy & account deletion</h2></div>
+        </div>
+        <p>Request account deletion, ask what information we hold, correct account information or raise a privacy concern.</p>
+        <div class="actions">
+          <a class="btn primary" href="delete-account.html"><i class="ti ti-user-x"></i> Delete account</a>
+          <a class="btn" href="privacy.html"><i class="ti ti-file-description"></i> Privacy Policy</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="help">
+    <div class="wrap">
+      <div class="help-box">
+        <div class="help-copy">
+          <h2>Help us solve your issue faster.</h2>
+          <p>When contacting support, include your registered phone number, account email where available, and a short description. Never send your password, card PIN, card security code or online-banking password.</p>
+        </div>
+        <div class="help-list">
+          <div class="help-item">Your registered phone number</div>
+          <div class="help-item">Screenshot of the error, if relevant</div>
+          <div class="help-item">Course, app or service name</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="company">
+    <div class="wrap company-in">
+      <div>
+        <h2>Company information</h2>
+        <p>Umair TikTok Wala provides creator education, student dashboards and optional creator-support services.</p>
+      </div>
+      <div class="detail">
+        <div><i class="ti ti-building"></i><span><strong>Umair TikTok Wala Limited</strong><br>Registered in England &amp; Wales</span></div>
+        <div><i class="ti ti-id"></i><span>Company number: 15688946</span></div>
+        <div><i class="ti ti-world"></i><span><a href="https://www.umairtiktokwala.com">www.umairtiktokwala.com</a></span></div>
+        <div><i class="ti ti-mail"></i><span><a href="mailto:info@umairtiktokwala.com">info@umairtiktokwala.com</a></span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand">
+        <img src="img/logo-mark.png" alt="">
+        <strong>Umair TikTok Wala<br>Academy</strong>
+      </div>
+      <p class="foot-desc">Learn. Create. Grow. Monetize. Facebook and TikTok monetization training for creators in Pakistan.</p>
+    </div>
+
+    <div>
+      <div class="foot-h">Learn</div>
+      <ul class="foot-links">
+        <li><a href="courses.html">Courses</a></li>
+        <li><a href="support-program.html">Support Program</a></li>
+        <li><a href="curriculum.html">Curriculum</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="prompt-book.html">Prompt Book</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="foot-h">Students</div>
+      <ul class="foot-links">
+        <li><a href="learn.html">Student portal</a></li>
+        <li><a href="results.html">Student results</a></li>
+        <li><a href="support-program.html">Enroll now</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="foot-h">Support</div>
+      <ul class="foot-links">
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="mailto:info@umairtiktokwala.com">Email support</a></li>
+        <li><a href="https://wa.me/923299655742" target="_blank" rel="noopener">PayPal WhatsApp</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="foot-h">Legal</div>
+      <ul class="foot-links">
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms &amp; Conditions</a></li>
+        <li><a href="refund-policy.html">Refund Policy</a></li>
+        <li><a href="service-policy.html">Service Policy</a></li>
+        <li><a href="delete-account.html">Delete Account</a></li>
+        <li><a href="acceptable-use.html">Acceptable Use</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot-bottom">
+    <div>© 2026 Umair TikTok Wala Limited · Company no. 15688946</div>
+    <div>Registered in England &amp; Wales</div>
+  </div>
+</footer>
+
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("/service-worker.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
