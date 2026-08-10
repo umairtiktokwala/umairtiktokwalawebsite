@@ -4,86 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy — Umair TikTok Wala</title>
-<meta name="description" content="How Umair TikTok Wala handles data across its website, Android app, learning portal, PayPal services and earnings features.">
+<meta name="description" content="How Umair TikTok Wala collects, uses, stores and deletes your information across our courses, student portal, WhatsApp and Facebook Messenger support channels.">
 <link rel="canonical" href="https://www.umairtiktokwala.com/privacy.html">
 <style>
-:root{
-  --ink:#12141C;--body:#3D4256;--dim:#6B7089;--line:#E4E7EF;
-  --bg:#FFFFFF;--tint:#F7F8FC;--b1:#2563EB;--b2:#7C3AED;--b3:#DC2626;
-  --green:#15803D;--amber:#B45309;--red:#B91C1C;
-  --grad:linear-gradient(90deg,var(--b1) 0%,var(--b2) 55%,var(--b3) 100%);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  background:var(--bg);color:var(--body);font-size:16px;line-height:1.75;
-  -webkit-font-smoothing:antialiased
-}
-.nav{
-  position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)
-}
-.nav-in{
-  max-width:1080px;margin:0 auto;padding:14px 24px;
-  display:flex;align-items:center;justify-content:space-between;gap:20px
-}
-.brand{font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--ink);text-decoration:none;white-space:nowrap}
-.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.nav-links{display:flex;gap:20px;flex-wrap:wrap}
-.nav-links a{font-size:14px;color:var(--dim);text-decoration:none}
-.nav-links a:hover,.nav-links a:focus-visible{color:var(--ink)}
-.head{max-width:800px;margin:0 auto;padding:56px 24px 30px}
-.rule{height:3px;width:64px;background:var(--grad);border-radius:2px;margin-bottom:22px}
-h1{font-size:clamp(30px,5vw,42px);line-height:1.15;letter-spacing:-.025em;color:var(--ink);font-weight:800}
-.updated{margin-top:12px;font-size:14px;color:var(--dim)}
-main{max-width:800px;margin:0 auto;padding:0 24px 80px}
-h2{
-  font-size:20px;line-height:1.3;letter-spacing:-.015em;color:var(--ink);
-  font-weight:700;margin:44px 0 14px;padding-top:26px;border-top:1px solid var(--line)
-}
-h3{font-size:16px;color:var(--ink);font-weight:700;margin:28px 0 10px}
-p{margin:0 0 16px}
-ul,ol{margin:0 0 18px;padding-left:22px}
-li{margin-bottom:10px}
-li::marker{color:var(--b2)}
-strong{color:var(--ink);font-weight:650}
-a{color:var(--b1);text-decoration:underline;text-underline-offset:2px}
-a:hover{color:var(--b2)}
-.callout{
-  background:var(--tint);border-left:3px solid var(--b2);
-  border-radius:0 8px 8px 0;padding:18px 20px;margin:20px 0
-}
-.callout.good{border-left-color:var(--green)}
-.callout.warn{border-left-color:var(--amber)}
-.callout.bad{border-left-color:var(--red)}
-.callout p:last-child{margin-bottom:0}
-.policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
-.policy-card{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:17px}
-.policy-card h3{margin:0 0 7px;font-size:15px}
-.policy-card p{margin:0;font-size:14px;color:var(--dim)}
-.action{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:12px 20px;border-radius:999px;background:var(--grad);
-  color:#fff;text-decoration:none;font-weight:700;margin:4px 8px 8px 0
-}
-.action.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}
-.small{font-size:13.5px;color:var(--dim)}
-footer{border-top:1px solid var(--line);background:var(--tint)}
-.foot-in{
-  max-width:1080px;margin:0 auto;padding:32px 24px;font-size:13.5px;color:var(--dim);
-  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap
-}
-.foot-in a{color:var(--dim)}
-@media(max-width:760px){
-  .nav-in{flex-direction:column;align-items:flex-start;gap:10px}
-  .nav-links{gap:13px}.nav-links a{font-size:13px}
-  .policy-grid{grid-template-columns:1fr}
-}
+  :root{
+    --ink:#12141C;
+    --body:#3D4256;
+    --dim:#6B7089;
+    --line:#E4E7EF;
+    --bg:#FFFFFF;
+    --tint:#F7F8FC;
+    --b1:#2563EB;
+    --b2:#7C3AED;
+    --b3:#DC2626;
+    --grad:linear-gradient(90deg,var(--b1) 0%,var(--b2) 55%,var(--b3) 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);color:var(--body);
+    font-size:16px;line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-in{
+    max-width:1080px;margin:0 auto;padding:14px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+  }
+  .brand{
+    font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+    text-decoration:none;white-space:nowrap;
+  }
+  .brand span{
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .nav-links{display:flex;gap:22px;flex-wrap:wrap}
+  .nav-links a{
+    font-size:14px;color:var(--dim);text-decoration:none;
+    transition:color .15s ease;
+  }
+  .nav-links a:hover,.nav-links a:focus-visible{color:var(--ink)}
+  @media(max-width:760px){
+    .nav-in{flex-direction:column;align-items:flex-start;gap:10px}
+    .nav-links{gap:14px}
+    .nav-links a{font-size:13px}
+  }
+
+  /* ---------- Header ---------- */
+  .head{
+    max-width:760px;margin:0 auto;padding:56px 24px 30px;
+  }
+  .rule{height:3px;width:64px;background:var(--grad);border-radius:2px;margin-bottom:22px}
+  h1{
+    font-size:clamp(30px,5vw,42px);line-height:1.15;letter-spacing:-.025em;
+    color:var(--ink);font-weight:800;
+  }
+  .updated{
+    margin-top:12px;font-size:14px;color:var(--dim);
+  }
+
+  /* ---------- Body ---------- */
+  main{max-width:760px;margin:0 auto;padding:0 24px 80px}
+  h2{
+    font-size:20px;line-height:1.3;letter-spacing:-.015em;
+    color:var(--ink);font-weight:700;
+    margin:44px 0 14px;padding-top:26px;border-top:1px solid var(--line);
+  }
+  h3{
+    font-size:16px;color:var(--ink);font-weight:700;
+    margin:28px 0 10px;
+  }
+  p{margin:0 0 16px}
+  ul{margin:0 0 18px;padding-left:22px}
+  li{margin-bottom:10px}
+  li::marker{color:var(--b2)}
+  strong{color:var(--ink);font-weight:600}
+  a{color:var(--b1);text-decoration:underline;text-underline-offset:2px}
+  a:hover{color:var(--b2)}
+  .callout{
+    background:var(--tint);border-left:3px solid var(--b2);
+    border-radius:0 8px 8px 0;padding:18px 20px;margin:0 0 20px;
+  }
+  .callout p:last-child{margin-bottom:0}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--line);background:var(--tint);
+  }
+  .foot-in{
+    max-width:1080px;margin:0 auto;padding:32px 24px;
+    font-size:13.5px;color:var(--dim);
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .foot-in a{color:var(--dim)}
+  .foot-in a:hover{color:var(--ink)}
 </style>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#6d28d9">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="UTW Academy">
 </head>
 <body>
 
@@ -92,10 +122,9 @@ footer{border-top:1px solid var(--line);background:var(--tint)}
     <a class="brand" href="index.html">Umair TikTok Wala <span>· Create. Grow. Monetize.</span></a>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="terms.html">Terms</a>
-      <a href="refund-policy.html">Refunds</a>
-      <a href="delete-account.html">Delete Account</a>
+      <a href="courses.html">Courses</a>
+      <a href="support-program.html">Support Program</a>
+      <a href="faq.html">FAQ</a>
     </div>
   </div>
 </nav>
@@ -103,114 +132,94 @@ footer{border-top:1px solid var(--line);background:var(--tint)}
 <header class="head">
   <div class="rule"></div>
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: 5 August 2026</p>
+  <p class="updated">Last updated: 28 July 2026</p>
 </header>
+
 <main>
 
-<p>Umair TikTok Wala Limited ("we", "us", "our") provides online education, student portals, an Android application, creator-support services, and related support channels. This policy applies to our website, Android app, student learning portal, PayPal service dashboard, earnings-submission features, WhatsApp support and Facebook Messenger support.</p>
+  <p>Umair TikTok Wala ("we", "us") provides online training in social media content creation and monetization. We operate the website umairtiktokwala.com, our student learning portal, and support channels on WhatsApp and Facebook Messenger. We are registered in the United Kingdom as Umair TikTok Wala Limited (company number 15688946).</p>
 
-<div class="callout">
-  <p><strong>Summary:</strong> we use personal information to provide course access, support, finance-service features and student-requested earning records. We do not sell personal information or use it for behavioural advertising.</p>
-</div>
+  <h2>Information we collect</h2>
+  <p>We collect only what we need to deliver our courses and support:</p>
+  <ul>
+    <li><strong>Enrollment details</strong> — name, email address, phone number, city, and the course or batch you register for.</li>
+    <li><strong>Payment reference</strong> — transaction ID or reference number you provide so we can verify your enrollment. We do not collect or store card numbers or bank credentials.</li>
+    <li><strong>Learning activity</strong> — lessons completed, task submissions, and progress within the student portal.</li>
+    <li><strong>WhatsApp messages</strong> — when you message our support number, we receive your message content, your WhatsApp display name, and your phone number.</li>
+    <li><strong>Facebook Messenger messages</strong> — when you message our Facebook Page, we receive your message content, your first and last name as shown on your Facebook profile, and a Page-Scoped ID (PSID). A PSID is an identifier issued by Meta that is unique to our Page. It is not your Facebook user ID and cannot be used to identify you outside of conversations with our Page.</li>
+  </ul>
 
-<h2>Information we collect</h2>
-<ul>
-  <li><strong>Account and enrollment details:</strong> name, email address, phone number, city, Firebase user ID, batch, courses and account status.</li>
-  <li><strong>Authentication data:</strong> account email and password are handled by Google Firebase Authentication. We do not see or store your password in readable form.</li>
-  <li><strong>Learning activity:</strong> lesson progress, active days, tasks, task messages, announcements viewed and private notebook entries.</li>
-  <li><strong>Student-submitted earnings:</strong> platform, earning month, USD amount, optional PKR amount, notes, submission status and proof image selected by the student.</li>
-  <li><strong>PayPal service data:</strong> finance-service status, assigned PayPal account information shown to the authorised student, payment methods, settlement history, notifications and service-related issue reports.</li>
-  <li><strong>Support data:</strong> messages, display name, phone number or platform identifier received through WhatsApp Business or Facebook Messenger.</li>
-  <li><strong>Technical data:</strong> limited server logs and security information created by hosting, Firebase and platform providers to operate and protect the services.</li>
-</ul>
+  <h2>How we use your information</h2>
+  <ul>
+    <li>To confirm your enrollment and give you access to the course.</li>
+    <li>To answer your questions and provide support.</li>
+    <li>To track your progress and issue certificates where applicable.</li>
+    <li>To send you course-related updates such as class schedules and batch announcements.</li>
+  </ul>
+  <p>We do not sell your information. We do not share it with advertisers or use it for advertising purposes. We do not use your messages to build advertising audiences or for any automated decision-making.</p>
 
-<h2>How we use information</h2>
-<ul>
-  <li>To verify accounts and provide the correct course or service access.</li>
-  <li>To save learning progress, notes and task submissions across the website and app.</li>
-  <li>To receive and review student-submitted Facebook or TikTok earning records.</li>
-  <li>To manage authorised PayPal service access, assignments, payment methods, settlements and notifications.</li>
-  <li>To answer questions, investigate issues, prevent misuse and secure our systems.</li>
-  <li>To comply with legitimate accounting, legal, fraud-prevention or regulatory obligations.</li>
-</ul>
-<p>We do not sell personal information. We do not share it with advertising networks or use it to create advertising audiences.</p>
+  <h2>Support conversations (WhatsApp and Messenger)</h2>
+  <p>Our support channels run on the WhatsApp Business Platform and the Messenger Platform, both provided by Meta.</p>
+  <p>When you message us on either channel, your message is delivered to our internal support dashboard so that our support team can read it and respond. Replies are written manually by a member of our support team. On WhatsApp, you may receive an automated acknowledgement outside our working hours before a team member answers.</p>
+  <p>Only authenticated members of our support team can access this dashboard. Access requires an individual login, and each team member's account must be explicitly authorised by us.</p>
 
-<h2>Student earnings submissions</h2>
-<p>Students may voluntarily submit Facebook or TikTok earning information for progress tracking and academy review. Proof images are stored in Firebase Storage and submission details are stored in Firestore.</p>
-<ul>
-  <li>Only the submitting student and authorised administrators may access the submission through our services.</li>
-  <li>Approval means that an administrator accepted the submission for academy progress records; it is not a promise of payment, employment, income or future results.</li>
-  <li>Students must not upload bank passwords, card security codes, identity documents or unrelated private information as earning proof.</li>
-</ul>
+  <div class="callout">
+    <p><strong>Retention:</strong> support conversations, including message content and any attachments referenced in them, are automatically deleted 30 days after they are received. We do not keep archives or backups of messages beyond this period.</p>
+  </div>
 
-<h2>PayPal and creator-support services</h2>
-<p>PayPal service access is separate from course access. A user may have course access, PayPal service access, both, or neither. Access is controlled using the user's authenticated account and service status.</p>
-<p>We may store service-related information such as assigned account snapshots, account status, settlement amounts, payment-method information, timestamps and support notes. We do not ask students to submit their online-banking passwords, card PINs or card security codes.</p>
-<div class="callout warn">
-  <p><strong>Independent providers:</strong> PayPal, Facebook, TikTok, banks and wallet providers are independent third parties. Their own terms and privacy policies apply to accounts and transactions on their platforms.</p>
-</div>
+  <p>Attachments you send us (images, videos, voice notes, documents) are displayed in our dashboard by reference to Meta's servers. We do not download or store copies of these files on our own systems.</p>
+  <p>Your use of WhatsApp and Facebook Messenger is also governed by Meta's own privacy policies.</p>
+  <p><strong>To stop receiving messages from us</strong>, reply STOP on WhatsApp, or ask our support team on either channel to remove you. We will action this promptly.</p>
 
-<h2>Our Android app</h2>
-<p>The Android app provides public website access and authenticated portals. The same Firebase account and core records may be used across the app and website.</p>
-<ul>
-  <li>The app uses internet access to authenticate, load content and save account data.</li>
-  <li>Where an upload feature is provided, the user chooses the specific image or file to upload. We do not use uploaded proof for advertising.</li>
-  <li>The app does not intentionally collect contacts, call logs, SMS contents or advertising identifiers.</li>
-  <li>Public pages may be browsed without logging in. Authenticated features require a valid account.</li>
-</ul>
+  <h2>Where your data is stored</h2>
+  <p>Student records and support conversations are stored using Google Firebase (Firestore), hosted in the Asia South region. Our website is hosted on Vercel. All data is transmitted over encrypted HTTPS connections. Both providers apply industry-standard security measures. Access to student data is limited to authorised team members.</p>
 
-<h2>Storage, processors and international transfers</h2>
-<p>We use Google Firebase (including Authentication, Firestore and Storage), Vercel, Google Sheets/Apps Script for authorised operational reporting, YouTube for videos, Google Play for distribution, and Meta platforms for WhatsApp and Messenger support. These providers may process data in countries outside your own under their respective safeguards and policies.</p>
-<p>Data is transmitted over encrypted HTTPS connections. Access is restricted through authentication, database rules, storage rules and authorised administrator accounts.</p>
+  <h2>How long we keep it</h2>
+  <ul>
+    <li><strong>Enrollment and course records</strong> — kept while you are a student and afterwards for our own records, unless you ask us to delete them.</li>
+    <li><strong>WhatsApp and Messenger support conversations</strong> — automatically deleted 30 days after they are received.</li>
+  </ul>
 
-<h2>Retention</h2>
-<ul>
-  <li><strong>Account, enrollment and learning records:</strong> retained while needed to provide access and maintain academy records, unless deletion is requested and no valid retention reason applies.</li>
-  <li><strong>Earnings submissions and proof images:</strong> retained while needed for review, progress history, dispute handling and record integrity. They may be deleted or anonymised following a valid account-deletion request unless retention is required.</li>
-  <li><strong>PayPal service and settlement records:</strong> retained while the service is active and afterwards where reasonably needed for accounting, fraud prevention, dispute resolution or legal compliance.</li>
-  <li><strong>Support conversations:</strong> retained according to our operational retention settings and provider availability. Where an earlier notice promised a specific deletion period, we will honour that notice for the applicable records.</li>
-</ul>
+  <h2>Your rights</h2>
+  <p>You can ask us at any time to:</p>
+  <ul>
+    <li>See what information we hold about you.</li>
+    <li>Correct anything that is wrong.</li>
+    <li>Delete your information, where we are not required to keep it.</li>
+    <li>Stop contacting you.</li>
+  </ul>
 
-<h2>Your choices and rights</h2>
-<p>You may ask us to access, correct or delete personal information associated with your account, subject to identity verification and lawful retention requirements. You may also ask us to stop non-essential communications.</p>
-<p>Use our <a href="delete-account.html">Account Deletion page</a>, email <a href="mailto:info@umairtiktokwala.com">info@umairtiktokwala.com</a>, or contact the support channel linked to your account.</p>
+  <h3>How to request deletion of your data</h3>
+  <p>Email us at <a href="mailto:info@umairtiktokwala.com">info@umairtiktokwala.com</a> with the subject line "Data deletion request", and include the phone number or Facebook name you used to contact us. You may also send this request as a message on the same WhatsApp number or Facebook Page you used to reach us.</p>
+  <p>We will confirm receipt and complete the deletion within 30 days. Once deleted, your support conversation history and any associated identifiers are permanently removed from our systems and cannot be recovered.</p>
 
-<h2>Account deletion</h2>
-<p>Deleting the app from a device does not delete the server-side account. A deletion request covers the account and associated app data, including learning progress, notes, tasks, earnings submissions and uploaded proofs, except information that must be retained for legitimate security, fraud-prevention, accounting, dispute or legal reasons. Retained information will be limited and protected.</p>
+  <h2>Children</h2>
+  <p>Our courses are intended for adults. We do not knowingly collect information from anyone under 13. If you believe a child has provided us with personal information, please contact us and we will delete it.</p>
 
-<h2>Children</h2>
-<p>Our services are intended for adults aged 18 and over who are capable of entering a binding agreement. They are not directed to children, and we do not knowingly collect personal information from anyone under 18. If a parent or guardian believes a child supplied personal information, please contact us and we will delete it.</p>
+  <h2>Third-party services</h2>
+  <p>We use Meta (WhatsApp Business Platform and Messenger Platform), Google Firebase, Google Forms and Sheets, and Vercel to run our services. Each of these providers handles data under their own privacy policies. We do not share your data with any other third parties.</p>
 
-<h2>Changes</h2>
-<p>We may update this policy when our services, providers or legal obligations change. The latest version and update date will remain available on this page.</p>
+  <h2>Changes to this policy</h2>
+  <p>If we change this policy, we will update the date at the top of this page. Significant changes will be communicated to enrolled students directly.</p>
 
-<h2>Contact</h2>
-<p><strong>Umair TikTok Wala Limited</strong><br>
-Company number: 15688946<br>
-Email: <a href="mailto:info@umairtiktokwala.com">info@umairtiktokwala.com</a><br>
-Website: <a href="https://www.umairtiktokwala.com">umairtiktokwala.com</a></p>
+  <h2>Contact us</h2>
+  <p>
+    <strong>Umair TikTok Wala Limited</strong><br>
+    Email: <a href="mailto:info@umairtiktokwala.com">info@umairtiktokwala.com</a><br>
+    Website: <a href="https://www.umairtiktokwala.com">umairtiktokwala.com</a>
+  </p>
 
 </main>
 
 <footer>
   <div class="foot-in">
     <div>© 2026 Umair TikTok Wala Limited · Company no. 15688946</div>
-    <div>
-      <a href="privacy.html">Privacy</a> ·
-      <a href="terms.html">Terms</a> ·
-      <a href="refund-policy.html">Refunds</a> ·
-      <a href="delete-account.html">Delete account</a> ·
-      <a href="mailto:info@umairtiktokwala.com">Contact</a>
-    </div>
+    <div><a href="index.html">Home</a> · <a href="faq.html">FAQ</a> · <a href="mailto:info@umairtiktokwala.com">Contact</a></div>
   </div>
 </footer>
 
 <script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load",function(){
-    navigator.serviceWorker.register("/service-worker.js").catch(function(){});
-  });
-}
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
 </script>
 </body>
 </html>
