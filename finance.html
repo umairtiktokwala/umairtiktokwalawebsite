@@ -194,6 +194,53 @@ button{font-family:var(--body)}
 .cool i{font-size:15px}
 .hint-box{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.6}
 
+/* ---------- ACTION BUTTON + FORMS ---------- */
+.action-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.gbtn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:99px;border:none;cursor:pointer;background:var(--grad);color:#fff;font-weight:700;font-size:14px;box-shadow:0 8px 22px rgba(139,49,232,.24)}
+.gbtn:hover{transform:translateY(-1px)}
+.gbtn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.gbtn i{font-size:18px}
+.obtn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;color:var(--ink-2);font-weight:700;font-size:14px}
+.obtn:hover{border-color:var(--ink)}
+.obtn i{font-size:18px}
+
+.sheet{position:fixed;inset:0;background:rgba(15,18,34,.55);z-index:150;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.sheet.show{display:flex}
+.sbox{background:var(--card);border-radius:20px;width:100%;max-width:440px;padding:26px;box-shadow:var(--shadow-lg);margin:auto}
+.sbox h3{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;margin-bottom:5px}
+.sbox .sub{font-size:13.5px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.f{margin-bottom:15px}
+.f label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.f input,.f select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:11px;font-family:var(--body);font-size:15px;background:var(--card);color:var(--ink)}
+.f input:focus,.f select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 4px var(--soft-purple)}
+.f .hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}
+.f-check{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:14px;color:var(--ink-2)}
+.f-check input{width:18px;height:18px;accent-color:var(--purple)}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:var(--card-2)}
+.drop:hover{border-color:var(--purple);background:var(--soft-purple)}
+.drop i{font-size:26px;color:var(--muted);display:block;margin-bottom:7px}
+.drop .t{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.drop .s{font-size:12px;color:var(--muted);margin-top:3px}
+.drop.has{border-style:solid;border-color:var(--green);background:var(--soft-green)}
+.drop.has i,.drop.has .t{color:#0B7A47}
+.sbtns{display:flex;gap:10px;margin-top:22px}
+.sbtns .gbtn,.sbtns .obtn{flex:1;justify-content:center}
+.smsg{padding:12px 14px;border-radius:11px;font-size:13px;line-height:1.55;margin-bottom:16px;display:none}
+.smsg.show{display:block}
+.smsg.bad{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.smsg.good{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+
+.claim-thumb{width:54px;height:54px;border-radius:9px;overflow:hidden;flex-shrink:0;background:var(--soft-blue);display:flex;align-items:center;justify-content:center;color:var(--blue);border:none;padding:0;cursor:pointer}
+.claim-thumb img{width:100%;height:100%;object-fit:cover}
+.claim-thumb i{font-size:20px}
+.lb{position:fixed;inset:0;background:rgba(15,18,34,.9);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.lb.show{display:flex}
+.lb img{max-width:100%;max-height:88vh;border-radius:12px}
+.lb-x{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.15);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:19px}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:99px;font-size:13.5px;font-weight:600;z-index:300;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+
 /* ---------- NO ACCESS / SERVICE INFO ---------- */
 #denied{display:none;min-height:100vh;align-items:center;justify-content:center;padding:28px 20px}
 .denied-box{max-width:560px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:38px;box-shadow:var(--shadow-lg);text-align:center}
@@ -339,6 +386,7 @@ button{font-family:var(--body)}
       </div>
       <nav class="side-nav" id="sideNav">
         <button class="snav on" data-s="overview"><i class="ti ti-layout-dashboard"></i> Overview</button>
+        <button class="snav" data-s="claims"><i class="ti ti-photo-check"></i> Claims</button>
         <button class="snav" data-s="accounts"><i class="ti ti-brand-paypal"></i> My Records</button>
         <button class="snav" data-s="methods"><i class="ti ti-building-bank"></i> Payment Methods</button>
         <button class="snav" data-s="history"><i class="ti ti-receipt"></i> Payment History</button>
@@ -391,8 +439,21 @@ button{font-family:var(--body)}
             <div class="payout-n" id="payoutPkr">PKR 0</div>
           </div>
 
+          <div class="action-bar">
+            <button class="gbtn" id="openClaim"><i class="ti ti-photo-plus"></i> Claim a payment</button>
+          </div>
+
           <h3 class="section-h">Recent payments</h3>
           <div class="flist" id="recentList"></div>
+        </div>
+
+        <!-- CLAIMS -->
+        <div id="secClaims" style="display:none">
+          <p class="hint-box">When a payment reaches one of your PayPal accounts, claim it here. Pick the account it arrived in, enter the exact amount, and attach a screenshot. We check every claim before it is added to your earnings.</p>
+          <div class="action-bar">
+            <button class="gbtn" id="openClaim2"><i class="ti ti-photo-plus"></i> Claim a payment</button>
+          </div>
+          <div class="flist" id="claimList"></div>
         </div>
 
         <!-- ACCOUNTS -->
@@ -403,7 +464,10 @@ button{font-family:var(--body)}
 
         <!-- METHODS -->
         <div id="secMethods" style="display:none">
-          <p class="hint-box">Your primary method is used first for payouts. Other methods stay available as backup. To add or change a method, please use the app or message us on WhatsApp.</p>
+          <p class="hint-box">Your primary method is used first for payouts. Other methods stay available as backup. A new method is checked by our team before it can be used, and there is a short waiting period after any change.</p>
+          <div class="action-bar">
+            <button class="gbtn" id="openMethod"><i class="ti ti-plus"></i> Add payment method</button>
+          </div>
           <div class="flist" id="methodList"></div>
         </div>
 
@@ -423,12 +487,97 @@ button{font-family:var(--body)}
 
   <nav class="mnav" id="mnav">
     <button class="on" data-s="overview"><i class="ti ti-layout-dashboard"></i>Overview</button>
+    <button data-s="claims"><i class="ti ti-photo-check"></i>Claims</button>
     <button data-s="accounts"><i class="ti ti-brand-paypal"></i>Records</button>
     <button data-s="methods"><i class="ti ti-building-bank"></i>Methods</button>
     <button data-s="history"><i class="ti ti-receipt"></i>History</button>
     <button data-s="alerts"><i class="ti ti-bell"></i>Alerts<span class="dot" id="mnavDot">0</span></button>
   </nav>
 </div>
+
+<!-- ============ CLAIM A PAYMENT ============ -->
+<div class="sheet" id="claimSheet">
+  <div class="sbox">
+    <h3>Claim a payment</h3>
+    <p class="sub">Tell us about a payment that reached one of your PayPal accounts.</p>
+    <div class="smsg" id="claimMsg"></div>
+
+    <div class="f">
+      <label for="claimEmail">Which PayPal account did it arrive in?</label>
+      <select id="claimEmail"></select>
+    </div>
+
+    <div class="f">
+      <label for="claimAmount">Amount in USD</label>
+      <input type="number" id="claimAmount" step="0.01" min="0.01" placeholder="499.00" inputmode="decimal">
+      <div class="hint">Enter the exact amount shown in PayPal, before any deduction.</div>
+    </div>
+
+    <div class="f">
+      <label>Screenshot of the payment</label>
+      <div class="drop" id="claimDrop">
+        <i class="ti ti-camera-plus"></i>
+        <div class="t">Tap to choose a screenshot</div>
+        <div class="s">JPG, PNG or WebP — up to 5 MB</div>
+      </div>
+      <input type="file" id="claimFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+    </div>
+
+    <div class="sbtns">
+      <button class="obtn" id="claimCancel">Cancel</button>
+      <button class="gbtn" id="claimSubmit">Submit claim</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD PAYMENT METHOD ============ -->
+<div class="sheet" id="methodSheet">
+  <div class="sbox">
+    <h3>Add payment method</h3>
+    <p class="sub">Where should we send your payouts? Our team checks every new method before it can be used.</p>
+    <div class="smsg" id="methodMsg"></div>
+
+    <div class="f">
+      <label for="mType">Type</label>
+      <select id="mType">
+        <option value="bank">Bank account</option>
+        <option value="jazzcash">JazzCash</option>
+        <option value="easypaisa">EasyPaisa</option>
+        <option value="sadapay">SadaPay</option>
+        <option value="nayapay">NayaPay</option>
+      </select>
+    </div>
+
+    <div class="f">
+      <label for="mProvider">Bank or wallet name</label>
+      <input type="text" id="mProvider" placeholder="Meezan Bank" autocomplete="off">
+    </div>
+
+    <div class="f">
+      <label for="mTitle">Account title</label>
+      <input type="text" id="mTitle" placeholder="Exactly as it appears on the account" autocomplete="name">
+    </div>
+
+    <div class="f">
+      <label for="mNumber">Account number or IBAN</label>
+      <input type="text" id="mNumber" placeholder="PK00MEZN0000000000000000" autocomplete="off">
+      <div class="hint">Check this carefully. A wrong number means a failed payout.</div>
+    </div>
+
+    <label class="f-check">
+      <input type="checkbox" id="mPrimary">
+      Use this as my primary method
+    </label>
+
+    <div class="sbtns">
+      <button class="obtn" id="methodCancel">Cancel</button>
+      <button class="gbtn" id="methodSubmit">Add method</button>
+    </div>
+  </div>
+</div>
+
+<div class="lb" id="lb"><button class="lb-x" id="lbX">✕</button><img id="lbImg" alt="Payment screenshot"></div>
+<div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -437,9 +586,12 @@ import {
   sendPasswordResetEmail, setPersistence, browserLocalPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, collection,
-  query, where, getDocs
+  getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection,
+  query, where, getDocs, serverTimestamp, Timestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
 /* ===== CONFIG ===== */
 const WHATSAPP = 'https://wa.me/923119637931';        // support ke liye
@@ -453,10 +605,14 @@ const firebaseConfig = {
   messagingSenderId: "389127998917",
   appId: "1:389127998917:web:a849ddb50e57f8787e4fac"
 };
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const app     = initializeApp(firebaseConfig);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
 setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+const COOLING_HOURS = 2;
+const MAX_PROOF_MB  = 5;
 
 /* ===== helpers ===== */
 const $ = id => document.getElementById(id);
@@ -507,6 +663,18 @@ async function withRetry(fn){
 /* ===== state ===== */
 let ME=null, ACCESS=null;
 let SETTLEMENTS=[], CLAIMS=[], ACCOUNTS=[], METHODS=[], ALERTS=[];
+let claimFile=null;
+
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function sheetMsg(id, text, good){
+  const el=$(id);
+  el.className='smsg show '+(good?'good':'bad');
+  el.textContent=text;
+}
+function clearSheetMsg(id){ $(id).className='smsg'; }
 let SECTION='overview', PENDING_NUM='';
 
 $('sideWa').href = WHATSAPP;
@@ -646,6 +814,9 @@ async function loadAll(uid){
     id:d.id,
     netUsd:Number(d.netUsd||0),
     status:String(d.status||'submitted').toLowerCase(),
+    paypalEmail:d.paypalEmail||'',
+    proofUrl:d.proofUrl||'',
+    adminNote:d.adminNote||'',
     at:tsSeconds(d.createdAt)
   })).sort((a,b)=>b.at-a.at);
 
@@ -744,9 +915,41 @@ function render(){
     ? ALERTS.map(alertRow).join('')
     : emptyBox('ti-bell','No notification yet.');
 
+  $('claimList').innerHTML = CLAIMS.length
+    ? CLAIMS.map(claimRow).join('')
+    : emptyBox('ti-photo-check','You have not claimed any payment yet.');
+
   document.querySelectorAll('.nrow-btn').forEach(b=>{
     b.onclick = () => toggleRead(b.dataset.id, b.dataset.read==='1');
   });
+  document.querySelectorAll('[data-img]').forEach(b=>{
+    b.onclick = () => { $('lbImg').src=b.dataset.img; $('lb').classList.add('show'); };
+  });
+}
+
+function claimStatusChip(s){
+  if(s==='verified'||s==='approved') return ['paid','Verified'];
+  if(s==='rejected'||s==='declined') return ['bad','Not accepted'];
+  if(s==='under_review')             return ['pending','Being checked'];
+  return ['pending','Waiting for review'];
+}
+
+function claimRow(c){
+  const [cls,label] = claimStatusChip(c.status);
+  const thumb = c.proofUrl
+    ? '<button class="claim-thumb" data-img="'+esc(c.proofUrl)+'"><img src="'+esc(c.proofUrl)+'" alt="Screenshot"></button>'
+    : '<div class="claim-thumb"><i class="ti ti-photo-off"></i></div>';
+
+  return '<div class="frow">'
+    + thumb
+    + '<div class="frow-main">'
+      + '<div class="frow-t">'+usd(c.netUsd)+'</div>'
+      + '<div class="frow-m">'+esc(c.paypalEmail||'PayPal account not recorded')+'</div>'
+      + (c.adminNote ? '<div class="cool"><i class="ti ti-info-circle"></i>'+esc(c.adminNote)+'</div>' : '')
+    + '</div>'
+    + '<div class="frow-amt"><div class="frow-pkr">'+esc(fmtDate(c.at))+'</div></div>'
+    + '<span class="chip '+cls+'">'+esc(label)+'</span>'
+  + '</div>';
 }
 
 function chipFor(status){
@@ -828,6 +1031,7 @@ async function toggleRead(id, wasRead){
 /* ===== sections ===== */
 const TITLES={
   overview:['Overview','Your earnings summary'],
+  claims  :['Claims','Payments you have reported to us'],
   accounts:['My Records','Account records linked to you'],
   methods :['Payment Methods','Where your payouts are sent'],
   history :['Payment History','Every payment, paid and pending'],
@@ -835,7 +1039,7 @@ const TITLES={
 };
 function switchSection(s){
   SECTION=s;
-  ['Overview','Accounts','Methods','History','Alerts'].forEach(k=>{
+  ['Overview','Claims','Accounts','Methods','History','Alerts'].forEach(k=>{
     const el=$('sec'+k); if(el) el.style.display = (k.toLowerCase()===s)?'block':'none';
   });
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
@@ -848,6 +1052,183 @@ function switchSection(s){
 document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
   if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s);
 });
+
+/* ===== lightbox ===== */
+$('lbX').onclick = ()=>$('lb').classList.remove('show');
+$('lb').onclick  = e=>{ if(e.target.id==='lb') $('lb').classList.remove('show'); };
+
+/* ===== claim a payment ===== */
+function openClaimSheet(){
+  const live = ACCOUNTS.filter(a=>!a.archived && a.assignmentStatus!=='ended');
+
+  if(!live.length){
+    toast('No PayPal account is linked to you yet');
+    return;
+  }
+
+  $('claimEmail').innerHTML = live
+    .map(a=>'<option value="'+esc(a.email||a.displayName)+'">'
+          + esc(a.email || a.displayName || 'Account') + '</option>')
+    .join('');
+
+  $('claimAmount').value = '';
+  claimFile = null;
+  resetDrop();
+  clearSheetMsg('claimMsg');
+  $('claimSheet').classList.add('show');
+}
+
+function resetDrop(){
+  const d=$('claimDrop');
+  d.classList.remove('has');
+  d.querySelector('i').className='ti ti-camera-plus';
+  d.querySelector('.t').textContent='Tap to choose a screenshot';
+  d.querySelector('.s').textContent='JPG, PNG or WebP — up to '+MAX_PROOF_MB+' MB';
+}
+
+$('openClaim').onclick  = openClaimSheet;
+$('openClaim2').onclick = openClaimSheet;
+$('claimCancel').onclick = ()=>$('claimSheet').classList.remove('show');
+$('claimSheet').onclick = e=>{ if(e.target.id==='claimSheet') $('claimSheet').classList.remove('show'); };
+
+$('claimDrop').onclick = ()=>$('claimFile').click();
+
+$('claimFile').onchange = ev=>{
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+
+  if(file.size > MAX_PROOF_MB*1024*1024){
+    sheetMsg('claimMsg','That image is too large. Please choose one under '+MAX_PROOF_MB+' MB.');
+    ev.target.value='';
+    return;
+  }
+
+  claimFile = file;
+  clearSheetMsg('claimMsg');
+
+  const d=$('claimDrop');
+  d.classList.add('has');
+  d.querySelector('i').className='ti ti-circle-check';
+  d.querySelector('.t').textContent='Screenshot ready';
+  d.querySelector('.s').textContent=file.name;
+};
+
+$('claimSubmit').onclick = async ()=>{
+  clearSheetMsg('claimMsg');
+
+  const email  = $('claimEmail').value;
+  const amount = Number($('claimAmount').value);
+  const btn    = $('claimSubmit');
+
+  if(!email)                       return sheetMsg('claimMsg','Please choose the PayPal account.');
+  if(!amount || amount<=0)         return sheetMsg('claimMsg','Please enter the amount in USD.');
+  if(!claimFile)                   return sheetMsg('claimMsg','Please attach a screenshot of the payment.');
+
+  btn.disabled=true; btn.textContent='Sending…';
+
+  try{
+    const ext  = (claimFile.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+    const path = 'earning-proofs/'+ME.uid+'/claim_'+Date.now()+'.'+ext;
+    const fileRef = storageRef(storage, path);
+
+    await uploadBytes(fileRef, claimFile, { contentType: claimFile.type });
+    const proofUrl = await getDownloadURL(fileRef);
+
+    await addDoc(collection(db,'paymentClaims'), {
+      studentUid:   ME.uid,
+      studentName:  ME.name || '',
+      studentPhone: ME.number || '',
+      paypalEmail:  String(email).toLowerCase(),
+      netUsd:       Math.round(amount*100)/100,
+      status:       'submitted',
+      proofUrl:     proofUrl,
+      createdAt:    serverTimestamp()
+    });
+
+    $('claimSheet').classList.remove('show');
+    toast('Claim sent for review');
+
+    await loadAll(ME.uid);
+    render();
+  }catch(e){
+    console.error(e);
+    sheetMsg('claimMsg','Could not send the claim. Please check your connection and try again.');
+  }
+
+  btn.disabled=false; btn.textContent='Submit claim';
+};
+
+/* ===== add payment method ===== */
+$('openMethod').onclick = ()=>{
+  ['mProvider','mTitle','mNumber'].forEach(id=>{ $(id).value=''; });
+  $('mType').value='bank';
+  $('mPrimary').checked = METHODS.length===0;
+  clearSheetMsg('methodMsg');
+  $('methodSheet').classList.add('show');
+};
+$('methodCancel').onclick = ()=>$('methodSheet').classList.remove('show');
+$('methodSheet').onclick = e=>{ if(e.target.id==='methodSheet') $('methodSheet').classList.remove('show'); };
+
+$('methodSubmit').onclick = async ()=>{
+  clearSheetMsg('methodMsg');
+
+  const type     = $('mType').value;
+  const provider = $('mProvider').value.trim();
+  const title    = $('mTitle').value.trim();
+  const number   = $('mNumber').value.trim();
+  const primary  = $('mPrimary').checked;
+  const btn      = $('methodSubmit');
+
+  if(provider.length<2) return sheetMsg('methodMsg','Please enter the bank or wallet name.');
+  if(title.length<2)    return sheetMsg('methodMsg','Please enter the account title.');
+  if(number.length<5)   return sheetMsg('methodMsg','Please enter the account number or IBAN.');
+
+  btn.disabled=true; btn.textContent='Saving…';
+
+  try{
+    const now     = Date.now();
+    const cooling = Timestamp.fromMillis(now + COOLING_HOURS*60*60*1000);
+    const last4   = number.replace(/[^a-zA-Z0-9]/g,'').slice(-4);
+
+    // Purani primary hata dein — rules sirf ye teen fields badalne deti hain
+    if(primary){
+      const others = METHODS.filter(m=>m.isPrimary);
+      for(const m of others){
+        try{
+          await updateDoc(doc(db,'students',ME.uid,'paymentMethods',m.id), {
+            isPrimary: false,
+            updatedAt: serverTimestamp()
+          });
+        }catch(e){ console.error('could not clear primary', e); }
+      }
+    }
+
+    await addDoc(collection(db,'students',ME.uid,'paymentMethods'), {
+      studentUid:        ME.uid,
+      type:              type,
+      provider:          provider,
+      accountTitle:      title,
+      accountIdentifier: number,
+      last4:             last4,
+      isPrimary:         primary,
+      status:            'pending_review',
+      createdAt:         serverTimestamp(),
+      updatedAt:         serverTimestamp(),
+      coolingUntil:      cooling
+    });
+
+    $('methodSheet').classList.remove('show');
+    toast('Sent for review');
+
+    await loadAll(ME.uid);
+    render();
+  }catch(e){
+    console.error(e);
+    sheetMsg('methodMsg','Could not save this method. Please check your connection and try again.');
+  }
+
+  btn.disabled=false; btn.textContent='Add method';
+};
 
 /* ===== boot ===== */
 async function boot(user){
