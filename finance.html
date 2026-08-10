@@ -194,17 +194,30 @@ button{font-family:var(--body)}
 .cool i{font-size:15px}
 .hint-box{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.6}
 
-/* ---------- NO ACCESS ---------- */
-#denied{display:none;min-height:100vh;align-items:center;justify-content:center;padding:28px}
-.denied-box{max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:38px;box-shadow:var(--shadow-lg);text-align:center}
-.denied-ic{width:64px;height:64px;border-radius:20px;background:var(--soft-amber);color:var(--amber);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+/* ---------- NO ACCESS / SERVICE INFO ---------- */
+#denied{display:none;min-height:100vh;align-items:center;justify-content:center;padding:28px 20px}
+.denied-box{max-width:560px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:38px;box-shadow:var(--shadow-lg);text-align:center}
+.denied-ic{width:64px;height:64px;border-radius:20px;background:var(--soft-purple);color:var(--purple);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
 .denied-ic i{font-size:31px}
-.denied-box h2{font-family:var(--display);font-weight:800;font-size:25px;letter-spacing:-.02em;margin-bottom:10px}
-.denied-box p{color:var(--muted);font-size:14.5px;line-height:1.65;margin-bottom:22px}
+.denied-box h2{font-family:var(--display);font-weight:800;font-size:27px;letter-spacing:-.02em;margin-bottom:8px}
+.denied-box #deniedMsg{color:var(--muted);font-size:14.5px;line-height:1.65;margin-bottom:28px}
+.feat-list{display:flex;flex-direction:column;gap:16px;text-align:left;margin-bottom:26px}
+.feat{display:flex;align-items:flex-start;gap:14px}
+.feat-ic{width:40px;height:40px;border-radius:12px;background:var(--soft-blue);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.feat-ic i{font-size:20px}
+.feat b{display:block;font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.feat div{font-size:13.5px;color:var(--muted);line-height:1.55}
+.denied-cta{font-size:14px;color:var(--ink-2);font-weight:600;margin-bottom:20px}
 .denied-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.db{padding:12px 24px;border-radius:99px;border:1.5px solid var(--line);background:none;cursor:pointer;font-weight:700;font-size:13.5px;color:var(--ink-2);transition:all .16s}
+.db{display:inline-flex;align-items:center;gap:7px;padding:13px 24px;border-radius:99px;border:1.5px solid var(--line);background:none;cursor:pointer;font-weight:700;font-size:13.5px;color:var(--ink-2);transition:all .16s}
 .db:hover{border-color:var(--ink);background:var(--card-2)}
 .db.solid{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 8px 22px rgba(139,49,232,.24)}
+.db.solid:hover{transform:translateY(-1px);background:var(--grad)}
+.db i{font-size:17px}
+.denied-small{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;color:var(--muted-2)}
+.denied-small button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600}
+.denied-small button:hover{color:var(--ink-2);text-decoration:underline}
+@media(max-width:560px){.denied-box{padding:28px 22px}.denied-box h2{font-size:23px}.db{width:100%;justify-content:center}}
 </style>
 </head>
 <body>
@@ -254,16 +267,63 @@ button{font-family:var(--body)}
   </div>
 </div>
 
-<!-- ============ NO ACCESS ============ -->
+<!-- ============ NO ACCESS / SERVICE INFO ============ -->
 <div id="denied">
   <div class="denied-box">
-    <div class="denied-ic"><i class="ti ti-lock"></i></div>
-    <h2>No finance access</h2>
-    <p id="deniedMsg">Your login is working, but no active service is linked to this account yet. If you think this is a mistake, message us on WhatsApp and we will check it for you.</p>
+    <div class="denied-ic"><i class="ti ti-wallet"></i></div>
+    <h2>PayPal Service</h2>
+    <p id="deniedMsg">This service is not active on your account yet.</p>
+
+    <div class="feat-list">
+      <div class="feat">
+        <span class="feat-ic"><i class="ti ti-users"></i></span>
+        <div>
+          <b>Your account, managed by our team</b>
+          We handle the full setup for your TikTok earnings — nothing for you to do.
+        </div>
+      </div>
+      <div class="feat">
+        <span class="feat-ic"><i class="ti ti-bolt"></i></span>
+        <div>
+          <b>Fast PKR transfers</b>
+          No long waiting. Your payment reaches you quickly.
+        </div>
+      </div>
+      <div class="feat">
+        <span class="feat-ic"><i class="ti ti-shield-check"></i></span>
+        <div>
+          <b>Payments you can count on</b>
+          Every payment honoured — no unnecessary delays.
+        </div>
+      </div>
+      <div class="feat">
+        <span class="feat-ic"><i class="ti ti-receipt"></i></span>
+        <div>
+          <b>A complete record of every payment</b>
+          How much came in, when it arrived, what's still pending — all clearly shown here.
+        </div>
+      </div>
+      <div class="feat">
+        <span class="feat-ic"><i class="ti ti-building-bank"></i></span>
+        <div>
+          <b>Straight to your bank or wallet</b>
+          Payouts in PKR — to your bank account, JazzCash or EasyPaisa.
+        </div>
+      </div>
+    </div>
+
+    <p class="denied-cta">Message us on WhatsApp to learn more about this service.</p>
+
     <div class="denied-btns">
-      <a class="db solid" id="deniedWa" href="#" target="_blank" rel="noopener">Message on WhatsApp</a>
-      <button class="db" id="deniedRetry">Check again</button>
-      <button class="db" id="deniedOut">Log out</button>
+      <a class="db solid" id="deniedWa" href="#" target="_blank" rel="noopener">
+        <i class="ti ti-brand-whatsapp"></i> Talk to us on WhatsApp
+      </a>
+      <a class="db" href="learn.html">Learning Portal</a>
+    </div>
+    <div class="denied-small">
+      <button id="deniedRetry">Check again</button>
+      <span>·</span>
+      <button id="deniedOut">Log out</button>
     </div>
   </div>
 </div>
@@ -382,7 +442,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 /* ===== CONFIG ===== */
-const WHATSAPP = 'https://wa.me/923119637931';
+const WHATSAPP = 'https://wa.me/923119637931';        // support ke liye
+const WHATSAPP_FIN = 'https://wa.me/923299655742';    // PayPal service ke sawalat
 
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
@@ -449,7 +510,8 @@ let SETTLEMENTS=[], CLAIMS=[], ACCOUNTS=[], METHODS=[], ALERTS=[];
 let SECTION='overview', PENDING_NUM='';
 
 $('sideWa').href = WHATSAPP;
-$('deniedWa').href = WHATSAPP;
+$('deniedWa').href = WHATSAPP_FIN
+  + '?text=' + encodeURIComponent('Assalam o Alaikum, mujhe PayPal Service ke baare mein maloomat chahiye.');
 
 /* ===== number -> email ===== */
 async function emailForNumber(num){
@@ -817,11 +879,9 @@ async function boot(user){
   ACCESS = await checkFinanceAccess(user.uid);
   if(!ACCESS.ok){
     if(ACCESS.reason==='error'){
-      showDenied('We could not check your access just now. Please check your connection and tap "Check again".');
-    }else if(ACCESS.reason==='inactive'){
-      showDenied('Your finance access is not active right now. If you think this is a mistake, message us on WhatsApp and we will check it for you.');
+      showDenied('We could not check your access just now. Please check your connection and tap "Check again" below.');
     }else{
-      showDenied('Your login is working, but no active service is linked to this account yet. If you think this is a mistake, message us on WhatsApp and we will check it for you.');
+      showDenied('This service is not active on your account yet.');
     }
     return;
   }

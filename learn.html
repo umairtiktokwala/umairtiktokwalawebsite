@@ -98,6 +98,10 @@ button{font-family:var(--body)}
 .side-wa{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;background:var(--soft-green);color:#0B7A47;font-size:13.5px;font-weight:600;transition:all .16s}
 .side-wa:hover{background:#D6F5E5}
 .side-wa i{font-size:18px}
+.side-foot{display:flex;flex-direction:column;gap:8px}
+.side-link{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;background:var(--soft-purple);color:#6B21A8;font-size:13.5px;font-weight:600;transition:all .16s}
+.side-link:hover{background:#F0E2FD}
+.side-link i{font-size:18px}
 
 /* main */
 .main{padding:0;min-width:0}
@@ -397,6 +401,9 @@ button{font-family:var(--body)}
         <button class="snav" data-s="earnings"><i class="ti ti-chart-line"></i> My Earnings</button>
       </nav>
       <div class="side-foot">
+        <a class="side-link" id="finLink" href="finance.html">
+          <i class="ti ti-wallet"></i> Finance Dashboard
+        </a>
         <a class="side-wa" href="https://wa.me/923119637931" target="_blank" rel="noopener">
           <i class="ti ti-brand-whatsapp"></i> Support on WhatsApp
         </a>
@@ -531,6 +538,7 @@ button{font-family:var(--body)}
     <button data-s="tasks"><i class="ti ti-checklist"></i>Tasks</button>
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
+    <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923119637931','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
   </nav>
 </div>
