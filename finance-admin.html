@@ -136,6 +136,50 @@ button{font-family:var(--body)}
 .empty i{font-size:34px;color:var(--muted-2);display:block;margin-bottom:10px}
 .loading{padding:44px;text-align:center;color:var(--muted);font-size:14px}
 
+/* MODAL */
+.sheet{position:fixed;inset:0;background:rgba(15,18,34,.6);z-index:150;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.sheet.show{display:flex}
+.sbox{background:var(--card);border-radius:20px;width:100%;max-width:560px;padding:26px;box-shadow:0 20px 60px rgba(15,18,34,.24);margin:auto}
+.sbox h3{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;margin-bottom:4px}
+.sbox .sub{font-size:13.5px;color:var(--muted);margin-bottom:20px}
+.f{margin-bottom:15px}
+.f label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.f input,.f select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;font-family:var(--body);font-size:15px;background:var(--card);color:var(--ink)}
+.f input:focus{outline:none;border-color:var(--purple)}
+.f .hint{font-size:12px;color:var(--muted);margin-top:5px}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:var(--card-2)}
+.drop:hover{border-color:var(--purple);background:var(--soft-purple)}
+.drop i{font-size:24px;color:var(--muted);display:block;margin-bottom:6px}
+.drop .t{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.drop .s{font-size:12px;color:var(--muted);margin-top:3px}
+.drop.has{border-style:solid;border-color:var(--green);background:var(--soft-green)}
+.drop.has i,.drop.has .t{color:#0B7A47}
+.sbtns{display:flex;gap:10px;margin-top:20px}
+.sbtns button{flex:1;justify-content:center;padding:13px;border-radius:99px;border:1.5px solid var(--line);background:none;cursor:pointer;font-weight:700;font-size:14px;color:var(--ink-2)}
+.sbtns button.go{background:var(--grad);border-color:transparent;color:#fff}
+.sbtns button:disabled{opacity:.55;cursor:not-allowed}
+.smsg{padding:12px 14px;border-radius:11px;font-size:13px;margin-bottom:16px;display:none}
+.smsg.show{display:block}
+.smsg.bad{background:var(--soft-red);border:1px solid #FECACA;color:#991B1B}
+
+/* STUDENT PROFILE */
+.sp-top{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+.sp-av{width:70px;height:70px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:27px;color:#fff;flex-shrink:0;overflow:hidden}
+.sp-av img{width:100%;height:100%;object-fit:cover}
+.sp-name{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+.sp-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.sp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px}
+.sp-stat{background:var(--card-2);border-radius:13px;padding:13px}
+.sp-stat .n{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em}
+.sp-stat .l{font-size:11px;color:var(--muted);margin-top:1px}
+.sp-h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px}
+.sp-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--card-2);font-size:13.5px}
+.sp-row:last-child{border-bottom:none}
+.sp-row span{color:var(--muted);flex-shrink:0}
+.sp-row b{font-weight:600;text-align:right;word-break:break-all}
+.sp-item{background:var(--card-2);border-radius:11px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;flex-wrap:wrap}
+.sp-item .m{font-family:var(--mono);font-size:11.5px;color:var(--muted);word-break:break-all}
+
 /* LIGHTBOX */
 .lb{position:fixed;inset:0;background:rgba(15,18,34,.88);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
 .lb.show{display:flex}
@@ -211,6 +255,51 @@ button{font-family:var(--body)}
   </div>
 </div>
 
+<!-- MARK PAID + PROOF -->
+<div class="sheet" id="paySheet">
+  <div class="sbox" style="max-width:440px">
+    <h3>Record this payment</h3>
+    <p class="sub" id="payWho"></p>
+    <div class="smsg" id="payMsg"></div>
+
+    <div class="f">
+      <label for="payAmount">Amount sent (PKR)</label>
+      <input type="number" id="payAmount" step="1" min="0">
+    </div>
+
+    <div class="f">
+      <label for="payBy">Sent by</label>
+      <input type="text" id="payBy" placeholder="Who made the transfer">
+    </div>
+
+    <div class="f">
+      <label>Payment proof</label>
+      <div class="drop" id="payDrop">
+        <i class="ti ti-receipt-2"></i>
+        <div class="t">Attach the transfer receipt</div>
+        <div class="s">JPG, PNG or WebP — up to 5 MB</div>
+      </div>
+      <input type="file" id="payFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+      <div class="hint">A receipt is required — it is the record if a payment is ever questioned.</div>
+    </div>
+
+    <div class="sbtns">
+      <button id="payCancel">Cancel</button>
+      <button class="go" id="payConfirm">Mark paid</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT PROFILE -->
+<div class="sheet" id="stuSheet">
+  <div class="sbox">
+    <div id="stuBody"></div>
+    <div class="sbtns">
+      <button id="stuClose">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="lb" id="lb"><button class="lb-x" id="lbX">✕</button><img id="lbImg" alt="Payment proof"></div>
 <div class="toast" id="toast"></div>
 
@@ -224,6 +313,9 @@ import {
   getFirestore, doc, getDoc, updateDoc, collection, collectionGroup,
   query, where, getDocs, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
@@ -236,6 +328,7 @@ const firebaseConfig = {
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+const storage = getStorage(app);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
 /* ===== helpers ===== */
@@ -370,7 +463,9 @@ async function loadAll(){
     accountTitle:d.paymentAccountTitleSnapshot||'',
     masked:d.paymentIdentifierMaskedSnapshot||'',
     at:tsSec(d.createdAt),
-    paidAt:tsSec(d.paidAt)
+    paidAt:tsSec(d.paidAt),
+    paidBy:d.paidBy||'',
+    proofUrl:d.paymentProofUrl||''
   }));
 
   STUDENTS = students.map(d=>({
@@ -450,17 +545,110 @@ async function setClaim(id, status){
   }catch(e){ toast('Could not save — try again'); }
 }
 
-async function markPaid(id){
-  const s=SETTLEMENTS.find(x=>x.id===id); if(!s) return;
-  try{
-    await updateDoc(doc(db,'settlements',id), {
-      status:'paid', paidPkr:s.payablePkr, pendingPkr:0, paidAt:serverTimestamp()
-    });
-    s.status='paid'; s.paidPkr=s.payablePkr; s.pendingPkr=0; s.paidAt=Math.floor(Date.now()/1000);
-    render();
-    toast('Marked paid');
-  }catch(e){ toast('Could not save — try again'); }
+/* ===== mark paid — proof lazmi ===== */
+let payTarget=null, payFile=null;
+
+function openPaySheet(id){
+  const s = SETTLEMENTS.find(x=>x.id===id);
+  if(!s) return;
+
+  payTarget = s;
+  payFile = null;
+
+  $('payWho').textContent =
+    studentName(s.studentUid, s.studentName)
+    + ' · ' + [s.provider, s.accountTitle, s.masked].filter(Boolean).join(' · ');
+  $('payAmount').value = s.pendingPkr || s.payablePkr;
+  $('payBy').value = '';
+
+  const d=$('payDrop');
+  d.classList.remove('has');
+  d.querySelector('i').className='ti ti-receipt-2';
+  d.querySelector('.t').textContent='Attach the transfer receipt';
+  d.querySelector('.s').textContent='JPG, PNG or WebP — up to 5 MB';
+
+  $('payMsg').className='smsg';
+  $('paySheet').classList.add('show');
 }
+
+$('payCancel').onclick = ()=>$('paySheet').classList.remove('show');
+$('paySheet').onclick = e=>{ if(e.target.id==='paySheet') $('paySheet').classList.remove('show'); };
+$('payDrop').onclick = ()=>$('payFile').click();
+
+$('payFile').onchange = ev=>{
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+
+  if(file.size > 5*1024*1024){
+    $('payMsg').className='smsg show bad';
+    $('payMsg').textContent='That image is too large. Please choose one under 5 MB.';
+    ev.target.value=''; return;
+  }
+
+  payFile = file;
+  $('payMsg').className='smsg';
+
+  const d=$('payDrop');
+  d.classList.add('has');
+  d.querySelector('i').className='ti ti-circle-check';
+  d.querySelector('.t').textContent='Receipt ready';
+  d.querySelector('.s').textContent=file.name;
+};
+
+$('payConfirm').onclick = async ()=>{
+  if(!payTarget) return;
+
+  const amount = Number($('payAmount').value);
+  const by     = $('payBy').value.trim();
+  const btn    = $('payConfirm');
+
+  if(!amount || amount<=0){
+    $('payMsg').className='smsg show bad';
+    $('payMsg').textContent='Please enter the amount that was sent.';
+    return;
+  }
+  if(!payFile){
+    $('payMsg').className='smsg show bad';
+    $('payMsg').textContent='Please attach the transfer receipt.';
+    return;
+  }
+
+  btn.disabled=true; btn.textContent='Saving…';
+
+  try{
+    const ext  = (payFile.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+    const path = 'payment-proofs/'+payTarget.studentUid+'/'+payTarget.id+'_'+Date.now()+'.'+ext;
+    const fileRef = storageRef(storage, path);
+
+    await uploadBytes(fileRef, payFile, { contentType: payFile.type });
+    const proofUrl = await getDownloadURL(fileRef);
+
+    await updateDoc(doc(db,'settlements',payTarget.id), {
+      status:'paid',
+      paidPkr: Math.round(amount),
+      pendingPkr: Math.max((payTarget.payablePkr||0) - Math.round(amount), 0),
+      paidAt: serverTimestamp(),
+      paidBy: by,
+      paymentProofUrl: proofUrl
+    });
+
+    payTarget.status='paid';
+    payTarget.paidPkr=Math.round(amount);
+    payTarget.pendingPkr=Math.max((payTarget.payablePkr||0)-Math.round(amount),0);
+    payTarget.paidAt=Math.floor(Date.now()/1000);
+    payTarget.proofUrl=proofUrl;
+
+    $('paySheet').classList.remove('show');
+    render();
+    toast('Payment recorded');
+  }catch(e){
+    console.error(e);
+    $('payMsg').className='smsg show bad';
+    $('payMsg').textContent='Could not save. Check your connection and try again.';
+  }
+
+  btn.disabled=false; btn.textContent='Mark paid';
+};
 
 async function setMethod(path, status){
   try{
@@ -470,6 +658,115 @@ async function setMethod(path, status){
     render();
     toast(status==='active' ? 'Method approved' : 'Method rejected');
   }catch(e){ toast('Could not save — try again'); }
+}
+
+/* ===== student profile ===== */
+$('stuClose').onclick = ()=>$('stuSheet').classList.remove('show');
+$('stuSheet').onclick = e=>{ if(e.target.id==='stuSheet') $('stuSheet').classList.remove('show'); };
+
+async function openStudent(uid){
+  $('stuBody').innerHTML = '<div class="loading">Loading…</div>';
+  $('stuSheet').classList.add('show');
+
+  const fin = STUDENTS.find(s=>s.uid===uid) || {};
+  let core = {};
+
+  try{
+    const snap = await getDoc(doc(db,'students',uid));
+    if(snap.exists()) core = snap.data();
+  }catch(e){ console.error(e); }
+
+  const mine     = SETTLEMENTS.filter(s=>s.studentUid===uid);
+  const lifetime = mine.reduce((a,s)=>a+s.payablePkr,0);
+  const paid     = mine.filter(s=>s.status==='paid').reduce((a,s)=>a+s.paidPkr,0);
+  const owed     = mine.filter(s=>s.status!=='paid').reduce((a,s)=>a+(s.pendingPkr||s.payablePkr),0);
+  const usdTotal = mine.reduce((a,s)=>a+s.verifiedUsd,0);
+
+  const accounts = ASSIGNMENTS.filter(a=>a.studentUid===uid);
+  const methods  = METHODS.filter(m=>m.uid===uid && m.status!=='inactive');
+  const claims   = CLAIMS.filter(c=>c.studentUid===uid);
+
+  const joined = core.joined && core.joined.seconds
+    ? new Date(core.joined.seconds*1000).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+    : '—';
+
+  const name = fin.name || core.name || '(no name)';
+  const photo = core.photoUrl || '';
+
+  let h = '<div class="sp-top">'
+    + '<div class="sp-av">'
+      + (photo ? '<img src="'+esc(photo)+'" alt="">' : esc((name[0]||'S').toUpperCase()))
+    + '</div>'
+    + '<div><div class="sp-name">'+esc(name)+'</div>'
+      + '<div class="sp-sub">'+esc(fin.phone||core.number||'')+'</div></div>'
+  + '</div>';
+
+  h += '<div class="sp-stats">'
+    + '<div class="sp-stat"><div class="n">'+usd(usdTotal)+'</div><div class="l">Total USD</div></div>'
+    + '<div class="sp-stat"><div class="n">PKR '+short(paid)+'</div><div class="l">Paid out</div></div>'
+    + '<div class="sp-stat"><div class="n" style="color:'+(owed?'var(--amber)':'var(--green)')+'">PKR '+short(owed)+'</div><div class="l">Owed</div></div>'
+  + '</div>';
+
+  h += '<div class="sp-h">Details</div>'
+    + row_('Email', fin.email || core.email || '—')
+    + row_('City', fin.city || core.city || '—')
+    + row_('Member since', joined)
+    + row_('Service status', fin.status || '—')
+    + row_('Student ID', 'UTW-'+uid.slice(-8).toUpperCase())
+    + row_('Lifetime earned', 'PKR '+pkr(lifetime));
+
+  h += '<div class="sp-h">PayPal accounts ('+accounts.length+')</div>';
+  h += accounts.length ? accounts.map(a=>{
+      const ended = a.status==='ended' || a.status==='unlinked';
+      const cls = ended ? 'plain' : (a.status==='limited' ? 'warn' : 'ok');
+      return '<div class="sp-item"><div><div class="m">'+esc(a.email||'—')+'</div></div>'
+        + '<span class="chip '+cls+'">'+esc(titleCase(a.status))+'</span></div>';
+    }).join('')
+    : '<div class="sp-item"><span style="color:var(--muted)">No PayPal linked yet</span></div>';
+
+  h += '<div class="sp-h">Where payouts go ('+methods.length+')</div>';
+  h += methods.length ? methods.map(m=>
+      '<div class="sp-item">'
+      + '<div><b>'+esc(m.provider)+'</b>'
+        + '<div class="m">'+esc(m.accountTitle)+' · '+esc(m.identifier||('•••• '+m.last4))+'</div></div>'
+      + '<span class="chip '+(m.status==='active'?(m.isPrimary?'info':'plain'):'wait')+'">'
+        + (m.status==='active' ? (m.isPrimary?'Primary':'Backup') : 'Pending review') + '</span>'
+      + '</div>'
+    ).join('')
+    : '<div class="sp-item"><span style="color:var(--muted)">No payment method added yet</span></div>';
+
+  h += '<div class="sp-h">Payments ('+mine.length+')</div>';
+  h += mine.length ? mine.slice(0,12).map(s=>
+      '<div class="sp-item">'
+      + '<div><b>PKR '+pkr(s.status==='paid'?s.paidPkr:(s.pendingPkr||s.payablePkr))+'</b>'
+        + '<div class="m">'+usd(s.verifiedUsd)+(s.cycleId?' · '+esc(s.cycleId):'')
+        + ' · '+esc(fmtDate(s.status==='paid'?s.paidAt:s.at))+'</div></div>'
+      + (s.proofUrl
+          ? '<button class="act" data-img="'+esc(s.proofUrl)+'">Receipt</button>'
+          : '<span class="chip '+(s.status==='paid'?'ok':'wait')+'">'+(s.status==='paid'?'Paid':'Pending')+'</span>')
+      + '</div>'
+    ).join('')
+    : '<div class="sp-item"><span style="color:var(--muted)">No payment recorded yet</span></div>';
+
+  if(claims.length){
+    h += '<div class="sp-h">Claims ('+claims.length+')</div>';
+    h += claims.slice(0,8).map(c=>
+      '<div class="sp-item">'
+      + '<div><b>'+usd(c.netUsd)+'</b><div class="m">'+esc(c.paypalEmail||'')+' · '+esc(fmtDate(c.at))+'</div></div>'
+      + (c.proofUrl ? '<button class="act" data-img="'+esc(c.proofUrl)+'">Screenshot</button>' : '')
+      + '</div>'
+    ).join('');
+  }
+
+  $('stuBody').innerHTML = h;
+
+  $('stuBody').querySelectorAll('[data-img]').forEach(b=>{
+    b.onclick = ()=>{ $('lbImg').src=b.dataset.img; $('lb').classList.add('show'); };
+  });
+}
+
+function row_(label, value){
+  return '<div class="sp-row"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';
 }
 
 /* ===== render ===== */
@@ -615,7 +912,9 @@ function payoutRow(s){
     + '</div>'
     + '<div class="ramt"><div class="a">PKR '+pkr(amount)+'</div>'
       + '<div class="b">'+esc(isPaid?fmtDate(s.paidAt):fmtDate(s.at))+'</div></div>'
-    + (isPaid ? '' : '<div class="racts"><button class="act go" data-paid="'+esc(s.id)+'">Mark paid</button></div>')
+    + (isPaid
+        ? (s.proofUrl ? '<div class="racts"><button class="act" data-img="'+esc(s.proofUrl)+'">Receipt</button></div>' : '')
+        : '<div class="racts"><button class="act go" data-paid="'+esc(s.id)+'">Mark paid</button></div>')
   + '</div>';
 }
 
@@ -669,7 +968,7 @@ function renderStudents(){
     const owed = mine.filter(x=>x.status!=='paid').reduce((a,x)=>a+(x.pendingPkr||x.payablePkr),0);
     const emails = ASSIGNMENTS.filter(a=>a.studentUid===s.uid && a.status!=='ended').map(a=>a.email).filter(Boolean);
 
-    return '<div class="row">'
+    return '<div class="row" data-student="'+esc(s.uid)+'" style="cursor:pointer">'
       + '<div class="thumb none" style="background:var(--soft-purple);color:var(--purple)"><i class="ti ti-user"></i></div>'
       + '<div class="rmain">'
         + '<div class="rt">'+esc(s.name||'(no name)')+' <small>'+esc(s.phone)+'</small></div>'
@@ -681,6 +980,7 @@ function renderStudents(){
         + '</div>'
       + '</div>'
       + '<div class="ramt"><div class="a">PKR '+short(lifetime)+'</div><div class="b">lifetime</div></div>'
+      + '<div class="racts"><button class="act">Open</button></div>'
     + '</div>';
   }).join('')+'</div>';
 
@@ -733,7 +1033,10 @@ function wire(){
     b.onclick = ()=>{ b.disabled=true; setClaim(b.dataset.claim, b.dataset.to); };
   });
   document.querySelectorAll('[data-paid]').forEach(b=>{
-    b.onclick = ()=>{ b.disabled=true; markPaid(b.dataset.paid); };
+    b.onclick = ()=> openPaySheet(b.dataset.paid);
+  });
+  document.querySelectorAll('[data-student]').forEach(b=>{
+    b.onclick = ()=> openStudent(b.dataset.student);
   });
   document.querySelectorAll('[data-method]').forEach(b=>{
     b.onclick = ()=>{ b.disabled=true; setMethod(b.dataset.method, b.dataset.to); };

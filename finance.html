@@ -123,8 +123,9 @@ button{font-family:var(--body)}
 @media(max-width:860px){
   .shell{grid-template-columns:1fr}
   .side{display:none}
-  .mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--card);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));justify-content:space-around}
-  .mnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;border-radius:10px;position:relative}
+  .mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--card);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom));overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mnav::-webkit-scrollbar{display:none}
+  .mnav button{flex:0 0 auto;min-width:62px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:600;border-radius:10px;position:relative}
   .mnav button i{font-size:21px}
   .mnav button.on{color:var(--purple)}
   .mnav .dot{position:absolute;top:2px;right:calc(50% - 20px);min-width:17px;height:17px;border-radius:99px;background:var(--red);color:#fff;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 4px}
@@ -240,6 +241,28 @@ button{font-family:var(--body)}
 
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:99px;font-size:13.5px;font-weight:600;z-index:300;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
+
+/* ---------- PROFILE ---------- */
+.pf-top{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.pf-av{position:relative;width:82px;height:82px;border-radius:50%;border:none;padding:0;cursor:pointer;background:var(--grad);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.pf-av img{width:100%;height:100%;object-fit:cover}
+.pf-av span:first-of-type{font-family:var(--display);font-weight:800;font-size:31px;color:#fff}
+.pf-cam{position:absolute;bottom:0;right:0;width:27px;height:27px;border-radius:50%;background:var(--card);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.pf-cam i{font-size:14px;color:var(--ink-2)}
+.pf-who{min-width:0}
+.pf-name{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+.pf-id{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px}
+.pf-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--card-2);font-size:14px}
+.pf-row:last-child{border-bottom:none}
+.pf-row span{color:var(--muted)}
+.pf-row b{font-weight:700;text-align:right}
+
+/* ---------- METHOD ACTIONS ---------- */
+.frow-acts{display:flex;gap:6px;flex-wrap:wrap}
+.mini{border:1.5px solid var(--line);background:none;border-radius:99px;padding:6px 13px;cursor:pointer;font-size:12px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.mini:hover{border-color:var(--ink);background:var(--card-2)}
+.mini.danger{color:#991B1B;border-color:#FECACA}
+.mini:disabled{opacity:.45;cursor:not-allowed}
 
 /* ---------- NO ACCESS / SERVICE INFO ---------- */
 #denied{display:none;min-height:100vh;align-items:center;justify-content:center;padding:28px 20px}
@@ -391,6 +414,7 @@ button{font-family:var(--body)}
         <button class="snav" data-s="methods"><i class="ti ti-building-bank"></i> Payment Methods</button>
         <button class="snav" data-s="history"><i class="ti ti-receipt"></i> Payment History</button>
         <button class="snav" data-s="alerts"><i class="ti ti-bell"></i> Notifications <span class="dot" id="sideDot">0</span></button>
+        <button class="snav" data-s="profile"><i class="ti ti-user"></i> Profile</button>
       </nav>
       <div class="side-foot">
         <a class="side-link" href="learn.html"><i class="ti ti-book-2"></i> Learning Portal</a>
@@ -481,6 +505,59 @@ button{font-family:var(--body)}
           <div class="flist" id="alertList"></div>
         </div>
 
+        <!-- PROFILE -->
+        <div id="secProfile" style="display:none">
+          <div class="panel">
+            <div class="pf-top">
+              <button class="pf-av" id="pfAvatar" title="Change photo">
+                <img id="pfImg" alt="" style="display:none">
+                <span id="pfInitial">S</span>
+                <span class="pf-cam"><i class="ti ti-camera"></i></span>
+              </button>
+              <div class="pf-who">
+                <div class="pf-name" id="pfName">Student</div>
+                <div class="pf-id" id="pfId"></div>
+              </div>
+            </div>
+            <input type="file" id="pfFile" accept="image/*" style="display:none">
+
+            <div class="smsg" id="pfMsg"></div>
+
+            <div class="f">
+              <label for="pfFullName">Full name</label>
+              <input type="text" id="pfFullName" placeholder="Your name" autocomplete="name">
+            </div>
+
+            <div class="f">
+              <label for="pfEmail">Email</label>
+              <input type="email" id="pfEmail" disabled>
+              <div class="hint">This is the email your account is signed in with. To change it, message us on WhatsApp.</div>
+            </div>
+
+            <div class="f">
+              <label for="pfPhone">WhatsApp number</label>
+              <input type="tel" id="pfPhone" disabled>
+              <div class="hint">Your number is how you log in, so it cannot be changed here.</div>
+            </div>
+
+            <div class="f">
+              <label for="pfCity">City</label>
+              <input type="text" id="pfCity" placeholder="Multan" autocomplete="address-level2">
+            </div>
+
+            <button class="gbtn" id="pfSave" style="width:100%;justify-content:center;margin-top:6px">
+              <i class="ti ti-check"></i> Save changes
+            </button>
+          </div>
+
+          <div class="panel">
+            <div class="pf-row"><span>Member since</span><b id="pfJoined">—</b></div>
+            <div class="pf-row"><span>Linked PayPal accounts</span><b id="pfAccounts">0</b></div>
+            <div class="pf-row"><span>Payment methods</span><b id="pfMethods">0</b></div>
+            <div class="pf-row"><span>Service status</span><b id="pfStatus">Active</b></div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -492,6 +569,7 @@ button{font-family:var(--body)}
     <button data-s="methods"><i class="ti ti-building-bank"></i>Methods</button>
     <button data-s="history"><i class="ti ti-receipt"></i>History</button>
     <button data-s="alerts"><i class="ti ti-bell"></i>Alerts<span class="dot" id="mnavDot">0</span></button>
+    <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
   </nav>
 </div>
 
@@ -594,8 +672,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
 /* ===== CONFIG ===== */
-const WHATSAPP = 'https://wa.me/923119637931';        // support ke liye
-const WHATSAPP_FIN = 'https://wa.me/923299655742';    // PayPal service ke sawalat
+// PayPal service ka apna number — 311 wala sirf learning support ke liye hai
+const WHATSAPP = 'https://wa.me/923299655742';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
@@ -678,7 +756,7 @@ function clearSheetMsg(id){ $(id).className='smsg'; }
 let SECTION='overview', PENDING_NUM='';
 
 $('sideWa').href = WHATSAPP;
-$('deniedWa').href = WHATSAPP_FIN
+$('deniedWa').href = WHATSAPP
   + '?text=' + encodeURIComponent('Assalam o Alaikum, mujhe PayPal Service ke baare mein maloomat chahiye.');
 
 /* ===== number -> email ===== */
@@ -840,7 +918,8 @@ async function loadAll(uid){
     status:String(d.status||'active').toLowerCase(),
     at:tsSeconds(d.updatedAt),
     coolingUntil:tsSeconds(d.coolingUntil)
-  })).sort((a,b)=> (b.isPrimary?1:0)-(a.isPrimary?1:0) || b.at-a.at);
+  })).filter(m=>m.status!=='inactive')
+     .sort((a,b)=> (b.isPrimary?1:0)-(a.isPrimary?1:0) || b.at-a.at);
 
   ALERTS = al.map(d=>({
     id:d.id,
@@ -925,6 +1004,168 @@ function render(){
   document.querySelectorAll('[data-img]').forEach(b=>{
     b.onclick = () => { $('lbImg').src=b.dataset.img; $('lb').classList.add('show'); };
   });
+  document.querySelectorAll('[data-remove]').forEach(b=>{
+    b.onclick = () => removeMethod(b.dataset.remove, b);
+  });
+  document.querySelectorAll('[data-primary]').forEach(b=>{
+    b.onclick = () => makePrimary(b.dataset.primary, b);
+  });
+
+  renderProfile();
+}
+
+/* ===== profile ===== */
+function renderProfile(){
+  const first = (ME.name||'').trim().split(' ')[0] || '';
+  $('pfName').textContent = ME.name || 'Student';
+  $('pfId').textContent   = ME.uid ? 'UTW-' + ME.uid.slice(-8).toUpperCase() : '';
+  $('pfInitial').textContent = (first || ME.number || 'S').charAt(0).toUpperCase();
+
+  const img = $('pfImg');
+  if(ME.photoUrl){
+    img.src = ME.photoUrl;
+    img.style.display = 'block';
+    $('pfInitial').style.display = 'none';
+  }else{
+    img.style.display = 'none';
+    $('pfInitial').style.display = 'block';
+  }
+
+  if(document.activeElement !== $('pfFullName')) $('pfFullName').value = ME.name || '';
+  if(document.activeElement !== $('pfCity'))     $('pfCity').value     = ME.city || '';
+  $('pfEmail').value = ME.email || '';
+  $('pfPhone').value = ME.number || '';
+
+  $('pfJoined').textContent   = ME.joinedText || 'Not available';
+  $('pfAccounts').textContent = ACCOUNTS.filter(a=>!a.archived && a.assignmentStatus!=='ended').length;
+  $('pfMethods').textContent  = METHODS.length;
+  $('pfStatus').textContent   = ACCESS && ACCESS.status ? ACCESS.status : 'Active';
+}
+
+$('pfAvatar').onclick = ()=>$('pfFile').click();
+
+$('pfFile').onchange = async ev=>{
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+
+  if(file.size > 3*1024*1024){
+    sheetMsg('pfMsg','That image is too large. Please choose one under 3 MB.');
+    ev.target.value=''; return;
+  }
+
+  clearSheetMsg('pfMsg');
+  toast('Uploading photo…');
+
+  try{
+    const ext = (file.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+    const fileRef = storageRef(storage, 'profile-images/'+ME.uid+'/profile.'+ext);
+
+    await uploadBytes(fileRef, file, { contentType: file.type });
+    const url = await getDownloadURL(fileRef);
+
+    await updateDoc(doc(db,'students',ME.uid), {
+      photoUrl: url,
+      profileUpdatedAt: serverTimestamp()
+    });
+
+    ME.photoUrl = url;
+    renderProfile();
+    toast('Photo updated');
+  }catch(e){
+    console.error(e);
+    sheetMsg('pfMsg','Could not upload the photo. Please check your connection and try again.');
+  }
+
+  ev.target.value='';
+};
+
+$('pfSave').onclick = async ()=>{
+  clearSheetMsg('pfMsg');
+
+  const name = $('pfFullName').value.trim();
+  const city = $('pfCity').value.trim();
+  const btn  = $('pfSave');
+
+  if(name.length < 2) return sheetMsg('pfMsg','Please enter your full name.');
+
+  btn.disabled=true; btn.innerHTML='Saving…';
+
+  try{
+    await updateDoc(doc(db,'students',ME.uid), {
+      name: name,
+      city: city,
+      profileUpdatedAt: serverTimestamp()
+    });
+
+    ME.name = name;
+    ME.city = city;
+
+    $('tbName').textContent = name;
+    $('tbAv').textContent   = (name.split(' ')[0]||'S').charAt(0).toUpperCase();
+
+    renderProfile();
+    sheetMsg('pfMsg','Profile updated.', true);
+  }catch(e){
+    console.error(e);
+    sheetMsg('pfMsg','Could not save. Please check your connection and try again.');
+  }
+
+  btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Save changes';
+};
+
+/* ===== payment method actions ===== */
+async function removeMethod(id, btn){
+  const m = METHODS.find(x=>x.id===id);
+  if(!m) return;
+
+  const label = [m.provider, m.last4 ? '•••• '+m.last4 : ''].filter(Boolean).join(' ');
+  if(!confirm('Remove '+label+'?\n\nYour past payments keep their record. You can add a new method any time.')) return;
+
+  btn.disabled = true;
+
+  try{
+    await updateDoc(doc(db,'students',ME.uid,'paymentMethods',id), {
+      status: 'inactive',
+      isPrimary: false,
+      updatedAt: serverTimestamp()
+    });
+
+    await loadAll(ME.uid);
+    render();
+    toast('Method removed');
+  }catch(e){
+    console.error(e);
+    btn.disabled = false;
+    toast('Could not remove — try again');
+  }
+}
+
+async function makePrimary(id, btn){
+  btn.disabled = true;
+
+  try{
+    for(const m of METHODS.filter(x=>x.isPrimary && x.id!==id)){
+      try{
+        await updateDoc(doc(db,'students',ME.uid,'paymentMethods',m.id), {
+          isPrimary:false, updatedAt: serverTimestamp()
+        });
+      }catch(e){ console.error(e); }
+    }
+
+    await updateDoc(doc(db,'students',ME.uid,'paymentMethods',id), {
+      isPrimary: true,
+      updatedAt: serverTimestamp(),
+      coolingUntil: Timestamp.fromMillis(Date.now() + COOLING_HOURS*60*60*1000)
+    });
+
+    await loadAll(ME.uid);
+    render();
+    toast('Primary method updated');
+  }catch(e){
+    console.error(e);
+    btn.disabled = false;
+    toast('Could not update — try again');
+  }
 }
 
 function claimStatusChip(s){
@@ -992,15 +1233,26 @@ function acctRow(a){
 
 function methodRow(m){
   const cooling = m.coolingUntil > Math.floor(Date.now()/1000);
+  const chip = m.status==='pending_review' ? ['wait','Being checked']
+             : m.status==='rejected'       ? ['bad','Not accepted']
+             : m.isPrimary                 ? ['primary','Primary']
+             :                               ['info','Backup'];
+
+  const canPrimary = m.status==='active' && !m.isPrimary;
+
   return '<div class="frow">'
     + '<div class="frow-ic blue"><i class="ti ti-building-bank"></i></div>'
     + '<div class="frow-main">'
       + '<div class="frow-t">'+esc(m.provider||'Payment method')+'</div>'
       + '<div class="frow-m">'+esc(m.accountTitle||'')
         + (m.last4?' · •••• '+esc(m.last4):'')+'</div>'
-      + (cooling ? '<div class="cool"><i class="ti ti-clock-hour-4"></i>Two-hour cooling period active</div>' : '')
+      + (cooling ? '<div class="cool"><i class="ti ti-clock-hour-4"></i>Waiting period active — this method can be used shortly</div>' : '')
+      + '<div class="frow-acts" style="margin-top:9px">'
+        + (canPrimary ? '<button class="mini" data-primary="'+esc(m.id)+'">Make primary</button>' : '')
+        + '<button class="mini danger" data-remove="'+esc(m.id)+'">Remove</button>'
+      + '</div>'
     + '</div>'
-    + '<span class="chip '+(m.isPrimary?'primary':'info')+'">'+(m.isPrimary?'Primary':'Backup')+'</span>'
+    + '<span class="chip '+chip[0]+'">'+esc(chip[1])+'</span>'
   + '</div>';
 }
 
@@ -1035,11 +1287,12 @@ const TITLES={
   accounts:['My Records','Account records linked to you'],
   methods :['Payment Methods','Where your payouts are sent'],
   history :['Payment History','Every payment, paid and pending'],
-  alerts  :['Notifications','Finance and payment updates']
+  alerts  :['Notifications','Finance and payment updates'],
+  profile :['Profile','Your details and photo']
 };
 function switchSection(s){
   SECTION=s;
-  ['Overview','Claims','Accounts','Methods','History','Alerts'].forEach(k=>{
+  ['Overview','Claims','Accounts','Methods','History','Alerts','Profile'].forEach(k=>{
     const el=$('sec'+k); if(el) el.style.display = (k.toLowerCase()===s)?'block':'none';
   });
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
@@ -1255,7 +1508,19 @@ async function boot(user){
     return say('Your access is currently paused. Contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>');
   }
 
-  ME={uid:user.uid, name:d.name||'', number:d.number||'', email:d.email||''};
+  const joined = d.joined && typeof d.joined.toDate === 'function'
+    ? d.joined.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+    : '';
+
+  ME = {
+    uid: user.uid,
+    name: d.name || '',
+    number: d.number || '',
+    email: d.email || user.email || '',
+    city: d.city || '',
+    photoUrl: d.photoUrl || '',
+    joinedText: joined
+  };
 
   ACCESS = await checkFinanceAccess(user.uid);
   if(!ACCESS.ok){
