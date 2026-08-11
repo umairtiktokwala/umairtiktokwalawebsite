@@ -242,6 +242,18 @@ button{font-family:var(--body)}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:99px;font-size:13.5px;font-weight:600;z-index:300;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 
+/* ---------- PROFILE REMINDER ---------- */
+.pf-nudge{width:100%;display:flex;align-items:center;gap:13px;text-align:left;margin-bottom:20px;padding:15px 17px;border:1.5px solid #F5D9A8;border-radius:15px;background:linear-gradient(103deg,#FFFBF3,var(--soft-amber));cursor:pointer;font-family:var(--body);transition:all .16s}
+.pf-nudge:hover{border-color:var(--amber);transform:translateY(-1px)}
+.pf-nudge-ic{width:40px;height:40px;border-radius:12px;background:#fff;color:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pf-nudge-ic i{font-size:20px}
+.pf-nudge-t{flex:1;min-width:0}
+.pf-nudge-t b{display:block;font-size:14.5px;font-weight:700;color:#78350F}
+.pf-nudge-t span{font-size:13px;color:#92400E}
+.pf-nudge-go{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#92400E;white-space:nowrap}
+.pf-nudge-go i{font-size:15px}
+@media(max-width:640px){.pf-nudge-go span{display:none}.pf-nudge-go{font-size:0}.pf-nudge-go i{font-size:18px}}
+
 /* ---------- PROFILE ---------- */
 .pf-top{display:flex;align-items:center;gap:16px;margin-bottom:22px}
 .pf-av{position:relative;width:82px;height:82px;border-radius:50%;border:none;padding:0;cursor:pointer;background:var(--grad);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
@@ -439,6 +451,17 @@ button{font-family:var(--body)}
       </div>
 
       <div class="content">
+
+        <!-- PROFILE REMINDER — har section par, jab tak naam/city na ho -->
+        <button class="pf-nudge" id="pfNudge" style="display:none">
+          <span class="pf-nudge-ic"><i class="ti ti-user-exclamation"></i></span>
+          <span class="pf-nudge-t">
+            <b id="pfNudgeT">Add your name and city</b>
+            <span id="pfNudgeS">We need to know who to send payments to.</span>
+          </span>
+          <span class="pf-nudge-go">Open profile <i class="ti ti-arrow-right"></i></span>
+        </button>
+
 
         <!-- OVERVIEW -->
         <div id="secOverview">
@@ -1015,11 +1038,49 @@ function render(){
 }
 
 /* ===== profile ===== */
+
+/** Naam sirf hindse ka ho to wo asli naam nahi — signup ke waqt number likha gaya tha. */
+function hasRealName(){
+  const n = (ME.name||'').trim();
+  return n.length >= 2 && /[a-zA-Z\u0600-\u06FF]/.test(n);
+}
+function hasCity(){
+  return (ME.city||'').trim().length >= 2;
+}
+function displayName(){
+  return hasRealName() ? ME.name.trim() : '';
+}
+
+function updateNudge(){
+  const needName = !hasRealName();
+  const needCity = !hasCity();
+  const nudge = $('pfNudge');
+
+  if(!needName && !needCity){ nudge.style.display='none'; return; }
+
+  nudge.style.display='flex';
+
+  if(needName && needCity){
+    $('pfNudgeT').textContent = 'Add your name and city';
+    $('pfNudgeS').textContent = 'We need to know who to send payments to.';
+  }else if(needName){
+    $('pfNudgeT').textContent = 'Add your name';
+    $('pfNudgeS').textContent = 'Your payouts are recorded against your name.';
+  }else{
+    $('pfNudgeT').textContent = 'Add your city';
+    $('pfNudgeS').textContent = 'It helps us reach you when something needs checking.';
+  }
+}
+
+$('pfNudge').onclick = ()=>switchSection('profile');
+
 function renderProfile(){
-  const first = (ME.name||'').trim().split(' ')[0] || '';
-  $('pfName').textContent = ME.name || 'Student';
+  const real  = displayName();
+  const first = real.split(' ')[0] || '';
+
+  $('pfName').textContent = real || 'Add your name';
   $('pfId').textContent   = ME.uid ? 'UTW-' + ME.uid.slice(-8).toUpperCase() : '';
-  $('pfInitial').textContent = (first || ME.number || 'S').charAt(0).toUpperCase();
+  $('pfInitial').textContent = (first || 'S').charAt(0).toUpperCase();
 
   const img = $('pfImg');
   if(ME.photoUrl){
@@ -1031,7 +1092,7 @@ function renderProfile(){
     $('pfInitial').style.display = 'block';
   }
 
-  if(document.activeElement !== $('pfFullName')) $('pfFullName').value = ME.name || '';
+  if(document.activeElement !== $('pfFullName')) $('pfFullName').value = real;
   if(document.activeElement !== $('pfCity'))     $('pfCity').value     = ME.city || '';
   $('pfEmail').value = ME.email || '';
   $('pfPhone').value = ME.number || '';
@@ -1040,6 +1101,8 @@ function renderProfile(){
   $('pfAccounts').textContent = ACCOUNTS.filter(a=>!a.archived && a.assignmentStatus!=='ended').length;
   $('pfMethods').textContent  = METHODS.length;
   $('pfStatus').textContent   = ACCESS && ACCESS.status ? ACCESS.status : 'Active';
+
+  updateNudge();
 }
 
 $('pfAvatar').onclick = ()=>$('pfFile').click();
@@ -1104,6 +1167,7 @@ $('pfSave').onclick = async ()=>{
     $('tbAv').textContent   = (name.split(' ')[0]||'S').charAt(0).toUpperCase();
 
     renderProfile();
+    updateNudge();
     sheetMsg('pfMsg','Profile updated.', true);
   }catch(e){
     console.error(e);
@@ -1532,10 +1596,10 @@ async function boot(user){
     return;
   }
 
-  const first=(ME.name||'').split(' ')[0];
-  $('tbName').textContent = ME.name||'Student';
-  $('tbNum').textContent  = ME.number||'';
-  $('tbAv').textContent   = (first||ME.number||'S').charAt(0).toUpperCase();
+  const real = displayName();
+  $('tbName').textContent = real || 'Welcome';
+  $('tbNum').textContent  = ME.number || '';
+  $('tbAv').textContent   = (real.split(' ')[0] || 'S').charAt(0).toUpperCase();
 
   await loadAll(user.uid);
   render();
