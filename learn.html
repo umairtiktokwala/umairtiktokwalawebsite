@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- INVESTMENT-V2-LEARN | Investment feature + USD-to-PKR 280 | built 11 Aug 2026 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -674,6 +675,11 @@ const ANN_CSV     = 'PASTE_ANNOUNCEMENTS_CSV_URL_HERE';
 const WHATSAPP    = 'https://wa.me/923119637931';
 const MIN_WATCH   = 20;   // seconds a video must be open before "complete" unlocks
 
+/* Dollar rate — jab student ne earning submit karte waqt PKR khali chhora ho,
+   to USD is rate se PKR mein badla jata hai (sirf andaza, asli raqam nahi).
+   Rate badalna ho to sirf ye number badlein — aur admin.html mein bhi wahi number. */
+const USD_TO_PKR  = 280;
+
 const firebaseConfig = {
   apiKey: "AIzaSyAw6iJoyfQ2rUDC8GmFh5vXaTY0x6MWSxs",
   authDomain: "umair-tiktok-wala-academy.firebaseapp.com",
@@ -1231,10 +1237,14 @@ function investRow(v){
 function renderInvest(){
   const invested = INVESTMENTS.reduce((a,v)=>a+Number(v.amount||0),0);
 
-  // Total earned = sirf APPROVED earning submissions ka PKR
+  // Total earned = sirf APPROVED earning submissions.
+  // PKR likha hai to wahi (asli raqam), warna USD ko rate se badal dete hain.
   const approved = EARNINGS.filter(e=>e.status==='approved');
-  const earned   = approved.reduce((a,e)=>a+Number(e.pkr||0),0);
-  const noPkr    = approved.filter(e=>!Number(e.pkr||0)).length;
+  const earned   = approved.reduce((a,e)=>{
+    const p=Number(e.pkr||0);
+    return a + (p>0 ? p : Number(e.usd||0)*USD_TO_PKR);
+  },0);
+  const converted = approved.filter(e=>!Number(e.pkr||0) && Number(e.usd||0)>0).length;
   const profit   = earned - invested;
 
   $('invTotal').textContent = fmtPkr(invested);
@@ -1243,8 +1253,8 @@ function renderInvest(){
     : 'No entries yet';
 
   $('invEarned').textContent = fmtPkr(earned);
-  $('invEarnedSub').textContent = noPkr
-    ? noPkr + (noPkr===1?' approved entry has':' approved entries have') + ' no PKR value — not counted'
+  $('invEarnedSub').textContent = converted
+    ? converted + (converted===1?' entry':' entries') + ' converted at Rs ' + USD_TO_PKR + '/$ — estimate only'
     : (approved.length ? 'From your approved earnings' : 'No approved earnings yet');
 
   const pf=$('invProfit');

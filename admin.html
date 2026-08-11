@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- INVESTMENT-V2-ADMIN | Investment feature + USD-to-PKR 280 | built 11 Aug 2026 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -234,6 +235,35 @@ button{font-family:var(--body)}
 .earn-nums{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}.earn-num{background:var(--card-2);border-radius:11px;padding:10px 13px}.earn-num b{display:block;font-family:var(--display);font-size:18px}.earn-num span{font-size:11px;color:var(--muted)}
 .earn-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 20px}.earn-sum{background:var(--card);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--line)}.earn-sum b{display:block;font-family:var(--display);font-size:24px;letter-spacing:-.02em}.earn-sum span{font-size:12.5px;color:var(--muted)}.earn-tools{display:grid;grid-template-columns:minmax(220px,1fr) 190px 190px;gap:10px;margin-bottom:18px}.earn-tools input,.earn-tools select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font:inherit;color:var(--ink)}.earn-tools input:focus,.earn-tools select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 4px var(--soft-purple)}@media(max-width:900px){.earn-summary{grid-template-columns:1fr 1fr}.earn-tools{grid-template-columns:1fr}}
 
+/* ---------- PKR FIX ROW (admin edits real PKR) ---------- */
+.earn-num.est{background:var(--soft-amber)}
+.earn-num.est b{color:#92400E}
+.earn-num.est span{color:#B45309}
+.pkr-fix{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:12px}
+.pkr-fix label{font-size:12px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.pkr-fix input{flex:1;min-width:130px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);font:inherit;font-size:13.5px;color:var(--ink)}
+.pkr-fix input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px var(--soft-purple)}
+.pkr-save{padding:9px 18px;border:none;border-radius:99px;cursor:pointer;background:var(--ink);color:#fff;font-weight:700;font-size:12.5px;white-space:nowrap;transition:transform .16s}
+.pkr-save:hover:not(:disabled){transform:translateY(-1px)}
+.pkr-save:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+/* ---------- STUDENT INVESTMENTS (read-only) ---------- */
+.inv-money{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.inv-money .det-n{font-size:18px}
+.inv-money .det-n.pos{color:var(--green)}
+.inv-money .det-n.neg{color:var(--red)}
+.inv-h{font-size:13px;font-weight:700;color:var(--ink-2);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.inv-h i{font-size:16px;color:var(--purple)}
+.inv-h .inv-since{margin-left:auto;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
+.inv-rows{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+.inv-r{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.inv-r-main{flex:1;min-width:130px}
+.inv-r-t{font-weight:700;font-size:13.5px;line-height:1.35}
+.inv-r-d{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.inv-r-a{font-family:var(--display);font-weight:800;font-size:15px;white-space:nowrap}
+.inv-none{font-size:12.5px;color:var(--muted);background:var(--card-2);border:1px dashed var(--line);border-radius:12px;padding:16px;text-align:center;margin-bottom:20px}
+@media(max-width:560px){.inv-money{grid-template-columns:1fr}}
+
 </style>
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -398,6 +428,16 @@ button{font-family:var(--body)}
         <div class="det"><div class="det-n" id="dTime">0m</div><div class="det-l">Total time spent</div></div>
         <div class="det"><div class="det-n" id="dDays">0</div><div class="det-l">Active days</div></div>
       </div>
+
+      <div class="inv-money">
+        <div class="det"><div class="det-n" id="dInvested">…</div><div class="det-l">Invested (PKR)</div></div>
+        <div class="det"><div class="det-n" id="dEarnedPkr">…</div><div class="det-l">Earned (PKR)</div></div>
+        <div class="det"><div class="det-n" id="dProfit">…</div><div class="det-l" id="dProfitLbl">Profit / Loss</div></div>
+      </div>
+
+      <div class="inv-h"><i class="ti ti-coins"></i> Investments <span class="inv-since" id="dInvSince"></span></div>
+      <div class="inv-rows" id="dInvList"></div>
+
       <div id="dCourses"></div>
     </div>
   </div>
@@ -410,7 +450,8 @@ import {
   setPersistence, browserLocalPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp
+  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs,
+  query, where, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -440,6 +481,10 @@ function fmtDateTime(sec){ if(!sec)return''; return new Date(sec*1000).toLocaleD
 
 let SUBS=[], EARNINGS=[], STUDENTS=[], ANN=[], LESSONS=[], VIEW='review', FILTER='pending', EARN_FILTER='pending', EARN_SEARCH='', EARN_PLATFORM='all', EARN_MONTH='all', SEARCH='';
 const LESSONS_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=0&single=true&output=csv';
+
+/* Dollar rate — jab student ne PKR khali chhora ho to USD is rate se badla jata hai.
+   Rate badalna ho to sirf ye number badlein — aur learn.html mein bhi wahi number. */
+const USD_TO_PKR = 280;
 
 /* ===== login (uses the real email, via numbers/{num}) ===== */
 async function emailForNumber(num){ try{ const s=await getDoc(doc(db,'numbers',num)); return s.exists()?s.data().email:null; }catch(e){ return null; } }
@@ -579,10 +624,33 @@ function renderEarningSubs(){
   let list=earningFilteredBase();
   if(EARN_FILTER!=='all')list=list.filter(e=>e.status===EARN_FILTER);
   if(!list.length){wrap.innerHTML='<div class="empty"><i class="ti ti-file-dollar"></i>No earning submissions here.</div>';return;}
-  wrap.innerHTML=list.map(e=>{const month=e.month?new Date(e.month+'-01T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'}):'';return `<div class="sub ${e.status==='correction'?'rework':e.status}"><div class="s-top"><div class="s-av">${esc((e.studentName||'S').charAt(0).toUpperCase())}</div><div class="s-who"><div class="s-nm">${esc(e.studentName||'No name')}</div><div class="s-meta">${esc(e.studentNumber||'')} · ${esc(month)}</div></div><span class="chip mod">${esc(courseName(e.platform))}</span><span class="chip ${e.status==='correction'?'rework':e.status}">${esc(earnStatusLabel(e.status))}</span></div><div class="earn-nums"><div class="earn-num"><b>$${Number(e.usd||0).toFixed(2)}</b><span>USD submitted</span></div><div class="earn-num"><b>${Number(e.pkr||0).toLocaleString()}</b><span>PKR received</span></div></div>${e.proofUrl?`<a href="${esc(e.proofUrl)}" target="_blank" rel="noopener"><img class="earn-proof" src="${esc(e.proofUrl)}" alt="Earning proof"></a>`:''}${e.note?`<div class="s-text">${esc(e.note)}</div>`:''}<div class="s-act"><textarea placeholder="Admin note / correction details" data-enote="${esc(e.id)}">${esc(e.adminNote||'')}</textarea><div class="s-btns"><button class="ok" data-eok="${esc(e.id)}"><i class="ti ti-check"></i> Approve</button><button class="no" data-ecorr="${esc(e.id)}"><i class="ti ti-refresh"></i> Correction</button><button class="no" data-erej="${esc(e.id)}"><i class="ti ti-x"></i> Reject</button></div></div></div>`;}).join('');
+  wrap.innerHTML=list.map(e=>{const month=e.month?new Date(e.month+'-01T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'}):'';const hasPkr=Number(e.pkr||0)>0;const est=!hasPkr&&Number(e.usd||0)>0?`<div class="earn-num est"><b>${Math.round(Number(e.usd||0)*USD_TO_PKR).toLocaleString()}</b><span>Estimated at Rs ${USD_TO_PKR}/$</span></div>`:'';return `<div class="sub ${e.status==='correction'?'rework':e.status}"><div class="s-top"><div class="s-av">${esc((e.studentName||'S').charAt(0).toUpperCase())}</div><div class="s-who"><div class="s-nm">${esc(e.studentName||'No name')}</div><div class="s-meta">${esc(e.studentNumber||'')} · ${esc(month)}</div></div><span class="chip mod">${esc(courseName(e.platform))}</span><span class="chip ${e.status==='correction'?'rework':e.status}">${esc(earnStatusLabel(e.status))}</span></div><div class="earn-nums"><div class="earn-num"><b>$${Number(e.usd||0).toFixed(2)}</b><span>USD submitted</span></div><div class="earn-num"><b>${Number(e.pkr||0).toLocaleString()}</b><span>PKR received</span></div>${est}</div><div class="pkr-fix"><label>Real PKR received</label><input type="number" min="0" step="1" placeholder="${hasPkr?'':'Not entered by student'}" data-epkrin="${esc(e.id)}" value="${hasPkr?Number(e.pkr):''}"><button class="pkr-save" data-epkr="${esc(e.id)}">Save PKR</button></div>${e.proofUrl?`<a href="${esc(e.proofUrl)}" target="_blank" rel="noopener"><img class="earn-proof" src="${esc(e.proofUrl)}" alt="Earning proof"></a>`:''}${e.note?`<div class="s-text">${esc(e.note)}</div>`:''}<div class="s-act"><textarea placeholder="Admin note / correction details" data-enote="${esc(e.id)}">${esc(e.adminNote||'')}</textarea><div class="s-btns"><button class="ok" data-eok="${esc(e.id)}"><i class="ti ti-check"></i> Approve</button><button class="no" data-ecorr="${esc(e.id)}"><i class="ti ti-refresh"></i> Correction</button><button class="no" data-erej="${esc(e.id)}"><i class="ti ti-x"></i> Reject</button></div></div></div>`;}).join('');
   wrap.querySelectorAll('[data-eok]').forEach(b=>b.onclick=()=>reviewEarning(b.dataset.eok,'approved',wrap,b));
   wrap.querySelectorAll('[data-ecorr]').forEach(b=>b.onclick=()=>reviewEarning(b.dataset.ecorr,'correction',wrap,b));
   wrap.querySelectorAll('[data-erej]').forEach(b=>b.onclick=()=>reviewEarning(b.dataset.erej,'rejected',wrap,b));
+  wrap.querySelectorAll('[data-epkr]').forEach(b=>b.onclick=()=>saveEarningPkr(b.dataset.epkr,wrap,b));
+}
+
+/* Admin PKR theek kar sakta hai — student ne khali chhora ho ya ghalat likha ho.
+   Firestore rules earningSubmissions par admin ko update ki ijazat pehle se deti hain. */
+async function saveEarningPkr(id,wrap,btn){
+  const inp=wrap.querySelector('[data-epkrin="'+CSS.escape(id)+'"]');
+  if(!inp) return;
+  const raw=inp.value.trim();
+  if(raw===''){ alert('Enter the PKR amount first.'); return; }
+  const val=Number(raw);
+  if(!(val>=0)||isNaN(val)){ alert('That does not look like a valid amount.'); return; }
+  const old=btn.textContent;
+  btn.disabled=true; btn.textContent='Saving…';
+  try{
+    await updateDoc(doc(db,'earningSubmissions',id),{pkr:val});
+    const e=EARNINGS.find(x=>x.id===id); if(e)e.pkr=val;
+    btn.textContent='Saved';
+    setTimeout(()=>{ renderEarningSubs(); },700);
+  }catch(err){
+    btn.disabled=false; btn.textContent=old;
+    alert('Could not save the PKR amount. Please try again.');
+  }
 }
 async function reviewEarning(id,status,wrap,btn){
   const noteEl=wrap.querySelector('[data-enote="'+CSS.escape(id)+'"]'), adminNote=noteEl?noteEl.value.trim():'';
@@ -734,13 +802,19 @@ async function toggleSuspend(uid,now,btn){
 }
 
 /* ===== STUDENT DETAIL ===== */
+let OPEN_UID=null;
 async function openStudent(uid){
   const s=STUDENTS.find(x=>x.uid===uid); if(!s) return;
+  OPEN_UID=uid;
   $('dAv').textContent=(s.name||s.number||'S').charAt(0).toUpperCase();
   $('dName').textContent=s.name||'No name';
   $('dNum').textContent=s.number||'';
   $('dTime').textContent='…'; $('dDays').textContent='…'; $('dCourses').innerHTML='';
+  $('dInvested').textContent='…'; $('dEarnedPkr').textContent='…'; $('dProfit').textContent='…';
+  $('dProfit').className='det-n'; $('dInvSince').textContent='';
+  $('dInvList').innerHTML='<div class="inv-none">Loading…</div>';
   $('detModal').classList.add('open');
+  loadStudentInvestments(uid);
   // load time + progress
   let totalSec=0, days=0, doneSet=new Set();
   try{
@@ -770,6 +844,81 @@ async function openStudent(uid){
   });
   $('dCourses').innerHTML=html||'<div class="det-psub">No course info.</div>';
 }
+/* ===== STUDENT INVESTMENTS (read-only — no approve/reject) ===== */
+const invPkr = n => Number(n||0).toLocaleString('en-US');
+
+function invDateLabel(d){
+  if(!d) return '';
+  const t=new Date(String(d)+'T00:00:00');
+  if(isNaN(t)) return String(d);
+  return t.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+
+async function loadStudentInvestments(uid){
+  let list=[];
+  let failed=false;
+  try{
+    const snap=await getDocs(query(collection(db,'investments'),where('uid','==',uid)));
+    snap.forEach(d=>list.push({id:d.id,...d.data()}));
+  }catch(e){ failed=true; }
+
+  // guard: modal may have been closed, or another student opened meanwhile
+  if(OPEN_UID!==uid || !$('detModal').classList.contains('open')) return;
+
+  if(failed){
+    $('dInvested').textContent='—'; $('dEarnedPkr').textContent='—'; $('dProfit').textContent='—';
+    $('dInvList').innerHTML='<div class="inv-none">Could not load investments. Check the Firestore rules for the investments collection.</div>';
+    return;
+  }
+
+  list.sort((a,b)=>{
+    const da=String(a.investDate||''), dbb=String(b.investDate||'');
+    if(da!==dbb) return dbb.localeCompare(da);
+    return (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0);
+  });
+
+  const invested=list.reduce((a,v)=>a+Number(v.amount||0),0);
+  const approved=EARNINGS.filter(e=>e.studentUid===uid && e.status==='approved');
+  const earned=approved.reduce((a,e)=>{
+    const p=Number(e.pkr||0);
+    return a + (p>0 ? p : Number(e.usd||0)*USD_TO_PKR);
+  },0);
+  const converted=approved.filter(e=>!Number(e.pkr||0) && Number(e.usd||0)>0).length;
+  const profit=earned-invested;
+
+  $('dInvested').textContent=invPkr(invested);
+  $('dEarnedPkr').textContent=invPkr(earned);
+  const pf=$('dProfit');
+  pf.textContent=(profit<0?'-':'')+invPkr(Math.abs(profit));
+  pf.className='det-n'+(profit>0?' pos':(profit<0?' neg':''));
+  $('dProfitLbl').textContent=profit<0?'Loss (PKR)':'Profit / Loss';
+
+  // "kab se kaam kar raha hai" — sab se purani investment ki date
+  if(list.length){
+    const first=list.map(v=>String(v.investDate||'')).filter(Boolean).sort()[0];
+    $('dInvSince').textContent=list.length+(list.length===1?' entry':' entries')+(first?' · since '+invDateLabel(first):'');
+  }else{
+    $('dInvSince').textContent='';
+  }
+
+  const warn=converted?`<div class="inv-none">Note: ${converted} approved earning ${converted===1?'entry has':'entries have'} no PKR value, so ${converted===1?'it was':'they were'} converted from USD at Rs ${USD_TO_PKR}/$. Open the Earnings tab to enter the real PKR amount.</div>`:'';
+
+  $('dInvList').innerHTML = list.length
+    ? list.map(v=>{
+        const plat=String(v.platform||'').toLowerCase();
+        const badge=plat==='facebook'?'<span class="cbadge fb">Facebook</span>':(plat==='tiktok'?'<span class="cbadge tt">TikTok</span>':'<span class="cbadge">—</span>');
+        return `<div class="inv-r">
+          <div class="inv-r-main">
+            <div class="inv-r-t">${esc(v.title||'Investment')}</div>
+            <div class="inv-r-d">${esc(invDateLabel(v.investDate))}</div>
+          </div>
+          ${badge}
+          <div class="inv-r-a">${esc(invPkr(v.amount))} PKR</div>
+        </div>`;
+      }).join('') + warn
+    : '<div class="inv-none">This student has not added any investments yet.</div>' + warn;
+}
+
 $('dX').onclick=()=>$('detModal').classList.remove('open');
 $('detModal').onclick=e=>{ if(e.target===$('detModal')) $('detModal').classList.remove('open'); };
 
