@@ -65,6 +65,20 @@ export default async function handler(req, res) {
       });
     }
 
+    // Jis number pe student ne message kiya tha, usi se jayega.
+    // (24-ghante ka window har number ka alag hota hai — galat number se
+    //  bheja jaye to Meta reject kar deta hai.)
+    const convoIdForLookup = normalizePhone(to) || to;
+    let fromId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    try {
+      const cSnap = await db.collection("conversations").doc(convoIdForLookup).get();
+      if (cSnap.exists && cSnap.data().phoneNumberId) {
+        fromId = cSnap.data().phoneNumberId;
+      }
+    } catch (e) {
+      console.log("phoneNumberId nahi mila, default use ho raha hai:", e.message);
+    }
+
     // ---- Kis qism ki file hai ----
     let waType = "document";
     if (mime.startsWith("image/") && mime !== "image/svg+xml") waType = "image";
@@ -78,7 +92,7 @@ export default async function handler(req, res) {
     form.append("type", mime);
 
     const upRes = await fetch(
-      `${GRAPH}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/media`,
+      `${GRAPH}/${fromId}/media`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}` },
@@ -110,7 +124,7 @@ export default async function handler(req, res) {
     }
 
     const sendRes = await fetch(
-      `${GRAPH}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      `${GRAPH}/${fromId}/messages`,
       {
         method: "POST",
         headers: {
