@@ -71,8 +71,19 @@ async function processWebhook(body) {
       continue;
     }
 
+    // ---- Comments (feed webhook) ----
+    const changes = Array.isArray(entry.changes) ? entry.changes : [];
+    for (const ch of changes) {
+      if (ch.field !== "feed") continue;
+      try {
+        await handleFeed(db, ch.value, entry.id);
+      } catch (e) {
+        console.error("Feed event skipped:", e.message);
+      }
+    }
+
     const events = Array.isArray(entry.messaging) ? entry.messaging : [];
-    console.log("Messenger webhook: events =", events.length);
+    console.log("Messenger webhook: events =", events.length, "| feed changes =", changes.length);
 
     for (const ev of events) {
       try {
@@ -301,4 +312,90 @@ async function fetchProfileName(psid) {
     console.log("Profile fetch error:", e.message);
     return "";
   }
+}
+
+// ============================================================
+//  COMMENTS  —  page ke post pe kisi ne comment kiya
+//  Webhook field: feed
+// ============================================================
+async function handleFeed(db, v, pageId) {
+  if (!v) return;
+
+  // Sirf comments — likes, posts, shares wagera chhoR dein
+  if (v.item !== "comment") {
+    console.log("Feed: item =", v.item, "— chhoR diya");
+    return;
+  }
+
+  const commentId = v.comment_id;
+  if (!commentId) return;
+
+  const verb = v.verb || "add";              // add / edited / remove / hide / unhide
+  const fromId = (v.from && v.from.id) || "";
+  const myPage = String(pageId || process.env.MESSENGER_PAGE_ID || "");
+
+  // Apni hi page ka comment (team ka reply) — list mein nahi dikhana
+  if (fromId && myPage && String(fromId) === myPage) {
+    console.log("Feed: apna hi comment, chhoR diya");
+    return;
+  }
+
+  const ref = db.collection("comments").doc(String(commentId));
+
+  // ---- Comment delete ho gaya ----
+  if (verb === "remove") {
+    await ref.set({
+      status: "deleted",
+      deletedAt: new Date(),
+      unread: 0,
+      updatedAt: new Date(),
+    }, { merge: true });
+    console.log("Comment deleted:", commentId);
+    return;
+  }
+
+  // ---- Chhupaya / dobara dikhaya gaya ----
+  if (verb === "hide" || verb === "unhide") {
+    await ref.set({
+      hidden: verb === "hide",
+      updatedAt: new Date(),
+    }, { merge: true });
+    return;
+  }
+
+  const now = new Date();
+  const createdMs = v.created_time ? v.created_time * 1000 : now.getTime();
+  const snap = await ref.get();
+  const isNew = !snap.exists;
+  const prev = (snap.exists && snap.data()) || {};
+
+  const data = {
+    commentId: String(commentId),
+    postId: v.post_id || "",
+    parentId: v.parent_id && v.parent_id !== v.post_id ? v.parent_id : null,
+    isReply: !!(v.parent_id && v.parent_id !== v.post_id),
+    fromId: fromId || null,
+    fromName: (v.from && v.from.name) || prev.fromName || "",
+    message: v.message || "",
+    permalink: v.permalink_url || prev.permalink || null,
+    postText: (v.post && (v.post.status_type || "")) || prev.postText || "",
+    createdAt: new Date(createdMs),
+    updatedAt: now,
+    pageId: myPage,
+    hidden: false,
+    expiresAt: new Date(now.getTime() + RETENTION_DAYS * 24 * 60 * 60 * 1000),
+  };
+
+  if (isNew) {
+    data.status = "open";
+    data.unread = 1;
+    data.repliedBy = null;
+    data.replyText = null;
+    data.privateReplySent = false;
+  } else if (verb === "edited") {
+    data.edited = true;
+  }
+
+  await ref.set(data, { merge: true });
+  console.log("Comment saved:", commentId, "new:", isNew, "verb:", verb);
 }
