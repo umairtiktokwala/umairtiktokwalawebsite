@@ -137,6 +137,64 @@
   .tag-fb{background:rgba(24,119,242,.12);color:#1877F2;font-weight:600}
   .tag-tt{background:rgba(15,18,34,.08);color:#0F1222;font-weight:600}
   .tag-batch{background:rgba(124,58,237,.09);color:#6d28d9}
+
+  /* ---------- Comments tab ---------- */
+  .tabs{display:flex;gap:6px;margin-left:18px}
+  .tabs button{
+    background:transparent;border:1px solid transparent;color:var(--dim);
+    padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+    font-family:inherit;
+  }
+  .tabs button:hover{color:var(--text)}
+  .tabs button.active{background:var(--panel2);border-color:var(--line);color:var(--text)}
+  .tabs .pill{
+    display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;
+    background:var(--accent);color:#fff;border-radius:9px;font-size:11px;line-height:17px;
+    text-align:center;
+  }
+  .cm-wrap{flex:1;overflow-y:auto;padding:16px 20px;background:var(--bg)}
+  .cm-head{max-width:820px;margin:0 auto 12px}
+  .cm-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+  .cm-filters button{
+    background:var(--panel);border:1px solid var(--line);color:var(--dim);
+    padding:6px 12px;border-radius:7px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  }
+  .cm-filters button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cm-list{max-width:820px;margin:0 auto}
+  .cm-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    padding:14px 16px;margin-bottom:11px;
+  }
+  .cm-card.unread{border-left:3px solid var(--accent)}
+  .cm-card.deleted{opacity:.5}
+  .cm-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+  .cm-name{font-weight:700;font-size:13.5px}
+  .cm-time{font-size:11.5px;color:var(--faint);white-space:nowrap}
+  .cm-text{font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word;margin-bottom:9px}
+  .cm-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .cm-acts{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .cm-btn{
+    background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    padding:6px 12px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;
+  }
+  .cm-btn:hover{border-color:var(--accent)}
+  .cm-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cm-btn.dang{color:var(--danger)}
+  .cm-box{margin-top:11px;display:none}
+  .cm-box.show{display:block}
+  .cm-box textarea{
+    width:100%;min-height:64px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);padding:9px 11px;font-size:13px;
+    font-family:inherit;resize:vertical;
+  }
+  .cm-box-row{display:flex;gap:7px;margin-top:7px;align-items:center}
+  .cm-hint{font-size:11.5px;color:var(--faint);line-height:1.5}
+  .cm-done{
+    background:var(--panel2);border-left:2px solid var(--ok,#16a34a);
+    border-radius:0 7px 7px 0;padding:8px 11px;margin-top:9px;
+    font-size:12.5px;line-height:1.55;
+  }
+  .cm-err{color:var(--danger);font-size:12px;margin-top:6px}
   .tag-viewing{background:rgba(22,163,74,.14);color:#15803d;font-weight:600}
   .tag-msgr{background:rgba(0,132,255,.13);color:#0084FF;font-weight:600}
   .tag-wa{background:rgba(37,211,102,.14);color:#128C7E;font-weight:600}
@@ -472,6 +530,10 @@
         <span>Support inbox</span>
       </div>
     </div>
+    <div class="tabs" id="mainTabs">
+      <button data-tab="chats" class="active">Chats</button>
+      <button data-tab="comments">Comments <span class="pill" id="cmPill" style="display:none">0</span></button>
+    </div>
     <div class="topbar-right">
       <span id="totalUnread" class="total-badge" style="display:none">0</span>
       <button class="icon-btn" id="statsBtn" title="Stats" style="display:none">&#128202;</button>
@@ -525,6 +587,24 @@
     <div class="col-info" id="infoPanel">
       <div class="info-title">Student</div>
       <div class="empty" style="padding:20px 0">No chat selected</div>
+    </div>
+  </div>
+
+  <!-- ============ COMMENTS TAB ============ -->
+  <div class="main" id="mainComments" style="display:none">
+    <div class="cm-wrap">
+      <div class="cm-head">
+        <div class="cm-filters" id="cmFilters">
+          <button data-c="all" class="active">Sab</button>
+          <button data-c="new">Naye</button>
+          <button data-c="replied">Reply ho gaye</button>
+          <button data-c="dm">DM bheji</button>
+          <button data-c="hidden">Chhupaye huay</button>
+        </div>
+      </div>
+      <div class="cm-list" id="cmList">
+        <div class="empty">Loading&hellip;</div>
+      </div>
     </div>
   </div>
 </div>
@@ -715,12 +795,28 @@ onAuthStateChanged(auth, async (user) => {
     watchConversations();
     watchPresence();
     watchSavedReplies();
+    watchComments();
+
+    // Tab buttons
+    $("mainTabs").querySelectorAll("button").forEach(b => {
+      b.onclick = () => switchTab(b.getAttribute("data-tab"));
+    });
+    // Comments ke filters
+    $("cmFilters").querySelectorAll("button").forEach(b => {
+      b.onclick = () => {
+        cmFilter = b.getAttribute("data-c");
+        $("cmFilters").querySelectorAll("button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        renderComments();
+      };
+    });
   } else {
     $("login").style.display = "flex";
     $("app").style.display = "none";
     $("loginBtn").disabled = false;
     if (unsubMessages) { unsubMessages(); unsubMessages = null; }
     if (unsubPresence) { unsubPresence(); unsubPresence = null; }
+    if (unsubComments) { unsubComments(); unsubComments = null; }
   }
 });
 
@@ -2368,6 +2464,223 @@ function statCard(num, label) {
   return '<div class="stat-card"><div class="stat-num">' + num + '</div>' +
          '<div class="stat-lbl">' + esc(label) + '</div></div>';
 }
+
+// ============================================================
+//  COMMENTS TAB
+//  Facebook page ke posts pe aane wale comments.
+//  Har comment pe teen cheezein alag alag chal sakti hain:
+//    - Public reply (jitni baar chahein)
+//    - Private DM (Meta sirf pehli dafa deta hai, phir chat se)
+//    - Hide / Delete
+// ============================================================
+let comments = [];
+let cmFilter = "all";
+let unsubComments = null;
+let cmOpenBox = {};          // kaun sa box khula hai: { commentId: "reply" | "dm" }
+let activeTab = "chats";
+
+function watchComments() {
+  if (unsubComments) unsubComments();
+  const q = query(collection(db, "comments"), orderBy("createdAt", "desc"), limit(300));
+  unsubComments = onSnapshot(q, (snap) => {
+    comments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderComments();
+    updateCmPill();
+  }, (err) => {
+    console.warn("Comments listener error:", err.message);
+    const el = $("cmList");
+    if (el) el.innerHTML = '<div class="empty">Comments nahi aa rahe: ' + esc(err.message) + '</div>';
+  });
+}
+
+function updateCmPill() {
+  const n = comments.filter(c => (c.unread || 0) > 0 && c.status !== "deleted").length;
+  const el = $("cmPill");
+  if (!el) return;
+  el.textContent = n;
+  el.style.display = n > 0 ? "inline-block" : "none";
+}
+
+function filteredComments() {
+  return comments.filter(c => {
+    if (cmFilter === "hidden") return c.hidden === true;
+    if (c.status === "deleted") return false;
+    if (cmFilter === "new") return (c.unread || 0) > 0 && c.status !== "replied";
+    if (cmFilter === "replied") return c.status === "replied";
+    if (cmFilter === "dm") return c.privateReplySent === true;
+    return true;
+  });
+}
+
+function renderComments() {
+  const el = $("cmList");
+  if (!el) return;
+  const rows = filteredComments();
+
+  if (!rows.length) {
+    el.innerHTML = '<div class="empty">' +
+      (comments.length ? "Is filter mein koi comment nahi."
+                       : "Abhi koi comment nahi.<br>Jab koi aap ki post pe comment karega, yahan aa jayega.") +
+      '</div>';
+    return;
+  }
+
+  el.innerHTML = rows.map(c => {
+    const unread = (c.unread || 0) > 0;
+    const tags = [];
+    if (unread) tags.push('<span class="tag tag-unread">Naya</span>');
+    if (c.isReply) tags.push('<span class="tag">Reply pe reply</span>');
+    if (c.status === "replied") tags.push('<span class="tag tag-msgr">Reply ho gaya</span>');
+    if (c.privateReplySent) tags.push('<span class="tag tag-msgr">DM bheji</span>');
+    if (c.hidden) tags.push('<span class="tag">Chhupaya hua</span>');
+
+    const open = cmOpenBox[c.id];
+
+    let done = "";
+    if (c.replyText) {
+      done += '<div class="cm-done"><b>Public reply</b> &middot; ' + esc(c.repliedBy || "") +
+              (c.repliedAt ? ' &middot; ' + timeAgo(c.repliedAt) : '') +
+              '<br>' + esc(c.replyText) + '</div>';
+    }
+    if (c.privateReplyText) {
+      done += '<div class="cm-done"><b>Private DM</b> &middot; ' + esc(c.privateReplyBy || "") +
+              (c.privateReplyAt ? ' &middot; ' + timeAgo(c.privateReplyAt) : '') +
+              '<br>' + esc(c.privateReplyText) + '</div>';
+    }
+
+    return '<div class="cm-card' + (unread ? ' unread' : '') + '" data-id="' + esc(c.id) + '">' +
+      '<div class="cm-top">' +
+        '<span class="cm-name">' + esc(c.fromName || "Facebook user") + '</span>' +
+        '<span class="cm-time">' + (c.createdAt ? timeAgo(c.createdAt) : '') + '</span>' +
+      '</div>' +
+      '<div class="cm-text">' + esc(c.message || "(khali comment)") + '</div>' +
+      (tags.length ? '<div class="cm-tags">' + tags.join("") + '</div>' : '') +
+      done +
+      '<div class="cm-acts">' +
+        '<button class="cm-btn pri" data-act="openreply" data-id="' + esc(c.id) + '">' +
+          (c.replyText ? 'Phir reply' : 'Public reply') + '</button>' +
+        '<button class="cm-btn" data-act="opendm" data-id="' + esc(c.id) + '">' +
+          (c.privateReplySent ? 'Phir DM' : 'Private DM') + '</button>' +
+        (c.hidden
+          ? '<button class="cm-btn" data-act="unhide" data-id="' + esc(c.id) + '">Dikhayein</button>'
+          : '<button class="cm-btn" data-act="hide" data-id="' + esc(c.id) + '">Chhupayein</button>') +
+        '<button class="cm-btn dang" data-act="delete" data-id="' + esc(c.id) + '">Delete</button>' +
+        (c.permalink ? '<a class="cm-btn" href="' + esc(c.permalink) + '" target="_blank" rel="noopener">Facebook pe</a>' : '') +
+        (unread ? '<button class="cm-btn" data-act="read" data-id="' + esc(c.id) + '">Mark read</button>' : '') +
+      '</div>' +
+
+      // ---- Public reply box ----
+      '<div class="cm-box' + (open === "reply" ? ' show' : '') + '" data-box="reply" data-id="' + esc(c.id) + '">' +
+        '<textarea placeholder="Public reply likhein — sab ko nazar aayegi"></textarea>' +
+        '<div class="cm-box-row">' +
+          '<button class="cm-btn pri" data-act="sendreply" data-id="' + esc(c.id) + '">Bhejein</button>' +
+          '<button class="cm-btn" data-act="close" data-id="' + esc(c.id) + '">Cancel</button>' +
+          '<span class="cm-hint">Comment ke neeche public jawab</span>' +
+        '</div>' +
+        '<div class="cm-err" data-err="reply"></div>' +
+      '</div>' +
+
+      // ---- Private DM box ----
+      '<div class="cm-box' + (open === "dm" ? ' show' : '') + '" data-box="dm" data-id="' + esc(c.id) + '">' +
+        '<textarea placeholder="Private message likhein — sirf us bande ko Messenger pe jayega"></textarea>' +
+        '<div class="cm-box-row">' +
+          '<button class="cm-btn pri" data-act="senddm" data-id="' + esc(c.id) + '">DM bhejein</button>' +
+          '<button class="cm-btn" data-act="close" data-id="' + esc(c.id) + '">Cancel</button>' +
+        '</div>' +
+        '<div class="cm-hint" style="margin-top:6px">' +
+          'Meta har comment pe <b>sirf ek</b> private reply deta hai, wo bhi 7 din ke andar. ' +
+          'Pehli DM jane ke baad wo banda Messenger chat mein aa jata hai &mdash; ' +
+          'aage ki baat <b>Chats</b> tab se karein, wahan koi hadd nahi.' +
+        '</div>' +
+        '<div class="cm-err" data-err="dm"></div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+// ---------- Comments ke buttons ----------
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-act]");
+  if (!btn || !$("mainComments") || $("mainComments").style.display === "none") return;
+
+  const id = btn.getAttribute("data-id");
+  const act = btn.getAttribute("data-act");
+  if (!id) return;
+
+  if (act === "openreply") { cmOpenBox[id] = cmOpenBox[id] === "reply" ? null : "reply"; renderComments(); return; }
+  if (act === "opendm")    { cmOpenBox[id] = cmOpenBox[id] === "dm" ? null : "dm"; renderComments(); return; }
+  if (act === "close")     { cmOpenBox[id] = null; renderComments(); return; }
+
+  const card = btn.closest(".cm-card");
+
+  if (act === "delete") {
+    if (!confirm("Ye comment Facebook se hamesha ke liye delete ho jayega. Pakka?")) return;
+    await cmAction(btn, { action: "delete", commentId: id });
+    return;
+  }
+  if (act === "hide" || act === "unhide") {
+    await cmAction(btn, { action: act, commentId: id });
+    return;
+  }
+  if (act === "read") {
+    await cmAction(btn, { action: "read", commentId: id });
+    return;
+  }
+
+  if (act === "sendreply" || act === "senddm") {
+    const which = act === "sendreply" ? "reply" : "dm";
+    const box = card.querySelector('[data-box="' + which + '"]');
+    const ta = box.querySelector("textarea");
+    const errEl = box.querySelector('[data-err]');
+    const text = ta.value.trim();
+    if (!text) { ta.focus(); return; }
+
+    errEl.textContent = "";
+    const ok = await cmAction(btn, {
+      action: which === "reply" ? "reply" : "private",
+      commentId: id,
+      text,
+    }, errEl);
+
+    if (ok) { cmOpenBox[id] = null; ta.value = ""; }
+    return;
+  }
+});
+
+async function cmAction(btn, payload, errEl) {
+  const old = btn.textContent;
+  btn.textContent = "...";
+  btn.disabled = true;
+  try {
+    const token = await getToken();
+    const r = await fetch("/api/facebook-comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Kaam nahi hua");
+    return true;
+  } catch (err) {
+    if (errEl) errEl.textContent = err.message;
+    else alert(err.message);
+    return false;
+  } finally {
+    btn.textContent = old;
+    btn.disabled = false;
+  }
+}
+
+// ---------- Tab switch ----------
+function switchTab(tab) {
+  activeTab = tab;
+  $("mainTabs").querySelectorAll("button").forEach(b =>
+    b.classList.toggle("active", b.getAttribute("data-tab") === tab));
+  document.querySelector(".main").style.display = tab === "chats" ? "" : "none";
+  $("mainComments").style.display = tab === "comments" ? "flex" : "none";
+  if (tab === "comments" && !unsubComments) watchComments();
+}
+
 </script>
 </body>
 </html>
