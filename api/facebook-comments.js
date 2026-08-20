@@ -36,12 +36,12 @@ export default async function handler(req, res) {
 
     const { action, commentId, text } = req.body || {};
     if (!action || !commentId) {
-      return res.status(400).json({ error: "action aur commentId dono chahiye" });
+      return res.status(400).json({ error: "Both action and commentId are required" });
     }
 
     const token = process.env.MESSENGER_PAGE_TOKEN;
     if (!token) {
-      return res.status(500).json({ error: "MESSENGER_PAGE_TOKEN set nahi hai" });
+      return res.status(500).json({ error: "MESSENGER_PAGE_TOKEN is not set" });
     }
 
     const ref = db.collection("comments").doc(String(commentId));
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     // ============================================================
     if (action === "reply") {
       if (!text || !String(text).trim()) {
-        return res.status(400).json({ error: "Reply khali hai" });
+        return res.status(400).json({ error: "Reply is empty" });
       }
 
       const r = await fetch(`${GRAPH}/${commentId}/comments`, {
@@ -88,13 +88,13 @@ export default async function handler(req, res) {
     // ============================================================
     if (action === "private") {
       if (!text || !String(text).trim()) {
-        return res.status(400).json({ error: "Message khali hai" });
+        return res.status(400).json({ error: "Message is empty" });
       }
 
       const snap = await ref.get();
       if (snap.exists && snap.data().privateReplySent) {
         return res.status(400).json({
-          error: "Is comment pe private reply pehle ja chuki hai. Meta sirf ek dafa deta hai.",
+          error: "A private reply has already been sent for this comment. Meta allows only one. Continue in the Chats tab.",
         });
       }
 
@@ -181,29 +181,29 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
-    return res.status(400).json({ error: "Ye action pehchana nahi gaya: " + action });
+    return res.status(400).json({ error: "Unknown action: " + action });
   } catch (err) {
     console.error("Comment action error:", err);
-    return res.status(500).json({ error: "Kaam nahi ho saka" });
+    return res.status(500).json({ error: "Action could not be completed" });
   }
 }
 
 // Meta ki angrezi error ko aasan Roman Urdu mein badalna
 function friendly(data) {
   const e = (data && data.error) || {};
-  const msg = e.message || "Facebook ne mana kar diya";
+  const msg = e.message || "Facebook rejected the request";
 
   if (/private_replies|outside.*window|7 day/i.test(msg)) {
-    return "Private reply nahi ja saki. Meta sirf comment ke 7 din ke andar, aur har comment pe ek hi dafa deta hai.";
+    return "Private reply failed. Meta allows only one private reply per comment, within 7 days of the comment.";
   }
   if (e.code === 190 || /access token/i.test(msg)) {
-    return "Page token khatam ya ghalat hai. Meta se naya token bana kar Vercel mein daalein.";
+    return "Page token is expired or invalid. Generate a new token in Meta and update it in Vercel.";
   }
   if (e.code === 200 || /permission/i.test(msg)) {
-    return "Permission nahi hai. App Review approve hone ka intezar karein.";
+    return "Permission not granted yet. This needs pages_manage_engagement / pages_read_user_content, which are pending App Review.";
   }
   if (/does not exist|Unsupported/i.test(msg)) {
-    return "Ye comment ab maujood nahi — shayad us bande ne khud delete kar diya.";
+    return "This comment no longer exists — the person may have deleted it.";
   }
   return msg;
 }
