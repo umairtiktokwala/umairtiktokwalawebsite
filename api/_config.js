@@ -17,9 +17,13 @@ export const WELCOME_ENABLED = false;
 // BAND — team khud jawab degi
 export const KEYWORDS_ENABLED = false;
 
-// Off-time (raat aur weekend) ke auto message on/off
-// CHALU — Jashn-e-Azadi ke liye
+// Off-time ke auto message on/off (master switch)
+// CHALU — sirf weekend ke liye
 export const OFFTIME_ENABLED = true;
+
+// Rozana raat wala message (11 baje se subha 8 tak)
+// CHALU
+export const NIGHT_ENABLED = true;
 
 // Ek hi keyword ka jawab dobara bhejne se pehle itne minute ka wait
 // (taake student baar baar "fees" likhe to spam na ho)
@@ -131,29 +135,11 @@ export const WEEKEND_END_DAY = 6;      // Hafta
 export const WEEKEND_END_HOUR = 8;     // subha 8 baje
 
 // Weekend ke waqt jo message jayega
-// ---- JASHN-E-AZADI (14 August) ----
-// 15 August ke baad neeche wala purana matn wapas laga dein.
+// (Jumeraat shaam 4 baje se Hafta subha 8 baje tak — har hafte)
 export const WEEKEND_MESSAGE =
-  "\uD83C\uDDF5\uD83C\uDDF0 *Jashn-e-Azadi Mubarak!* \uD83C\uDDF5\uD83C\uDDF0\n\n" +
-  "Assalam o alaikum!\n\n" +
-  "Allah apko jald Facebook TikTok se Earning krne me madad farmaye or kamyab " +
-  "farmaye taky ap bhi har moment ko enjoy kar saken warna ham gareeb sirf " +
-  "ameer logon ki ghulami krne k lie reh gaye hain\n\n" +
-  "Mery bhai please har fazool chez ko ignore kar k mehnat kr or takleef ko " +
-  "bardasht kar har mayoosi ko ignore kar aik din aye ga InShaAllah ap bhi " +
-  "ameer logon me hon gay ap apni sari takleef preshani ko bhol jain gay\n\n" +
-  "Mujhy pta hai Apko abhi smjh nh arhi kam kesy kron kahan se start kron " +
-  "apky sath issues chal rhy hain content nh mil rha tool buy krne k pesy nh " +
-  "hain jo content milta ha wo ap se viral nh hota agr viral ho jay to " +
-  "monetization issues ajate hain apko har roz feel hota hai mera to luck hi " +
-  "kharab hai baki sary agay nikal gaye bs ap reh gaye\n\n" +
-  "apki har takleef ko feel krta hoon me apka hr message mujh tak ata ha\n\n" +
-  "me apni pori team k sath koshish kr rha hoon jitni help ho skti hai wo " +
-  "lazmi kron\n\n" +
-  "me apki umeedon per 100% pora nh utarta usky lie dil se maafi mangta hoon\n\n" +
-  "Hamara Off time: *Jumraat shaam 4 baje se Hafta subha 8 baje tak* hai\n\n" +
-  "Ap Saturday ko dubara krna message\n\n" +
-  "Takleef k liye Mazrat\n\n" +
+  "*Off Time*\n\n" +
+  "Thursday 4:00 PM to Saturday 8:00 AM\n\n" +
+  "Please send message again on Saturday\n\n" +
   "_Auto Message_";
 
 // ---- Purana weekend message (Jashn-e-Azadi ke baad wapas lagayein) ----
@@ -167,11 +153,10 @@ export const WEEKEND_MESSAGE =
 
 // Raat ke waqt (11 se 8) jo message jayega
 export const NIGHT_MESSAGE =
-  "Assalam o alaikum!\n\n" +
-  "Abhi hamara working time nahi hai.\n\n" +
-  "Working hours: *subha 8 baje se raat 11 baje tak* (Pakistan time)\n\n" +
-  "Aap ka message hamare paas mehfooz hai. Subha team aap se rabta kar legi.\n\n" +
-  "Shukriya!";
+  "*Off Time*\n\n" +
+  "11:00 PM to 8:00 AM\n\n" +
+  "Please send message again after 8:00 AM\n\n" +
+  "_Auto Message_";
 
 // Ek hi banday ko off-time ka message dobara bhejne se pehle itne minute ka wait
 // (taake wo 10 message likhe to 10 baar wohi jawab na jaye)

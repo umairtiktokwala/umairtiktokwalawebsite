@@ -26,6 +26,7 @@ import {
   WEEKEND_MESSAGE,
   NIGHT_MESSAGE,
   OFFTIME_ENABLED,
+  NIGHT_ENABLED,
   OFFTIME_COOLDOWN_MINUTES,
 } from "./_config.js";
 
@@ -99,6 +100,14 @@ async function processWebhook(body) {
   const messages = change.messages;
   if (!Array.isArray(messages) || messages.length === 0) return;
 
+  // Message KIS number pe aaya — reply bhi isi se jayega.
+  // (Pehle hamesha env wala number use hota tha, is liye +92 pe aane wale
+  //  message ka jawab +1 se jata tha aur Meta usay reject kar deta tha.)
+  const inboxNumberId =
+    (change.metadata && change.metadata.phone_number_id) ||
+    process.env.WHATSAPP_PHONE_NUMBER_ID;
+  console.log("Message aaya is number pe:", inboxNumberId);
+
   const contactName = change.contacts?.[0]?.profile?.name || "";
 
   for (const msg of messages) {
@@ -166,6 +175,7 @@ async function processWebhook(body) {
     const now = new Date();
     const convoData = {
       waNumber: from,
+      phoneNumberId: inboxNumberId,
       displayName: contactName || prev.displayName || "",
       lastMessage: preview.slice(0, 120),
       lastMessageAt: now,
@@ -203,9 +213,9 @@ async function processWebhook(body) {
 
       if (answered) {
         await sendText(from, answered === "yes" ? SURVEY_REPLY_YES : SURVEY_REPLY_NO,
-                       convoRef, "survey");
+                       convoRef, "survey", inboxNumberId);
         // Foran doosra sawal — team ka behaviour
-        await sendText(from, SURVEY_MESSAGE_2, convoRef, "survey");
+        await sendText(from, SURVEY_MESSAGE_2, convoRef, "survey", inboxNumberId);
 
         await convoRef.set({
           surveyPending: false,
@@ -232,7 +242,7 @@ async function processWebhook(body) {
       else if (ans === "3" || /ach+a nahi|bura|bad|poor/i.test(ans)) rating = 1;
 
       if (rating) {
-        await sendText(from, SURVEY_REPLY_DONE, convoRef, "survey");
+        await sendText(from, SURVEY_REPLY_DONE, convoRef, "survey", inboxNumberId);
         await convoRef.set({
           survey2Pending: false,
           behaviourRating: rating,      // 3 = bohot achha, 2 = theek, 1 = achha nahi
@@ -254,7 +264,7 @@ async function processWebhook(body) {
       const lastOff = prev.lastOffTimeMsg?.toMillis ? prev.lastOffTimeMsg.toMillis() : 0;
       const offCooldown = OFFTIME_COOLDOWN_MINUTES * 60 * 1000;
       if (now.getTime() - lastOff > offCooldown) {
-        await sendText(from, offMsg, convoRef, "offtime");
+        await sendText(from, offMsg, convoRef, "offtime", inboxNumberId);
         await convoRef.set({ lastOffTimeMsg: now }, { merge: true });
       }
     }
@@ -263,7 +273,7 @@ async function processWebhook(body) {
     let replied = false;
 
     if (isFirstEver && WELCOME_ENABLED) {
-      await sendText(from, WELCOME_MESSAGE, convoRef, "welcome");
+      await sendText(from, WELCOME_MESSAGE, convoRef, "welcome", inboxNumberId);
       replied = true;
     }
 
@@ -275,7 +285,7 @@ async function processWebhook(body) {
         const lastMs = lastSent?.toMillis ? lastSent.toMillis() : 0;
 
         if (now.getTime() - lastMs > cooldownMs) {
-          await sendText(from, match.reply, convoRef, "keyword");
+          await sendText(from, match.reply, convoRef, "keyword", inboxNumberId);
           await convoRef.set(
             { lastAutoReply: { [match.index]: now } },
             { merge: true }
@@ -310,7 +320,10 @@ function offTimeMessage() {
   if (afterStart && beforeEnd) return WEEKEND_MESSAGE;
 
   // ---- Rozana: subha 8 se raat 11 ke bahar ----
-  if (hour < WORK_START_HOUR || hour >= WORK_END_HOUR) return NIGHT_MESSAGE;
+  // Ye alag switch se chalta hai — abhi band hai, sirf weekend wala chahiye.
+  if (NIGHT_ENABLED && (hour < WORK_START_HOUR || hour >= WORK_END_HOUR)) {
+    return NIGHT_MESSAGE;
+  }
 
   return null;  // working time hai
 }
@@ -328,8 +341,10 @@ function findKeywordMatch(text) {
   return null;
 }
 
-async function sendText(to, body, convoRef, sentBy) {
-  const url = `${GRAPH}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+async function sendText(to, body, convoRef, sentBy, phoneNumberId) {
+  // Jis number pe message aaya, usi se jawab jayega
+  const fromId = phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const url = `${GRAPH}/${fromId}/messages`;
 
   const r = await fetch(url, {
     method: "POST",
