@@ -127,6 +127,21 @@ button{font-family:var(--body)}
 
 /* ---------- SUBMISSION CARDS ---------- */
 .list{display:flex;flex-direction:column;gap:14px;padding-bottom:20px}
+
+/* ---------- STUDENT FILTERS ---------- */
+.stf{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.stf-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);cursor:pointer;font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--muted);transition:all .16s;white-space:nowrap}
+.stf-chip:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.stf-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.stf-chip i{font-size:16px}
+.stf-chip .n{font-size:11.5px;opacity:.7;font-weight:700}
+.stf-sel{padding:9px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.stf-sel:focus{outline:none;border-color:var(--purple)}
+.stf-load{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border:1.5px solid var(--amber,#F79009);border-radius:99px;background:#FEF4E6;cursor:pointer;font-family:var(--body);font-size:13px;font-weight:700;color:#92400E;white-space:nowrap}
+.stf-load:disabled{opacity:.6;cursor:not-allowed}
+.stf-load i{font-size:15px}
+.stf-count{font-size:13px;color:var(--muted);margin-left:auto;white-space:nowrap}
+@media(max-width:640px){.stf-count{margin-left:0;width:100%}}
 .sub{background:var(--card);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);border-left:4px solid var(--line)}
 .sub.pending{border-left-color:var(--amber)}
 .sub.approved{border-left-color:var(--green)}
@@ -382,6 +397,27 @@ button{font-family:var(--body)}
             <div class="c"><div class="c-ic green"><i class="ti ti-star"></i></div><div class="c-n" id="cBoth">0</div><div class="c-l">Both courses</div></div>
           </div>
           <input class="search" id="stSearch" type="search" placeholder="Search by number or name…">
+
+          <div class="stf">
+            <button class="stf-chip on" data-stf="all"><i class="ti ti-users"></i> Everyone</button>
+            <button class="stf-chip" data-stf="facebook"><i class="ti ti-brand-facebook"></i> Facebook</button>
+            <button class="stf-chip" data-stf="tiktok"><i class="ti ti-brand-tiktok"></i> TikTok</button>
+            <button class="stf-chip" data-stf="earning"><i class="ti ti-cash"></i> Earning</button>
+            <button class="stf-chip" data-stf="notask"><i class="ti ti-file-off"></i> No task yet</button>
+
+            <select class="stf-sel" id="stSort">
+              <option value="name">Sort: name</option>
+              <option value="lessons_high">Lessons — most watched</option>
+              <option value="lessons_low">Lessons — least watched</option>
+            </select>
+
+            <button class="stf-load" id="stLoadProg" style="display:none">
+              <i class="ti ti-download"></i> Load progress for everyone
+            </button>
+
+            <span class="stf-count" id="stCount"></span>
+          </div>
+
           <div class="list" id="stList"></div>
         </div>
 
@@ -480,6 +516,7 @@ function fmtDate(sec){ if(!sec)return''; return new Date(sec*1000).toLocaleDateS
 function fmtDateTime(sec){ if(!sec)return''; return new Date(sec*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+new Date(sec*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
 
 let SUBS=[], EARNINGS=[], STUDENTS=[], ANN=[], LESSONS=[], VIEW='review', FILTER='pending', EARN_FILTER='pending', EARN_SEARCH='', EARN_PLATFORM='all', EARN_MONTH='all', SEARCH='';
+let ST_FILTER='all', ST_SORT='name', ST_PROG_ALL=false;
 const LESSONS_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=0&single=true&output=csv';
 
 /* Dollar rate — jab student ne PKR khali chhora ho to USD is rate se badla jata hai.
@@ -738,6 +775,62 @@ async function sendMessage(id,msg,btn){
   }catch(e){ btn.disabled=false; alert('Could not send. Try again.'); }
 }
 
+/* ===== student filter bar ===== */
+function updateStudentBar(shown){
+  const c=$('stCount');
+  if(c) c.textContent = shown + (shown===1?' student':' students');
+
+  const btn=$('stLoadProg');
+  if(!btn) return;
+
+  const needsProgress = (ST_SORT==='lessons_high' || ST_SORT==='lessons_low');
+  const missing = STUDENTS.filter(s=>typeof s._pct!=='number').length;
+
+  if(needsProgress && missing>0 && !ST_PROG_ALL){
+    btn.style.display='inline-flex';
+    btn.innerHTML='<i class="ti ti-download"></i> Load progress for '+missing+' more';
+    btn.disabled=false;
+  }else{
+    btn.style.display='none';
+  }
+}
+
+document.querySelectorAll('[data-stf]').forEach(b=>{
+  b.onclick=()=>{
+    ST_FILTER=b.dataset.stf;
+    document.querySelectorAll('[data-stf]').forEach(x=>x.classList.toggle('on', x.dataset.stf===ST_FILTER));
+    renderStudents();
+  };
+});
+
+$('stSort').onchange=()=>{ ST_SORT=$('stSort').value; renderStudents(); };
+
+/**
+ * Sab students ka progress ek saath laata hai.
+ * Har student ka apna Firestore read hai, is liye ye khud nahi chalta —
+ * sirf jab aap button dabayein.
+ */
+$('stLoadProg').onclick=async()=>{
+  const btn=$('stLoadProg');
+  const pending=STUDENTS.filter(s=>typeof s._pct!=='number');
+
+  if(!pending.length){ ST_PROG_ALL=true; renderStudents(); return; }
+
+  btn.disabled=true;
+  let done=0;
+
+  // 25 ke jathe mein — taake ek saath 1000 requests na jayein
+  for(let i=0;i<pending.length;i+=25){
+    const batch=pending.slice(i,i+25);
+    await Promise.all(batch.map(s=>computeProgress(s,true)));
+    done+=batch.length;
+    btn.innerHTML='<i class="ti ti-loader"></i> '+done+' of '+pending.length+'…';
+  }
+
+  ST_PROG_ALL=true;
+  renderStudents();
+};
+
 /* ===== STUDENTS ===== */
 // lessons count per batch+course (for progress %)
 function lessonsFor(batch,course){ return LESSONS.filter(l=>l.batch===batch && l.course===course).length; }
@@ -748,16 +841,48 @@ function studentCourses(s){
   return Array.from(cs);
 }
 
+/* Kis student ne kabhi koi task submit kiya? */
+function hasSubmitted(uid){
+  return SUBS.some(x => x.uid === uid);
+}
+
+/* Kis student ki koi earning approve hui? */
+function hasEarning(uid){
+  return EARNINGS.some(e => e.studentUid === uid && e.status === 'approved');
+}
+
 function renderStudents(){
   const wrap=$('stList');
   if(!STUDENTS.length){ wrap.innerHTML='<div class="empty"><i class="ti ti-users"></i>No students yet.</div>'; return; }
   const raw=(SEARCH||'').trim().toLowerCase();
   let digits=raw.replace(/\D/g,''); if(digits.startsWith('0'))digits='92'+digits.slice(1);
-  const list=!raw?STUDENTS:STUDENTS.filter(s=>{
+  let list=!raw?STUDENTS:STUDENTS.filter(s=>{
     const num=String(s.number||'').replace(/\D/g,''); const nm=String(s.name||'').toLowerCase();
     return (digits.length>=3&&num.includes(digits))||nm.includes(raw);
   });
-  if(!list.length){ wrap.innerHTML='<div class="empty"><i class="ti ti-search"></i>No student matches that search.</div>'; return; }
+
+  // --- naye filters ---
+  if(ST_FILTER==='facebook')      list=list.filter(s=>studentCourses(s).includes('facebook'));
+  else if(ST_FILTER==='tiktok')   list=list.filter(s=>studentCourses(s).includes('tiktok'));
+  else if(ST_FILTER==='earning')  list=list.filter(s=>hasEarning(s.uid));
+  else if(ST_FILTER==='notask')   list=list.filter(s=>!hasSubmitted(s.uid));
+
+  // --- sort ---
+  if(ST_SORT==='lessons_high' || ST_SORT==='lessons_low'){
+    const dir = ST_SORT==='lessons_high' ? -1 : 1;
+    list=list.slice().sort((a,b)=>{
+      const av = typeof a._pct==='number' ? a._pct : -1;
+      const bv = typeof b._pct==='number' ? b._pct : -1;
+      if(av===bv) return String(a.name||'').localeCompare(String(b.name||''));
+      return (av-bv)*dir;
+    });
+  }else{
+    list=list.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  }
+
+  updateStudentBar(list.length);
+
+  if(!list.length){ wrap.innerHTML='<div class="empty"><i class="ti ti-search"></i>No student matches that filter.</div>'; return; }
 
   wrap.innerHTML=list.map(s=>{
     const init=(s.name||s.number||'S').charAt(0).toUpperCase();
@@ -780,7 +905,7 @@ function renderStudents(){
   list.forEach(s=>computeProgress(s));
 }
 
-async function computeProgress(s){
+async function computeProgress(s, silent){
   if(s._pctDone) return;
   s._pctDone=true;
   try{
@@ -791,8 +916,8 @@ async function computeProgress(s){
     (s.enrollments||[]).forEach(e=>{ (e.courses||[]).forEach(c=>{ total+=lessonsFor(e.batch,String(c).toLowerCase()); }); });
     s._done=done; s._total=total;
     s._pct=total?Math.min(100,Math.round(done/total*100)):0;
-    if(VIEW==='students'){ const bar=document.querySelector(`[data-open="${s.uid}"] .st-fill`); const pc=document.querySelector(`[data-open="${s.uid}"] .st-pct`); if(bar)bar.style.width=s._pct+'%'; if(pc)pc.textContent=s._pct+'%'; }
-  }catch(e){}
+    if(!silent && VIEW==='students'){ const bar=document.querySelector(`[data-open="${s.uid}"] .st-fill`); const pc=document.querySelector(`[data-open="${s.uid}"] .st-pct`); if(bar)bar.style.width=s._pct+'%'; if(pc)pc.textContent=s._pct+'%'; }
+  }catch(e){ s._pctDone=false; }
 }
 
 async function toggleSuspend(uid,now,btn){
