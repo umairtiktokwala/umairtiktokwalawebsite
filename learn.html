@@ -142,6 +142,56 @@ button{font-family:var(--body)}
 .ann-date{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px}
 
 /* ---------- STATS ---------- */
+/* ---------- SMART ALERTS ---------- */
+.alerts{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.alert{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:15px 17px;border-radius:15px;border:1.5px solid;cursor:pointer;font-family:var(--body);transition:all .16s}
+.alert:hover{transform:translateY(-1px)}
+.alert-ic{width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.alert-ic i{font-size:20px}
+.alert-tx{flex:1;min-width:0}
+.alert-tx b{display:block;font-size:14.5px;font-weight:700;margin-bottom:2px}
+.alert-tx span{font-size:13px;display:block}
+.alert-go{font-size:19px;flex-shrink:0}
+.alert.warn{border-color:#F5D9A8;background:linear-gradient(103deg,#FFFBF3,#FEF4E6)}
+.alert.warn:hover{border-color:var(--amber)}
+.alert.warn .alert-tx b{color:#78350F}
+.alert.warn .alert-tx span,.alert.warn .alert-go{color:#92400E}
+.alert.warn .alert-ic i{color:var(--amber)}
+.alert.info{border-color:#C7D2FE;background:linear-gradient(103deg,#F8FAFF,#EEF1FF)}
+.alert.info:hover{border-color:var(--blue)}
+.alert.info .alert-tx b{color:#1E3A8A}
+.alert.info .alert-tx span,.alert.info .alert-go{color:#2B45C4}
+.alert.info .alert-ic i{color:var(--blue)}
+
+/* ---------- PROFILE ---------- */
+.pf-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.pf-top{display:flex;align-items:center;gap:17px;margin-bottom:24px}
+.pf-av{position:relative;width:86px;height:86px;border-radius:50%;border:none;padding:0;cursor:pointer;background:var(--grad);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.pf-av img{width:100%;height:100%;object-fit:cover}
+.pf-av .ini{font-family:var(--display);font-weight:800;font-size:33px;color:#fff}
+.pf-cam{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--card);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.pf-cam i{font-size:14px;color:var(--ink-2)}
+.pf-nm{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.2}
+.pf-id{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px}
+.pf-f{margin-bottom:16px}
+.pf-f label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.pf-f input{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:11px;font-family:var(--body);font-size:15px;background:var(--card);color:var(--ink)}
+.pf-f input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 4px rgba(139,49,232,.10)}
+.pf-f input:disabled{background:var(--card-2);color:var(--muted);cursor:not-allowed}
+.pf-f .hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}
+.pf-save{width:100%;padding:14px;border:none;border-radius:99px;cursor:pointer;font-family:var(--body);font-weight:700;font-size:15px;background:var(--grad);color:#fff;box-shadow:0 8px 22px rgba(139,49,232,.24);transition:all .16s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.pf-save:hover:not(:disabled){transform:translateY(-1px)}
+.pf-save:disabled{background:var(--card-2);color:var(--muted-2,#B4B9CC);box-shadow:none;cursor:default;transform:none}
+.pf-save i{font-size:17px}
+.pf-msg{padding:12px 14px;border-radius:11px;font-size:13px;line-height:1.55;margin-bottom:16px;display:none}
+.pf-msg.show{display:block}
+.pf-msg.bad{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.pf-msg.good{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+.pf-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--card-2);font-size:14px}
+.pf-row:last-child{border-bottom:none}
+.pf-row span{color:var(--muted)}
+.pf-row b{font-weight:700;text-align:right}
+
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
 .stat{background:var(--card);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px}
 .stat-ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -435,6 +485,7 @@ button{font-family:var(--body)}
         <button class="snav" data-s="notes"><i class="ti ti-notebook"></i> Notebook</button>
         <button class="snav" data-s="earnings"><i class="ti ti-chart-line"></i> My Earnings</button>
         <button class="snav" data-s="invest"><i class="ti ti-coins"></i> My Investment</button>
+        <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
       </nav>
       <div class="side-foot">
         <a class="side-link" id="finLink" href="finance.html">
@@ -467,6 +518,7 @@ button{font-family:var(--body)}
 
         <!-- ===== COURSE SECTION ===== -->
         <div id="secCourse">
+          <div class="alerts" id="alertBox"></div>
           <div id="annBox"></div>
 
           <div class="stats">
@@ -622,6 +674,59 @@ button{font-family:var(--body)}
           </div>
         </div>
 
+        <!-- ===== PROFILE SECTION ===== -->
+        <div id="secProfile" style="display:none">
+          <div class="pf-card">
+            <div class="pf-top">
+              <button class="pf-av" id="pfAvatar" title="Change photo">
+                <img id="pfImg" alt="" style="display:none">
+                <span class="ini" id="pfInitial">S</span>
+                <span class="pf-cam"><i class="ti ti-camera"></i></span>
+              </button>
+              <div>
+                <div class="pf-nm" id="pfName">Your name</div>
+                <div class="pf-id" id="pfId"></div>
+              </div>
+            </div>
+            <input type="file" id="pfFile" accept="image/*" style="display:none">
+
+            <div class="pf-msg" id="pfMsg"></div>
+
+            <div class="pf-f">
+              <label for="pfFullName">Full name</label>
+              <input type="text" id="pfFullName" placeholder="Your full name" autocomplete="name" maxlength="60">
+            </div>
+
+            <div class="pf-f">
+              <label for="pfCity">City</label>
+              <input type="text" id="pfCity" placeholder="Multan" autocomplete="address-level2" maxlength="40">
+            </div>
+
+            <div class="pf-f">
+              <label for="pfPhone">WhatsApp number</label>
+              <input type="tel" id="pfPhone" disabled>
+              <div class="hint">You log in with this number, so it can't be changed here.</div>
+            </div>
+
+            <div class="pf-f">
+              <label for="pfEmail">Email</label>
+              <input type="email" id="pfEmail" disabled>
+              <div class="hint">To change your email, message us on WhatsApp.</div>
+            </div>
+
+            <button class="pf-save" id="pfSave" disabled>
+              <i class="ti ti-check"></i> <span id="pfSaveTx">Saved</span>
+            </button>
+          </div>
+
+          <div class="pf-card">
+            <div class="pf-row"><span>Student ID</span><b id="pfSid">—</b></div>
+            <div class="pf-row"><span>Member since</span><b id="pfJoined">—</b></div>
+            <div class="pf-row"><span>Your courses</span><b id="pfCourses">—</b></div>
+            <div class="pf-row"><span>Lessons completed</span><b id="pfLessons">—</b></div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -633,6 +738,7 @@ button{font-family:var(--body)}
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
+    <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
     <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923119637931','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
   </nav>
@@ -977,7 +1083,11 @@ onAuthStateChanged(auth, async user=>{
   const d=snap.data();
   if(d.suspended){ if(splash)splash.style.display='none'; await signOut(auth); return say('Your access is currently paused. Contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>'); }
 
-  ME={uid:user.uid,number:d.number,name:d.name,email:d.email,batches:d.batches||[],enrollments:d.enrollments||[]};
+  const joinedTxt = d.joined && typeof d.joined.toDate==='function'
+    ? d.joined.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+    : '';
+
+  ME={uid:user.uid,number:d.number,name:d.name,email:d.email,city:d.city||'',photoUrl:d.photoUrl||'',joinedText:joinedTxt,batches:d.batches||[],enrollments:d.enrollments||[]};
   healOwnRecord(d).catch(()=>{});
   await refreshBatches();
 
@@ -1321,6 +1431,197 @@ $('invForm').addEventListener('submit', async ev=>{
 });
 
 /* ===== section nav ===== */
+/* ===== MY PROFILE ===== */
+
+/** Naam sirf hindse ka ho to wo asli naam nahi. */
+function hasRealName(){
+  const n=String(ME.name||'').trim();
+  return n.length>=2 && /[a-zA-Z\u0600-\u06FF]/.test(n);
+}
+function hasCity(){ return String(ME.city||'').trim().length>=2; }
+function realName(){ return hasRealName()?String(ME.name).trim():''; }
+
+function profileChanged(){
+  const n=$('pfFullName').value.trim();
+  const c=$('pfCity').value.trim();
+  return n!==String(ME.name||'').trim() || c!==String(ME.city||'').trim();
+}
+
+/** Save button ka rang aur halat — badla hai to zinda, warna grey. */
+function updateSaveBtn(){
+  const btn=$('pfSave'); if(!btn) return;
+  const changed=profileChanged();
+  btn.disabled=!changed;
+  $('pfSaveTx').textContent = changed ? 'Save changes' : 'Saved';
+  btn.querySelector('i').className = changed ? 'ti ti-device-floppy' : 'ti ti-check';
+}
+
+function renderProfile(){
+  const nm=realName();
+  const first=nm.split(' ')[0]||'';
+
+  $('pfName').textContent = nm || 'Add your name';
+  $('pfId').textContent   = ME.uid ? 'UTW-'+ME.uid.slice(-8).toUpperCase() : '';
+  $('pfInitial').textContent = (first||'S').charAt(0).toUpperCase();
+
+  const img=$('pfImg');
+  if(ME.photoUrl){ img.src=ME.photoUrl; img.style.display='block'; $('pfInitial').style.display='none'; }
+  else{ img.style.display='none'; $('pfInitial').style.display='block'; }
+
+  if(document.activeElement!==$('pfFullName')) $('pfFullName').value = nm;
+  if(document.activeElement!==$('pfCity'))     $('pfCity').value     = ME.city||'';
+  $('pfPhone').value = ME.number||'';
+  $('pfEmail').value = ME.email||'';
+
+  $('pfSid').textContent = ME.uid ? 'UTW-'+ME.uid.slice(-8).toUpperCase() : '—';
+  $('pfJoined').textContent = ME.joinedText || 'Not available';
+
+  const cs=allowedCourses(BATCH);
+  $('pfCourses').textContent = cs && cs.length ? cs.map(courseName).join(' · ') : '—';
+
+  const inBatch=LESSONS.filter(l=>l.batch===BATCH && (!cs||cs.includes(l.course)));
+  const done=inBatch.filter(l=>DONE.has(l.id)).length;
+  $('pfLessons').textContent = inBatch.length ? done+' of '+inBatch.length : '—';
+
+  updateSaveBtn();
+}
+
+$('pfFullName').oninput = updateSaveBtn;
+$('pfCity').oninput     = updateSaveBtn;
+
+function pfMsg(text, good){
+  const el=$('pfMsg');
+  el.className='pf-msg show '+(good?'good':'bad');
+  el.textContent=text;
+}
+
+$('pfAvatar').onclick = ()=>$('pfFile').click();
+
+$('pfFile').onchange = async ev=>{
+  const file=ev.target.files && ev.target.files[0];
+  if(!file) return;
+
+  if(file.size > 3*1024*1024){
+    pfMsg('That image is too large. Please choose one under 3 MB.');
+    ev.target.value=''; return;
+  }
+
+  $('pfMsg').className='pf-msg';
+
+  try{
+    const ext=(file.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+    const fileRef=ref(storage, 'profile-images/'+ME.uid+'/profile.'+ext);
+    await uploadBytes(fileRef, file, { contentType:file.type });
+    const url=await getDownloadURL(fileRef);
+
+    await updateDoc(doc(db,'students',ME.uid), { photoUrl:url, profileUpdatedAt:serverTimestamp() });
+
+    ME.photoUrl=url;
+    renderProfile();
+    renderAlerts();
+    pfMsg('Photo updated.', true);
+  }catch(e){
+    console.error(e);
+    pfMsg('Could not upload the photo. Please check your connection and try again.');
+  }
+  ev.target.value='';
+};
+
+$('pfSave').onclick = async ()=>{
+  const name=$('pfFullName').value.trim();
+  const city=$('pfCity').value.trim();
+  const btn=$('pfSave');
+
+  if(name.length<2) return pfMsg('Please enter your full name.');
+
+  btn.disabled=true;
+  $('pfSaveTx').textContent='Saving…';
+  $('pfMsg').className='pf-msg';
+
+  try{
+    await updateDoc(doc(db,'students',ME.uid), {
+      name:name, city:city, profileUpdatedAt:serverTimestamp()
+    });
+
+    ME.name=name; ME.city=city;
+
+    const av=$('tbAv');   if(av) av.textContent=(name.charAt(0)||'S').toUpperCase();
+    const un=$('tbName'); if(un) un.textContent=name;
+
+    renderProfile();
+    renderAlerts();
+    pfMsg('Profile updated.', true);
+  }catch(e){
+    console.error(e);
+    pfMsg('Could not save. Please check your connection and try again.');
+    updateSaveBtn();
+  }
+};
+
+/* ===== SMART ALERTS =====
+   Ek waqt mein zyada se zyada DO alert. Tarteeb:
+   1. Profile adhoora   — ek dafa ka kaam
+   2. Task pending      — is ki deadline hoti hai
+   3. Lessons baaqi     — hosla barhane wale andaz mein
+   Teen teen banner ek saath dikhane se student sab ko nazarandaz
+   karna seekh jata hai, is liye do par rok di gayi hai. */
+function renderAlerts(){
+  const box=$('alertBox'); if(!box) return;
+  const out=[];
+
+  // 1. profile
+  if(!hasRealName() || !hasCity()){
+    const what = (!hasRealName() && !hasCity()) ? 'name and city'
+               : (!hasRealName() ? 'name' : 'city');
+    out.push(alertHTML('warn','ti-user-exclamation','profile',
+      'Complete your profile',
+      'Add your '+what+' so we know who you are.'));
+  }
+
+  // 2. tasks
+  const cs=allowedCourses(BATCH);
+  const myTasks=TASKS.filter(t=>t.batch===BATCH && (!cs||cs.includes(t.course)));
+  const pending=myTasks.filter(t=>!SUBS[subKey(t.batch,t.course,t.module)]);
+
+  if(pending.length){
+    out.push(alertHTML('warn','ti-checklist','tasks',
+      pending.length===1 ? '1 task waiting for you' : pending.length+' tasks waiting for you',
+      'Submit your work so your teacher can review it.'));
+  }
+
+  // 3. lessons
+  if(out.length<2){
+    const inBatch=LESSONS.filter(l=>l.batch===BATCH && (!cs||cs.includes(l.course)));
+    const done=inBatch.filter(l=>DONE.has(l.id)).length;
+    const left=inBatch.length-done;
+
+    if(inBatch.length && left>0){
+      const pct=Math.round(done/inBatch.length*100);
+      out.push(alertHTML('info','ti-player-play','course',
+        done===0 ? 'Start your course' : "You're "+pct+'% through your course',
+        left===1 ? '1 lesson left. Pick up where you left off.'
+                 : left+' lessons left. Pick up where you left off.'));
+    }
+  }
+
+  box.innerHTML = out.slice(0,2).join('');
+  box.querySelectorAll('[data-goto]').forEach(b=>{
+    b.onclick = ()=>{
+      const to=b.dataset.goto;
+      if(to==='course'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+      switchSection(to);
+    };
+  });
+}
+
+function alertHTML(kind, icon, goto, title, sub){
+  return '<button class="alert '+kind+'" data-goto="'+goto+'">'
+    + '<span class="alert-ic"><i class="ti '+icon+'"></i></span>'
+    + '<span class="alert-tx"><b>'+esc(title)+'</b><span>'+esc(sub)+'</span></span>'
+    + '<span class="alert-go"><i class="ti ti-arrow-right"></i></span>'
+  + '</button>';
+}
+
 function switchSection(s){
   SECTION=s;
   $('secCourse').style.display = s==='course'?'block':'none';
@@ -1328,12 +1629,13 @@ function switchSection(s){
   $('secNotes').style.display  = s==='notes'?'block':'none';
   $('secEarnings').style.display = s==='earnings'?'block':'none';
   $('secInvest').style.display = s==='invest'?'block':'none';
-  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned']};
+  $('secProfile').style.display = s==='profile'?'block':'none';
+  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo']};
   $('pageTitle').textContent=t[s][0]; $('pageSub').textContent=t[s][1];
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
     if(b.dataset.s)b.classList.toggle('on',b.dataset.s===s);
   });
-  if(s==='tasks')renderTasks(); if(s==='notes')renderNotes(); if(s==='earnings')renderEarnings(); if(s==='invest')renderInvest();
+  if(s==='tasks')renderTasks(); if(s==='notes')renderNotes(); if(s==='earnings')renderEarnings(); if(s==='invest')renderInvest(); if(s==='profile')renderProfile();
 }
 document.querySelectorAll('#sideNav .snav').forEach(b=>{ b.onclick=()=>switchSection(b.dataset.s); });
 document.querySelectorAll('#mnav button').forEach(b=>{ if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s); });
@@ -1348,6 +1650,9 @@ function allowedCourses(batch){
 function render(){
   // announcements (for this batch or all)
   renderAnnouncements();
+
+  // profile / tasks / lessons ke reminders
+  try{ renderAlerts(); }catch(e){}
 
   // batch selector (only if >1)
   const bs=ME.batches||[];
