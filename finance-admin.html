@@ -674,27 +674,46 @@ async function buildSettlements(){
     if(!groups[key].name) groups[key].name=e.studentName;
   });
 
+  // Ek cycle + ek student ke KAI settlements ho sakte hain — mahine ke
+  // beech mein nayi payment aa jaye to purana paid record chhora jata hai
+  // aur baqaya raqam ka naya settlement banta hai.
   const existing={};
-  SETTLEMENTS.forEach(s=>{ existing[s.cycleId+'||'+s.studentUid]=s; });
+  SETTLEMENTS.forEach(s=>{
+    const k=s.cycleId+'||'+s.studentUid;
+    if(!existing[k]) existing[k]=[];
+    existing[k].push(s);
+  });
 
-  let created=0, updated=0, locked=0, failed=0;
+  let created=0, updated=0, settled=0, failed=0;
 
   for(const key of Object.keys(groups)){
     const g=groups[key];
-    const found=existing[key];
+    const list=existing[key]||[];
 
     // Agar entries mein PKR nahi tha to Settings se khud gin lete hain
     const pkrTotal = g.pkr > 0 ? Math.round(g.pkr) : usdToPkr(g.usd);
     const usdTotal = Math.round(g.usd*100)/100;
 
-    if(found && found.status==='paid'){ locked++; continue; }
+    // Jo pehle se de diya gaya, wo ghata do
+    const paidRows = list.filter(x=>x.status==='paid');
+    const paidUsd  = paidRows.reduce((a,x)=>a+Number(x.verifiedUsd||0),0);
+    const paidPkr  = paidRows.reduce((a,x)=>a+(Number(x.paidPkr)>0?Number(x.paidPkr):Number(x.payablePkr||0)),0);
+
+    const remainUsd = Math.round((usdTotal-paidUsd)*100)/100;
+    const remainPkr = Math.max(pkrTotal-paidPkr, 0);
+
+    // Sab kuch pehle hi de diya gaya
+    if(remainPkr<=0 && remainUsd<=0.01){ settled++; continue; }
+
+    // Jo settlement abhi paid nahi hua, usay update karte hain
+    const found = list.find(x=>x.status!=='paid');
 
     try{
       if(found){
         await updateDoc(doc(db,'settlements',found.id), {
-          verifiedUsd: usdTotal,
-          payablePkr:  pkrTotal,
-          pendingPkr:  Math.max(pkrTotal - (found.paidPkr||0), 0),
+          verifiedUsd: remainUsd,
+          payablePkr:  remainPkr,
+          pendingPkr:  Math.max(remainPkr - (found.paidPkr||0), 0),
           studentName: g.name || found.studentName || '',
           updatedAt:   serverTimestamp()
         });
@@ -707,10 +726,10 @@ async function buildSettlements(){
           cycleId:     g.cycleId,
           studentUid:  g.uid,
           studentName: g.name || studentName(g.uid),
-          verifiedUsd: usdTotal,
-          payablePkr:  pkrTotal,
+          verifiedUsd: remainUsd,
+          payablePkr:  remainPkr,
           paidPkr:     0,
-          pendingPkr:  pkrTotal,
+          pendingPkr:  remainPkr,
           status:      'pending',
           paymentMethodId:                 method ? method.id : '',
           paymentMethodTypeSnapshot:       method ? method.type : '',
@@ -733,7 +752,7 @@ async function buildSettlements(){
 
   toast(
     created+' new · '+updated+' updated'
-    + (locked?' · '+locked+' already paid':'')
+    + (settled?' · '+settled+' fully paid':'')
     + (failed?' · '+failed+' failed':'')
   );
 
