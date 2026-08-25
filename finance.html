@@ -906,8 +906,11 @@ async function loadAll(uid){
     id:d.id,
     verifiedUsd:Number(d.verifiedUsd||0),
     payablePkr:Number(d.payablePkr||0),
+    paidPkr:Number(d.paidPkr||0),
     pendingPkr:Number(d.pendingPkr||0),
     status:String(d.status||'pending').toLowerCase(),
+    proofUrl:d.paymentProofUrl||'',
+    paidAt:tsSeconds(d.paidAt),
     at:tsSeconds(d.createdAt)
   })).sort((a,b)=>b.at-a.at);
 
@@ -1268,15 +1271,21 @@ function emptyBox(icon,msg){
 }
 
 function settleRow(s){
+  const isPaid = s.status==='paid';
+
   return '<div class="frow">'
-    + '<div class="frow-ic '+(s.status==='paid'?'green':'amber')+'"><i class="ti ti-cash"></i></div>'
+    + '<div class="frow-ic '+(isPaid?'green':'amber')+'"><i class="ti ti-cash"></i></div>'
     + '<div class="frow-main">'
       + '<div class="frow-t">Payment</div>'
-      + '<div class="frow-m">'+esc(fmtDate(s.at)||'Date not available')+'</div>'
+      + '<div class="frow-m">'+esc(fmtDate(isPaid && s.paidAt ? s.paidAt : s.at)||'Date not available')+'</div>'
+      + (isPaid && s.proofUrl
+          ? '<button class="mini" style="margin-top:9px" data-img="'+esc(s.proofUrl)+'">'
+            + '<i class="ti ti-receipt"></i> View receipt</button>'
+          : '')
     + '</div>'
     + '<div class="frow-amt">'
       + '<div class="frow-usd">'+usd(s.verifiedUsd)+'</div>'
-      + '<div class="frow-pkr">PKR '+pkr(s.payablePkr)+'</div>'
+      + '<div class="frow-pkr">PKR '+pkr(isPaid && s.paidPkr ? s.paidPkr : s.payablePkr)+'</div>'
     + '</div>'
     + '<span class="chip '+chipFor(s.status)+'">'+esc(titleCase(s.status))+'</span>'
   + '</div>';

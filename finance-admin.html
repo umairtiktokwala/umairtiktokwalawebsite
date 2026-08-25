@@ -862,6 +862,24 @@ $('payConfirm').onclick = async ()=>{
     payTarget.paidAt=Math.floor(Date.now()/1000);
     payTarget.proofUrl=proofUrl;
 
+    // Student ko bata dein
+    try{
+      const nid='ntf_'+Date.now()+'_'+Math.floor(Math.random()*9000+1000);
+      await setDoc(doc(db,'notifications',nid), {
+        studentUid:  payTarget.studentUid,
+        studentName: payTarget.studentName || '',
+        title:       'Payment sent',
+        message:     'PKR '+Math.round(amount).toLocaleString('en-US')
+                     +' aap ke account par bhej di gayi hai. Receipt aap ke '
+                     +'Payment History mein mojood hai.',
+        isRead:      false,
+        isArchived:  false,
+        relatedId:   payTarget.id,
+        createdAt:   serverTimestamp(),
+        updatedAt:   serverTimestamp()
+      });
+    }catch(e){ console.error('notification failed', e); }
+
     $('paySheet').classList.remove('show');
     render();
     toast('Payment recorded');
@@ -960,16 +978,19 @@ async function openStudent(uid){
     : '<div class="sp-item"><span style="color:var(--muted)">No payment method added yet</span></div>';
 
   h += '<div class="sp-h">Payments ('+mine.length+')</div>';
-  h += mine.length ? mine.slice(0,12).map(s=>
-      '<div class="sp-item">'
-      + '<div><b>PKR '+pkr(s.status==='paid'?s.paidPkr:(s.pendingPkr||s.payablePkr))+'</b>'
+  h += mine.length ? mine.slice(0,12).map(s=>{
+      const isPaid = s.status==='paid';
+      return '<div class="sp-item">'
+      + '<div><b>PKR '+pkr(isPaid?s.paidPkr:(s.pendingPkr||s.payablePkr))+'</b>'
         + '<div class="m">'+usd(s.verifiedUsd)+(s.cycleId?' · '+esc(s.cycleId):'')
-        + ' · '+esc(fmtDate(s.status==='paid'?s.paidAt:s.at))+'</div></div>'
-      + (s.proofUrl
-          ? '<button class="act" data-img="'+esc(s.proofUrl)+'">Receipt</button>'
-          : '<span class="chip '+(s.status==='paid'?'ok':'wait')+'">'+(s.status==='paid'?'Paid':'Pending')+'</span>')
-      + '</div>'
-    ).join('')
+        + ' · '+esc(fmtDate(isPaid?s.paidAt:s.at))+'</div></div>'
+      + (isPaid
+          ? (s.proofUrl
+              ? '<button class="act" data-img="'+esc(s.proofUrl)+'">Receipt</button>'
+              : '<span class="chip ok">Paid</span>')
+          : '<button class="act go" data-payfrom="'+esc(s.id)+'">Pay now</button>')
+      + '</div>';
+    }).join('')
     : '<div class="sp-item"><span style="color:var(--muted)">No payment recorded yet</span></div>';
 
   if(claims.length){
@@ -986,6 +1007,14 @@ async function openStudent(uid){
 
   $('stuBody').querySelectorAll('[data-img]').forEach(b=>{
     b.onclick = ()=>{ $('lbImg').src=b.dataset.img; $('lb').classList.add('show'); };
+  });
+
+  // Profile ke andar se hi payment record kar sakein
+  $('stuBody').querySelectorAll('[data-payfrom]').forEach(b=>{
+    b.onclick = ()=>{
+      $('stuSheet').classList.remove('show');
+      openPaySheet(b.dataset.payfrom);
+    };
   });
 }
 
