@@ -649,6 +649,11 @@ async function buildSettlements(){
   const btn=$('buildBtn');
   if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Working…'; }
 
+  // Taza data se kaam karo — warna agar kisi ne sheet se ya Firebase se
+  // kuch badla ho to dashboard purani tasveer par faisla kar leta hai.
+  LOADED=false;
+  await loadAll();
+
   const groups={};
   let counted=0, noUid=0;
 
