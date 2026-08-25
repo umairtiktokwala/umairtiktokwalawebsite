@@ -1018,6 +1018,11 @@ async function openStudent(uid){
   });
 }
 
+/** paypal_limited -> PayPal Limited */
+function titleCase(s){
+  return String(s||'').replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
+}
+
 function row_(label, value){
   return '<div class="sp-row"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';
 }
