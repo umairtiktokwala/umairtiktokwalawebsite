@@ -180,6 +180,33 @@ button{font-family:var(--body)}
 .sp-item{background:var(--card-2);border-radius:11px;padding:11px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;flex-wrap:wrap}
 .sp-item .m{font-family:var(--mono);font-size:11.5px;color:var(--muted);word-break:break-all}
 
+/* BANK DETAILS — pay sheet ke andar */
+.bankbox{background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:18px}
+.bankbox.none{background:var(--soft-amber);border-color:#F5D9A8}
+.bank-h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:11px}
+.bank-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #fff}
+.bank-r:last-child{border-bottom:none}
+.bank-l{font-size:12.5px;color:var(--muted);width:74px;flex-shrink:0}
+.bank-v{flex:1;font-size:14px;font-weight:600;word-break:break-all}
+.bank-v.mono{font-family:var(--mono);font-size:13.5px}
+.bank-c{border:1.5px solid var(--line);background:var(--card);border-radius:8px;padding:5px 11px;cursor:pointer;font-size:11.5px;font-weight:700;color:var(--ink-2);flex-shrink:0}
+.bank-c:hover{border-color:var(--ink)}
+.bank-c.done{background:var(--soft-green);border-color:var(--green);color:#0B7A47}
+.bank-warn{font-size:13.5px;color:#92400E;line-height:1.55}
+.bank-warn b{display:block;margin-bottom:3px;color:#78350F}
+
+/* BUILD SETTLEMENTS + FILTER CHIPS */
+.tb-btn.build{border-color:var(--purple);color:var(--purple);font-weight:700}
+.tb-btn.build:hover{background:var(--soft-purple);border-color:var(--purple)}
+.chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chipf{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);cursor:pointer;font-family:var(--body);font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;transition:all .16s}
+.chipf:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.chipf.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chipf i{font-size:15px}
+.chipf .n{font-size:11px;opacity:.75;font-weight:700}
+.self{padding:8px 13px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.self:focus{outline:none;border-color:var(--purple)}
+
 /* LIGHTBOX */
 .lb{position:fixed;inset:0;background:rgba(15,18,34,.88);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
 .lb.show{display:flex}
@@ -239,6 +266,7 @@ button{font-family:var(--body)}
           <h1 id="tbH">Overview</h1>
           <p id="tbP">Everything that needs your attention</p>
         </div>
+        <button class="tb-btn build" id="buildBtn"><i class="ti ti-refresh-dot"></i> Build settlements</button>
         <button class="tb-btn" id="refreshBtn"><i class="ti ti-refresh"></i> Refresh</button>
         <button class="tb-btn" id="outBtn">Log out</button>
       </div>
@@ -261,6 +289,8 @@ button{font-family:var(--body)}
     <h3>Record this payment</h3>
     <p class="sub" id="payWho"></p>
     <div class="smsg" id="payMsg"></div>
+
+    <div class="bankbox" id="payBank"></div>
 
     <div class="f">
       <label for="payAmount">Amount sent (PKR)</label>
@@ -310,7 +340,7 @@ import {
   setPersistence, browserLocalPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getFirestore, doc, getDoc, updateDoc, collection, collectionGroup,
+  getFirestore, doc, getDoc, setDoc, updateDoc, collection, collectionGroup,
   query, where, getDocs, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {
@@ -374,6 +404,8 @@ function toast(msg){
 
 /* ===== state ===== */
 let ME=null;
+let SETTINGS={usdToPkrRate:270,commissionBelowPct:15,commissionAbovePct:10,thresholdUsd:1000,coolingHours:2};
+let stFilter='all', commCycle='all';
 let CLAIMS=[], SETTLEMENTS=[], METHODS=[], STUDENTS=[], ASSIGNMENTS=[], ENTRIES=[];
 let LOADED=false;
 let SECTION='overview';
@@ -402,6 +434,8 @@ $('loginForm').addEventListener('submit', async ev=>{
     say('Wrong number or password.');
   }
 });
+
+$('buildBtn').onclick = buildSettlements;
 
 $('outBtn').onclick = ()=>signOut(auth);
 $('refreshBtn').onclick = async ()=>{
@@ -491,13 +525,49 @@ async function loadAll(){
     id:d.id,
     cycleId:d.cycleId||'',
     studentUid:d.studentUid||'',
+    studentName:d.studentName||'',
+    paypalEmail:d.paypalEmail||'',
     commissionUsd:Number(d.commissionUsd||0),
     netUsd:Number(d.netUsd||0),
+    payablePkr:Number(d.payablePkr||0),
+    status:String(d.status||'pending').toLowerCase(),
     at:tsSec(d.paymentDate)||tsSec(d.createdAt)
   }));
 
+  SETTINGS = await loadSettings();
+
   METHODS = await loadMethods();
   LOADED = true;
+}
+
+/** Settings sheet se aayi values — rate aur commission. */
+async function loadSettings(){
+  try{
+    const s=await getDoc(doc(db,'financeSettings','main'));
+    if(!s.exists()) return SETTINGS;
+    const d=s.data()||{};
+    return {
+      usdToPkrRate:      Number(d.usdToPkrRate||270),
+      commissionBelowPct:Number(d.commissionBelowPct||15),
+      commissionAbovePct:Number(d.commissionAbovePct||10),
+      thresholdUsd:      Number(d.thresholdUsd||1000),
+      coolingHours:      Number(d.coolingHours||2)
+    };
+  }catch(e){ return SETTINGS; }
+}
+
+/**
+ * USD se PKR — Settings ke rate aur commission se.
+ * Commission har payment par alag lagti hai (individual threshold).
+ */
+function usdToPkr(usd){
+  const amount=Number(usd||0);
+  if(amount<=0) return 0;
+  const pct = amount < SETTINGS.thresholdUsd
+    ? SETTINGS.commissionBelowPct
+    : SETTINGS.commissionAbovePct;
+  const gross = amount * SETTINGS.usdToPkrRate;
+  return Math.floor(gross - (gross*pct/100));
 }
 
 async function loadMethods(){
@@ -535,6 +605,123 @@ function studentPhone(uid){
   return s ? s.phone : '';
 }
 
+/** Us student ki wo method jahan paisa jana chahiye. */
+function payoutMethod(uid){
+  const mine=METHODS.filter(m=>m.uid===uid && m.status==='active');
+  if(!mine.length) return null;
+  return mine.find(m=>m.isPrimary) || mine[0];
+}
+
+/** Bank diya hai ya nahi — Students section ke chip ke liye. */
+function bankState(uid){
+  const mine=METHODS.filter(m=>m.uid===uid && m.status!=='inactive' && m.status!=='rejected');
+  if(!mine.length) return 'none';
+  if(mine.some(m=>m.status==='active')) return 'active';
+  return 'pending';
+}
+
+/* ===== settlements banana ===== */
+
+/**
+ * Payment Entries se settlements banata hai.
+ * Ek cycle + ek student = ek settlement.
+ *
+ * Sirf 'verified' aur 'paid' entries ginti mein aati hain, aur wo bhi
+ * jinka Student UID bhara hua ho. Jo settlement pehle se paid ho,
+ * usay haath nahi lagta.
+ */
+async function buildSettlements(){
+  const btn=$('buildBtn');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Working…'; }
+
+  const groups={};
+  let counted=0, noUid=0;
+
+  ENTRIES.forEach(e=>{
+    if(e.status!=='verified' && e.status!=='paid') return;
+    if(!e.studentUid){ noUid++; return; }
+
+    counted++;
+    const cycle=e.cycleId || new Date().toISOString().slice(0,7);
+    const key=cycle+'||'+e.studentUid;
+
+    if(!groups[key]){
+      groups[key]={cycleId:cycle, uid:e.studentUid, name:e.studentName, usd:0, pkr:0, n:0};
+    }
+    groups[key].usd += e.netUsd;
+    groups[key].pkr += e.payablePkr;
+    groups[key].n   += 1;
+    if(!groups[key].name) groups[key].name=e.studentName;
+  });
+
+  const existing={};
+  SETTLEMENTS.forEach(s=>{ existing[s.cycleId+'||'+s.studentUid]=s; });
+
+  let created=0, updated=0, locked=0, failed=0;
+
+  for(const key of Object.keys(groups)){
+    const g=groups[key];
+    const found=existing[key];
+
+    // Agar entries mein PKR nahi tha to Settings se khud gin lete hain
+    const pkrTotal = g.pkr > 0 ? Math.round(g.pkr) : usdToPkr(g.usd);
+    const usdTotal = Math.round(g.usd*100)/100;
+
+    if(found && found.status==='paid'){ locked++; continue; }
+
+    try{
+      if(found){
+        await updateDoc(doc(db,'settlements',found.id), {
+          verifiedUsd: usdTotal,
+          payablePkr:  pkrTotal,
+          pendingPkr:  Math.max(pkrTotal - (found.paidPkr||0), 0),
+          studentName: g.name || found.studentName || '',
+          updatedAt:   serverTimestamp()
+        });
+        updated++;
+      }else{
+        const method=payoutMethod(g.uid);
+        const id='stl_'+Date.now()+'_'+Math.floor(Math.random()*9000+1000);
+
+        await setDoc(doc(db,'settlements',id), {
+          cycleId:     g.cycleId,
+          studentUid:  g.uid,
+          studentName: g.name || studentName(g.uid),
+          verifiedUsd: usdTotal,
+          payablePkr:  pkrTotal,
+          paidPkr:     0,
+          pendingPkr:  pkrTotal,
+          status:      'pending',
+          paymentMethodId:                 method ? method.id : '',
+          paymentMethodTypeSnapshot:       method ? method.type : '',
+          paymentProviderSnapshot:         method ? method.provider : '',
+          paymentAccountTitleSnapshot:     method ? method.accountTitle : '',
+          paymentIdentifierMaskedSnapshot: method && method.last4 ? '•••• '+method.last4 : '',
+          createdAt:   serverTimestamp(),
+          updatedAt:   serverTimestamp()
+        });
+        created++;
+      }
+    }catch(e){ console.error('settlement failed for '+key, e); failed++; }
+  }
+
+  LOADED=false;
+  await loadAll();
+  render();
+
+  if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-refresh-dot"></i> Build settlements'; }
+
+  toast(
+    created+' new · '+updated+' updated'
+    + (locked?' · '+locked+' already paid':'')
+    + (failed?' · '+failed+' failed':'')
+  );
+
+  if(noUid){
+    setTimeout(()=>toast(noUid+' entries have no student yet — they stay in the pool'), 2600);
+  }
+}
+
 /* ===== actions ===== */
 async function setClaim(id, status){
   try{
@@ -543,6 +730,15 @@ async function setClaim(id, status){
     render();
     toast(status==='verified' ? 'Claim approved' : 'Claim rejected');
   }catch(e){ toast('Could not save — try again'); }
+}
+
+function bankRow(label, value, canCopy, mono){
+  const v = value || '—';
+  return '<div class="bank-r">'
+    + '<span class="bank-l">'+esc(label)+'</span>'
+    + '<span class="bank-v'+(mono?' mono':'')+'">'+esc(v)+'</span>'
+    + (canCopy && value ? '<button class="bank-c" data-copy="'+esc(value)+'">Copy</button>' : '')
+  + '</div>';
 }
 
 /* ===== mark paid — proof lazmi ===== */
@@ -555,9 +751,37 @@ function openPaySheet(id){
   payTarget = s;
   payFile = null;
 
-  $('payWho').textContent =
-    studentName(s.studentUid, s.studentName)
-    + ' · ' + [s.provider, s.accountTitle, s.masked].filter(Boolean).join(' · ');
+  $('payWho').textContent = studentName(s.studentUid, s.studentName)
+    + (studentPhone(s.studentUid) ? ' · '+studentPhone(s.studentUid) : '');
+
+  // --- bank ki poori detail, copy ke saath ---
+  const m = payoutMethod(s.studentUid);
+  const box = $('payBank');
+
+  if(m){
+    box.className='bankbox';
+    box.innerHTML = '<div class="bank-h">Send the money here</div>'
+      + bankRow('Bank', m.provider, false)
+      + bankRow('Title', m.accountTitle, true)
+      + bankRow('Number', m.identifier || ('•••• '+m.last4), true, true);
+  }else{
+    box.className='bankbox none';
+    box.innerHTML = '<div class="bank-warn"><b>No payment method on file</b>'
+      + 'This student has not added a bank or wallet yet, or it is still waiting for review. '
+      + 'Ask them to add one before sending money.</div>';
+  }
+
+  box.querySelectorAll('[data-copy]').forEach(b=>{
+    b.onclick = async ()=>{
+      try{
+        await navigator.clipboard.writeText(b.dataset.copy);
+        b.textContent='Copied';
+        b.classList.add('done');
+        setTimeout(()=>{ b.textContent='Copy'; b.classList.remove('done'); }, 1600);
+      }catch(e){ toast('Could not copy'); }
+    };
+  });
+
   $('payAmount').value = s.pendingPkr || s.payablePkr;
   $('payBy').value = '';
 
@@ -955,27 +1179,53 @@ function renderStudents(){
     });
   }
 
+  const counts = {
+    none:    STUDENTS.filter(s=>s.enabled && bankState(s.uid)==='none').length,
+    pending: STUDENTS.filter(s=>s.enabled && bankState(s.uid)==='pending').length,
+    active:  STUDENTS.filter(s=>s.enabled && bankState(s.uid)==='active').length,
+    noname:  STUDENTS.filter(s=>s.enabled && !hasName(s.name)).length
+  };
+
+  if(stFilter==='none')        list=list.filter(s=>bankState(s.uid)==='none');
+  else if(stFilter==='pending')list=list.filter(s=>bankState(s.uid)==='pending');
+  else if(stFilter==='active') list=list.filter(s=>bankState(s.uid)==='active');
+  else if(stFilter==='noname') list=list.filter(s=>!hasName(s.name));
+
   let h = '<div class="bar">'
     + '<input id="stuSearch" type="search" placeholder="Search by name, number or PayPal email" value="'+esc(studentQ)+'">'
-    + '<span style="font-size:13px;color:var(--muted)">'+list.length+' active</span>'
+    + '<span style="font-size:13px;color:var(--muted)">'+list.length+' shown</span>'
     + '</div>';
 
-  if(!list.length) return h + empty('ti-users','Nobody matches that search.');
+  h += '<div class="chips">'
+    + chipBtn('all','ti-users','Everyone','')
+    + chipBtn('none','ti-alert-triangle','No bank',counts.none)
+    + chipBtn('pending','ti-clock-hour-4','Waiting review',counts.pending)
+    + chipBtn('active','ti-building-bank','Bank added',counts.active)
+    + chipBtn('noname','ti-user-question','No name',counts.noname)
+    + '</div>';
+
+  if(!list.length) return h + empty('ti-users','Nobody matches that filter.');
 
   h += '<div class="list">'+list.slice(0,60).map(s=>{
     const mine = SETTLEMENTS.filter(x=>x.studentUid===s.uid);
     const lifetime = mine.reduce((a,x)=>a+x.payablePkr,0);
     const owed = mine.filter(x=>x.status!=='paid').reduce((a,x)=>a+(x.pendingPkr||x.payablePkr),0);
     const emails = ASSIGNMENTS.filter(a=>a.studentUid===s.uid && a.status!=='ended').map(a=>a.email).filter(Boolean);
+    const bank = bankState(s.uid);
+
+    const bankChip = bank==='active'  ? '<span class="chip ok">Bank added</span>'
+                   : bank==='pending' ? '<span class="chip wait">Bank waiting review</span>'
+                   :                    '<span class="chip warn">No bank</span>';
 
     return '<div class="row" data-student="'+esc(s.uid)+'" style="cursor:pointer">'
       + '<div class="thumb none" style="background:var(--soft-purple);color:var(--purple)"><i class="ti ti-user"></i></div>'
       + '<div class="rmain">'
-        + '<div class="rt">'+esc(s.name||'(no name)')+' <small>'+esc(s.phone)+'</small></div>'
+        + '<div class="rt">'+esc(hasName(s.name)?s.name:'(no name)')+' <small>'+esc(s.phone)+'</small></div>'
         + '<div class="rm">'+esc(emails.length?emails.join(', '):'No PayPal linked')+'</div>'
         + '<div class="rtags">'
+          + bankChip
           + '<span class="chip plain">'+mine.length+' payments</span>'
-          + (owed?'<span class="chip wait">PKR '+pkr(owed)+' owed</span>':'<span class="chip ok">Nothing owed</span>')
+          + (owed?'<span class="chip wait">PKR '+pkr(owed)+' owed</span>':'')
           + (s.city?'<span class="chip plain">'+esc(s.city)+'</span>':'')
         + '</div>'
       + '</div>'
@@ -988,28 +1238,53 @@ function renderStudents(){
   return h;
 }
 
+/** Asli naam hai ya sirf number? */
+function hasName(n){
+  const t=String(n||'').trim();
+  return t.length>=2 && /[a-zA-Z\u0600-\u06FF]/.test(t);
+}
+
+function chipBtn(key, icon, label, count){
+  return '<button class="chipf'+(stFilter===key?' on':'')+'" data-stf="'+key+'">'
+    + '<i class="ti '+icon+'"></i>'+esc(label)
+    + (count?'<span class="n">'+count+'</span>':'')
+  + '</button>';
+}
+
 function renderCommission(){
   if(!ENTRIES.length){
     return empty('ti-chart-line','No payment entries have reached Firebase yet.');
   }
+
+  const cycles = Array.from(new Set(ENTRIES.map(e=>e.cycleId||'(no cycle)'))).sort().reverse();
+  const scoped = commCycle==='all' ? ENTRIES
+                                   : ENTRIES.filter(e=>(e.cycleId||'(no cycle)')===commCycle);
+
+  const total  = scoped.reduce((a,e)=>a+e.commissionUsd,0);
+  const volume = scoped.reduce((a,e)=>a+e.netUsd,0);
+  const mStart = monthStartSec();
+  const thisMonth = ENTRIES.filter(e=>e.at>=mStart).reduce((a,e)=>a+e.commissionUsd,0);
+
+  let h = '<div class="bar">'
+    + '<select class="self" id="commSel">'
+    + '<option value="all"'+(commCycle==='all'?' selected':'')+'>All cycles</option>'
+    + cycles.map(c=>'<option value="'+esc(c)+'"'+(commCycle===c?' selected':'')+'>'+esc(c)+'</option>').join('')
+    + '</select>'
+    + '<span style="font-size:13px;color:var(--muted)">'+scoped.length+' entries</span>'
+    + '</div>';
+
+  h += '<div class="stats">'
+    + stat(usd(total), commCycle==='all'?'Commission — all time':'Commission — '+commCycle, 'green')
+    + stat(usd(thisMonth), 'This month', '')
+    + stat(usd(volume), 'Payments handled', '')
+    + stat(scoped.length, 'Entries', '')
+    + '</div>';
 
   const byCycle={};
   ENTRIES.forEach(e=>{
     const k=e.cycleId||'(no cycle)';
     byCycle[k]=(byCycle[k]||0)+e.commissionUsd;
   });
-
-  const total = ENTRIES.reduce((a,e)=>a+e.commissionUsd,0);
-  const mStart = monthStartSec();
-  const thisMonth = ENTRIES.filter(e=>e.at>=mStart).reduce((a,e)=>a+e.commissionUsd,0);
-  const volume = ENTRIES.reduce((a,e)=>a+e.netUsd,0);
-
-  let h = '<div class="stats">'
-    + stat(usd(total), 'Commission — all time', 'green')
-    + stat(usd(thisMonth), 'This month', '')
-    + stat(usd(volume), 'Payments handled', '')
-    + stat(ENTRIES.length, 'Entries', '')
-    + '</div>';
 
   h += '<h3 class="sec-h">By cycle</h3><div class="list">';
   Object.keys(byCycle).sort().reverse().forEach(k=>{
@@ -1062,6 +1337,21 @@ function wire(){
       if(s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
     };
   }
+
+  document.querySelectorAll('[data-stf]').forEach(b=>{
+    b.onclick=()=>{
+      stFilter=b.dataset.stf;
+      $('secStudents').innerHTML=renderStudents();
+      wire();
+    };
+  });
+
+  const cs=$('commSel');
+  if(cs) cs.onchange=()=>{
+    commCycle=cs.value;
+    $('secCommission').innerHTML=renderCommission();
+    wire();
+  };
 }
 
 $('lbX').onclick = ()=>$('lb').classList.remove('show');
