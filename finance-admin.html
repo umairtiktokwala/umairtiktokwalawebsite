@@ -595,6 +595,21 @@ async function loadMethods(){
   }
 }
 
+/**
+ * Kitni raqam wapas mili — paid record ke liye.
+ * Kabhi kabhi purane record mein paidPkr bhara nahi hota (ya 0 reh jata
+ * hai) jabke payablePkr mojood hota hai. Aisi soorat mein payable dikhana
+ * behtar hai, warna PKR 0 nazar aata hai jo ghalat lagta hai.
+ */
+function paidAmount(s){
+  return Number(s.paidPkr) > 0 ? Number(s.paidPkr) : Number(s.payablePkr||0);
+}
+
+/** Kitna dena baaqi hai. */
+function dueAmount(s){
+  return Number(s.pendingPkr) > 0 ? Number(s.pendingPkr) : Number(s.payablePkr||0);
+}
+
 function studentName(uid, fallback){
   if(fallback) return fallback;
   const s=STUDENTS.find(x=>x.uid===uid);
@@ -782,7 +797,7 @@ function openPaySheet(id){
     };
   });
 
-  $('payAmount').value = s.pendingPkr || s.payablePkr;
+  $('payAmount').value = dueAmount(s);
   $('payBy').value = '';
 
   const d=$('payDrop');
@@ -920,8 +935,8 @@ async function openStudent(uid){
 
   const mine     = SETTLEMENTS.filter(s=>s.studentUid===uid);
   const lifetime = mine.reduce((a,s)=>a+s.payablePkr,0);
-  const paid     = mine.filter(s=>s.status==='paid').reduce((a,s)=>a+s.paidPkr,0);
-  const owed     = mine.filter(s=>s.status!=='paid').reduce((a,s)=>a+(s.pendingPkr||s.payablePkr),0);
+  const paid     = mine.filter(s=>s.status==='paid').reduce((a,s)=>a+paidAmount(s),0);
+  const owed     = mine.filter(s=>s.status!=='paid').reduce((a,s)=>a+dueAmount(s),0);
   const usdTotal = mine.reduce((a,s)=>a+s.verifiedUsd,0);
 
   const accounts = ASSIGNMENTS.filter(a=>a.studentUid===uid);
@@ -981,7 +996,7 @@ async function openStudent(uid){
   h += mine.length ? mine.slice(0,12).map(s=>{
       const isPaid = s.status==='paid';
       return '<div class="sp-item">'
-      + '<div><b>PKR '+pkr(isPaid?s.paidPkr:(s.pendingPkr||s.payablePkr))+'</b>'
+      + '<div><b>PKR '+pkr(isPaid?paidAmount(s):dueAmount(s))+'</b>'
         + '<div class="m">'+usd(s.verifiedUsd)+(s.cycleId?' · '+esc(s.cycleId):'')
         + ' · '+esc(fmtDate(isPaid?s.paidAt:s.at))+'</div></div>'
       + (isPaid
@@ -1041,12 +1056,12 @@ function render(){
   const pendingClaims = CLAIMS.filter(c=>c.status==='submitted'||c.status==='under_review');
   const pendingMethods = METHODS.filter(m=>m.status==='pending_review');
   const unpaid = SETTLEMENTS.filter(s=>s.status!=='paid');
-  const unpaidPkr = unpaid.reduce((a,s)=>a+(s.pendingPkr||s.payablePkr||0),0);
+  const unpaidPkr = unpaid.reduce((a,s)=>a+dueAmount(s),0);
 
   const mStart = monthStartSec();
   const paidThisMonth = SETTLEMENTS
     .filter(s=>s.status==='paid' && s.paidAt>=mStart)
-    .reduce((a,s)=>a+s.paidPkr,0);
+    .reduce((a,s)=>a+paidAmount(s),0);
 
   const conflicts = pendingClaims.filter(c=>c.status==='under_review').length;
 
@@ -1077,7 +1092,7 @@ function renderOverview(pendingClaims, conflicts, unpaidPkr, paidThisMonth, unpa
     + '</div>';
 
   h += '<h3 class="sec-h">Next payouts</h3>';
-  const next = unpaid.slice().sort((a,b)=>(a.pendingPkr||a.payablePkr)-(b.pendingPkr||b.payablePkr)).slice(0,5);
+  const next = unpaid.slice().sort((a,b)=>dueAmount(a)-dueAmount(b)).slice(0,5);
   h += next.length ? '<div class="list">'+next.map(payoutRow).join('')+'</div>'
                    : empty('ti-cash','Nothing pending right now.');
   return h;
@@ -1128,8 +1143,8 @@ function renderPayouts(){
   let list = SETTLEMENTS.filter(s=> isPending ? s.status!=='paid' : s.status==='paid');
 
   list = list.slice().sort((a,b)=>{
-    const av = isPending ? (a.pendingPkr||a.payablePkr) : a.paidPkr;
-    const bv = isPending ? (b.pendingPkr||b.payablePkr) : b.paidPkr;
+    const av = isPending ? dueAmount(a) : paidAmount(a);
+    const bv = isPending ? dueAmount(b) : paidAmount(b);
     return payoutSort==='low' ? av-bv : bv-av;
   });
 
@@ -1152,7 +1167,7 @@ function renderPayouts(){
 
 function payoutRow(s){
   const isPaid = s.status==='paid';
-  const amount = isPaid ? s.paidPkr : (s.pendingPkr||s.payablePkr);
+  const amount = isPaid ? paidAmount(s) : dueAmount(s);
   const dest = [s.provider, s.accountTitle, s.masked].filter(Boolean).join(' · ');
 
   return '<div class="row">'
@@ -1243,7 +1258,7 @@ function renderStudents(){
   h += '<div class="list">'+list.slice(0,60).map(s=>{
     const mine = SETTLEMENTS.filter(x=>x.studentUid===s.uid);
     const lifetime = mine.reduce((a,x)=>a+x.payablePkr,0);
-    const owed = mine.filter(x=>x.status!=='paid').reduce((a,x)=>a+(x.pendingPkr||x.payablePkr),0);
+    const owed = mine.filter(x=>x.status!=='paid').reduce((a,x)=>a+dueAmount(x),0);
     const emails = ASSIGNMENTS.filter(a=>a.studentUid===s.uid && a.status!=='ended').map(a=>a.email).filter(Boolean);
     const bank = bankState(s.uid);
 
