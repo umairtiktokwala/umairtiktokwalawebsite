@@ -45,8 +45,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Number aur message dono chahiye" });
     }
 
+    // Jis number pe student ne message kiya tha, usi se reply jayega.
+    // (24-ghante ka window har number ka alag hota hai — galat number se
+    //  bheja jaye to Meta reject kar deta hai, aur student ka inbox khali rehta hai.)
+    const convoIdForLookup = normalizePhone(to) || to;
+    let fromId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    try {
+      const cSnap = await db.collection("conversations").doc(convoIdForLookup).get();
+      if (cSnap.exists && cSnap.data().phoneNumberId) {
+        fromId = cSnap.data().phoneNumberId;
+      }
+    } catch (e) {
+      console.log("phoneNumberId nahi mila, default use ho raha hai:", e.message);
+    }
+    console.log("Reply is number se ja raha hai:", fromId);
+
     const r = await fetch(
-      `${GRAPH}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+      `${GRAPH}/${fromId}/messages`,
       {
         method: "POST",
         headers: {
