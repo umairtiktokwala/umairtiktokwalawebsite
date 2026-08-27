@@ -600,6 +600,7 @@
         <button data-f="mine">Mine</button>
         <button data-f="unassigned">Unassigned</button>
         <button data-f="waiting">Waiting</button>
+        <button data-f="offline">Offline ki chats <span id="offlineCount"></span></button>
       </div>
       <div class="filters filters-2" id="filters2">
         <button data-s="all" class="active">Everyone</button>
@@ -957,6 +958,7 @@ function watchPresence() {
       presence[p.convoId] = { uid: p.uid, name: p.name || "Team", at };
     });
     renderList();
+    updateTotalBadge();
     if (activeId) paintViewingBar();
     if ($("teamPanel") && $("teamPanel").classList.contains("show")) renderTeamPanel();
   });
@@ -1222,6 +1224,23 @@ function updateTotalBadge() {
   // Unread filter button pe bhi ginti
   const uc = $("unreadCount");
   if (uc) uc.textContent = n > 0 ? "(" + n + ")" : "";
+
+  // Offline walon ki padi hui chats
+  const orphan = convos.filter(c => isOrphan(c) && (c.unread || 0) > 0).length;
+  const oc = $("offlineCount");
+  if (oc) oc.textContent = orphan > 0 ? "(" + orphan + ")" : "";
+}
+
+
+// Chat kisi ke naam lagi hai magar wo abhi online nahi —
+// yani padi hui hai aur koi nahi dekh raha.
+function isOrphan(c) {
+  if (!c.assignedTo) return false;              // un-assigned alag baat hai
+  if (c.status === "resolved") return false;
+  const t = team.find(x => x.name === c.assignedTo);
+  if (t && presenceAll[t.uid]) return false;    // banda online hai
+  if (c.assignedUid && presenceAll[c.assignedUid]) return false;
+  return true;
 }
 
 function filteredConvos() {
@@ -1248,6 +1267,7 @@ function filteredConvos() {
     if (currentFilter === "mine") return c.assignedUid === me.uid;
     if (currentFilter === "unassigned") return !c.assignedUid;
     if (currentFilter === "waiting") return isWaiting(c) && minsSince(c.lastMessageAt) >= 5;
+    if (currentFilter === "offline") return isOrphan(c) && (c.unread || 0) > 0;
     return true;
   });
 }
@@ -1270,6 +1290,12 @@ function renderList() {
     if (unread) tags.push('<span class="tag tag-unread">' + c.unread + '</span>');
 
     if (isMessenger(c)) tags.push('<span class="tag tag-msgr">Messenger</span>');
+
+    // Malik offline hai — chat padi hui hai
+    if (unread && isOrphan(c)) {
+      tags.push('<span class="tag" style="background:rgba(180,83,9,.14);color:#b45309;font-weight:600">' +
+                esc(c.assignedTo) + ' offline</span>');
+    }
 
     const viewer = presence[c.id];
     if (viewer) tags.push('<span class="tag tag-viewing">' + esc(viewer.name) + ' viewing</span>');
