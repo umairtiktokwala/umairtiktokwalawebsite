@@ -195,6 +195,50 @@
     font-size:12.5px;line-height:1.55;
   }
   .cm-err{color:var(--danger);font-size:12px;margin-top:6px}
+
+  /* ---------- Live team panel ---------- */
+  .tp-back{
+    position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60;
+    display:none;align-items:flex-start;justify-content:center;padding:40px 16px;
+  }
+  .tp-back.show{display:flex}
+  .tp-box{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    width:100%;max-width:720px;max-height:85vh;overflow-y:auto;
+    box-shadow:0 18px 50px rgba(0,0,0,.22);
+  }
+  .tp-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px 20px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--panel);z-index:1;
+  }
+  .tp-title{font-size:16px;font-weight:700}
+  .tp-body{padding:16px 20px}
+  .tp-row{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 0;border-bottom:1px solid var(--line);
+  }
+  .tp-row:last-child{border-bottom:none}
+  .tp-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+  .tp-on{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.16)}
+  .tp-off{background:var(--faint)}
+  .tp-name{font-weight:600;font-size:13.5px;min-width:110px}
+  .tp-meta{font-size:11.5px;color:var(--faint);margin-top:2px}
+  .tp-load{flex:1;min-width:90px}
+  .tp-bar{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden}
+  .tp-fill{height:100%;border-radius:4px}
+  .tp-nums{display:flex;gap:14px;font-size:12px;white-space:nowrap}
+  .tp-num b{font-size:15px;display:block;line-height:1.2}
+  .tp-num span{font-size:10.5px;color:var(--faint)}
+  .tp-note{font-size:11.5px;color:var(--faint);line-height:1.55;margin-top:14px}
+
+  /* ---------- Overlap warning ---------- */
+  .ov-warn{
+    padding:9px 16px;border-bottom:1px solid var(--line);
+    background:rgba(180,83,9,.10);color:#b45309;
+    font-size:12.5px;line-height:1.5;
+  }
+  .ov-warn b{font-weight:700}
   .tag-viewing{background:rgba(22,163,74,.14);color:#15803d;font-weight:600}
   .tag-msgr{background:rgba(0,132,255,.13);color:#0084FF;font-weight:600}
   .tag-wa{background:rgba(37,211,102,.14);color:#128C7E;font-weight:600}
@@ -536,6 +580,7 @@
     </div>
     <div class="topbar-right">
       <span id="totalUnread" class="total-badge" style="display:none">0</span>
+      <button class="icon-btn" id="teamBtn" title="Team &mdash; kaun kitna kaam kar raha hai">&#128101;</button>
       <button class="icon-btn" id="statsBtn" title="Stats" style="display:none">&#128202;</button>
       <button class="icon-btn" id="soundBtn" title="Awaaz on/off">&#128266;</button>
       <button class="icon-btn" id="notifBtn" title="Browser notification">&#128276;</button>
@@ -587,6 +632,17 @@
     <div class="col-info" id="infoPanel">
       <div class="info-title">Student</div>
       <div class="empty" style="padding:20px 0">No chat selected</div>
+    </div>
+  </div>
+
+  <!-- ============ LIVE TEAM PANEL ============ -->
+  <div class="tp-back" id="teamPanel">
+    <div class="tp-box">
+      <div class="tp-head">
+        <span class="tp-title">Team &mdash; abhi kaun kya kar raha hai</span>
+        <button class="mini-btn" id="teamClose">Close</button>
+      </div>
+      <div class="tp-body" id="teamBody"></div>
     </div>
   </div>
 
@@ -795,7 +851,13 @@ onAuthStateChanged(auth, async (user) => {
     watchConversations();
     watchPresence();
     watchSavedReplies();
+    startPresenceLoop(null);   // login karte hi "online" dikhein
     watchComments();
+
+    // Team panel
+    $("teamBtn").onclick = openTeamPanel;
+    $("teamClose").onclick = closeTeamPanel;
+    $("teamPanel").onclick = (e) => { if (e.target.id === "teamPanel") closeTeamPanel(); };
 
     // Tab buttons
     $("mainTabs").querySelectorAll("button").forEach(b => {
@@ -869,10 +931,23 @@ async function loadTeam() {
 }
 
 // ---------- Presence (kaun kaunsi chat khole baitha hai) ----------
+let presenceAll = {};   // har member ki halat — chat khuli ho ya na ho
+
 function watchPresence() {
   if (unsubPresence) unsubPresence();
   unsubPresence = onSnapshot(collection(db, "presence"), (snap) => {
     presence = {};
+    presenceAll = {};
+
+    // Pehle sab ki halat jama karein (team panel ke liye)
+    snap.forEach(d => {
+      const p = d.data();
+      if (!p || !p.uid) return;
+      const at = p.at?.toMillis ? p.at.toMillis() : 0;
+      if (Date.now() - at > PRESENCE_STALE_SEC * 1000) return;
+      presenceAll[p.uid] = { uid: p.uid, name: p.name || "Team", convoId: p.convoId || null, at };
+    });
+
     snap.forEach(d => {
       const p = d.data();
       if (!p || !p.convoId) return;
@@ -883,6 +958,7 @@ function watchPresence() {
     });
     renderList();
     if (activeId) paintViewingBar();
+    if ($("teamPanel") && $("teamPanel").classList.contains("show")) renderTeamPanel();
   });
 }
 
@@ -1306,8 +1382,22 @@ async function openConvo(id) {
       'Messenger ab is chat mein reply nahi jane deta &mdash; student ke naye message ka intezar karein.</div>'
     : '';
 
+  // Overlap warning — ye chat kisi aur ko assigned hai aur wo abhi online hai
+  let overlapHtml = "";
+  if (c.assignedTo && c.assignedTo !== me.name) {
+    const t = team.find(x => x.name === c.assignedTo);
+    const online = t && presenceAll[t.uid];
+    if (online) {
+      overlapHtml =
+        '<div class="ov-warn">Ye chat <b>' + esc(c.assignedTo) + '</b> ke paas hai, ' +
+        'aur wo abhi <b>online</b> hai. Dono ek saath jawab na bhej dein &mdash; ' +
+        'pehle un se poochh lein ya <b>Assign</b> se apne naam kar lein.</div>';
+    }
+  }
+
   $("chatArea").innerHTML =
     '<div class="chat-head" id="chatHead"></div>' +
+    overlapHtml +
     '<div class="viewing-bar" id="viewingBar" style="display:none"></div>' +
     '<div class="messages" id="messages"><div class="empty">Loading&hellip;</div></div>' +
     closedWarn +
@@ -2155,7 +2245,11 @@ async function runStats() {
   const agentStats = {};
 
   const bump = (name) => {
-    if (!agentStats[name]) agentStats[name] = { replies: 0, yes: 0, no: 0, ratings: [], waits: [] };
+    if (!agentStats[name]) agentStats[name] = {
+      replies: 0, yes: 0, no: 0, ratings: [], waits: [],
+      wa: 0, msgr: 0, comments: 0,        // channel ke hisaab se
+      chats: new Set(),                    // kitni ALAG chats handle kin
+    };
     return agentStats[name];
   };
 
@@ -2236,7 +2330,15 @@ async function runStats() {
         totalOut++;
         if (bucket) bucket.outMsg++;
         if (AUTO_SENDERS.includes(by)) autoReplies++;
-        else if (by) bump(by).replies++;
+        else if (by) {
+          const ag = bump(by);
+          ag.replies++;
+          // Kis channel ka message tha
+          if (m.channel === "messenger") ag.msgr++; else ag.wa++;
+          // Kitni alag chats — ek hi chat ke 20 message ek hi ginti
+          const cid0 = d.ref.parent.parent ? d.ref.parent.parent.id : "";
+          if (cid0) ag.chats.add(cid0);
+        }
       }
 
       // Reply time ke liye har chat ke messages alag jama karein
@@ -2287,9 +2389,24 @@ async function runStats() {
   const within1h = waits.length
     ? Math.round((waits.filter(w => w <= 3600000).length / waits.length) * 100) : null;
 
+  // ---- Comments — is arse mein kis ne kitne handle kiye ----
+  let commentsIn = 0, commentsHandled = 0;
+  comments.forEach(cm => {
+    const made = cm.createdAt?.toMillis ? cm.createdAt.toMillis() : 0;
+    if (made >= from && made <= to) commentsIn++;
+
+    const t = cm.repliedAt?.toMillis ? cm.repliedAt.toMillis()
+            : cm.privateReplyAt?.toMillis ? cm.privateReplyAt.toMillis() : 0;
+    if (!t || t < from || t > to) return;
+    const who = cm.repliedBy || cm.privateReplyBy;
+    if (!who) return;
+    bump(who).comments++;
+    commentsHandled++;
+  });
+
   // ---- Sorting ----
   const agents = Object.entries(agentStats)
-    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length || a.waits.length)
+    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length || a.waits.length || a.comments)
     .sort((a, b) => b[1].replies - a[1].replies);
   const maxRep = agents.length ? Math.max(...agents.map(a => a[1].replies), 1) : 1;
 
@@ -2347,6 +2464,18 @@ async function runStats() {
       statCard(waiting, URGENT_MINUTES + "m+ waiting") +
     '</div>' +
 
+    // Comments
+    (commentsIn || commentsHandled
+      ? '<div class="info-title" style="margin-top:22px">Comments &mdash; ' + esc(rangeLabel) + '</div>' +
+        '<div class="stats-grid">' +
+          statCard(commentsIn, "Comments aaye") +
+          statCard(commentsHandled, "Handle huay") +
+          statCard(Math.max(0, commentsIn - commentsHandled), "Baqi hain") +
+          statCard(commentsIn ? Math.round((commentsHandled / commentsIn) * 100) + "%" : "0%",
+                   "Handle rate") +
+        '</div>'
+      : '') +
+
     // Reply ka waqt
     '<div class="info-title" style="margin-top:22px">Reply ka waqt &mdash; ' + esc(rangeLabel) + '</div>' +
     (waits.length
@@ -2400,7 +2529,8 @@ async function runStats() {
     '<div class="info-title" style="margin-top:24px">Team performance &mdash; ' + esc(rangeLabel) + '</div>' +
     (agents.length
       ? '<table class="stat-table"><thead><tr>' +
-          '<th>Member</th><th>Replies</th><th>Reply time</th><th>Hal huay</th><th>Behaviour</th>' +
+          '<th>Member</th><th>Replies</th><th>Channel</th><th>Chats</th>' +
+          '<th>Reply time</th><th>Hal huay</th><th>Behaviour</th>' +
         '</tr></thead><tbody>' +
         agents.map(([name, a]) => {
           const solved = a.yes + a.no;
@@ -2414,6 +2544,13 @@ async function runStats() {
               '<span style="font-size:11px;color:var(--faint)"> (' + share + '%)</span>' +
               '<div class="rate-bar"><div class="rate-fill" style="width:' +
               Math.round((a.replies / maxRep) * 100) + '%;background:' + colorFor(name) + '"></div></div></td>' +
+            '<td style="font-size:11.5px;line-height:1.5">' +
+              'WhatsApp <b>' + (a.wa || 0) + '</b><br>' +
+              'Messenger <b>' + (a.msgr || 0) + '</b><br>' +
+              'Comments <b>' + (a.comments || 0) + '</b>' +
+            '</td>' +
+            '<td><b>' + (a.chats ? a.chats.size : 0) + '</b>' +
+              '<br><span style="font-size:11px;color:var(--faint)">alag chats</span></td>' +
             '<td>' + (a.waits.length
               ? '<b style="color:' + waitColor(medianOf(a.waits)) + '">' + fmtDur(medianOf(a.waits)) + '</b>' +
                 '<br><span style="font-size:11px;color:var(--faint)">' + a.waits.length + ' replies</span>'
@@ -2428,7 +2565,7 @@ async function runStats() {
           '</tr>';
         }).join("") +
         '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies +
-        '</td><td></td><td></td><td></td></tr>' +
+        '</td><td></td><td></td><td></td><td></td><td></td></tr>' +
         '</tbody></table>'
       : '<div class="empty" style="padding:14px 0">Is arse mein koi reply nahi.</div>') +
 
@@ -2683,6 +2820,146 @@ function switchTab(tab) {
   document.querySelector(".main").style.display = tab === "chats" ? "" : "none";
   $("mainComments").style.display = tab === "comments" ? "flex" : "none";
   if (tab === "comments" && !unsubComments) watchComments();
+}
+
+
+// ============================================================
+//  LIVE TEAM PANEL
+//  Kaun online hai, kis ke paas kitni chats, kaun abhi kis pe hai.
+//  Sab ko dikhta hai — taake pata chale bojh kis pe hai.
+// ============================================================
+function openTeamPanel() {
+  renderTeamPanel();
+  $("teamPanel").classList.add("show");
+}
+function closeTeamPanel() {
+  $("teamPanel").classList.remove("show");
+}
+
+function teamLoad() {
+  // Har member ka bojh — channel ke hisaab se alag
+  const box = {};
+  const ensure = (name) => {
+    if (!box[name]) box[name] = {
+      waOpen: 0, msgrOpen: 0, unread: 0, waiting: 0, oldest: 0,
+    };
+    return box[name];
+  };
+
+  const now = Date.now();
+
+  convos.forEach(c => {
+    const who = c.assignedTo;
+    if (!who) return;
+    if (c.status === "resolved") return;
+
+    const b = ensure(who);
+    if (isMessenger(c)) b.msgrOpen++; else b.waOpen++;
+    if ((c.unread || 0) > 0) b.unread++;
+
+    if (c.awaitingReply) {
+      b.waiting++;
+      const t = c.lastMessageAt?.toMillis ? c.lastMessageAt.toMillis() : 0;
+      if (t && (!b.oldest || t < b.oldest)) b.oldest = t;
+    }
+  });
+
+  // Comments — kis ne aakhri dafa handle kiye (aaj ke)
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+  comments.forEach(cm => {
+    if (cm.status === "deleted") return;
+    const t = cm.repliedAt?.toMillis ? cm.repliedAt.toMillis()
+            : cm.privateReplyAt?.toMillis ? cm.privateReplyAt.toMillis() : 0;
+    if (!t || t < dayAgo) return;
+    const who = cm.repliedBy || cm.privateReplyBy;
+    if (!who) return;
+    const b = ensure(who);
+    b.commentsToday = (b.commentsToday || 0) + 1;
+  });
+
+  return box;
+}
+
+function renderTeamPanel() {
+  const el = $("teamBody");
+  if (!el) return;
+
+  const load = teamLoad();
+  const now = Date.now();
+
+  // Team list + wo log jinke paas chats hain magar admins mein na hon
+  const names = new Set(team.map(t => t.name));
+  Object.keys(load).forEach(n => names.add(n));
+
+  const rows = [...names].map(name => {
+    const t = team.find(x => x.name === name);
+    const uid = t ? t.uid : null;
+    const p = uid ? presenceAll[uid] : null;
+    const online = !!p;
+    const b = load[name] || { waOpen: 0, msgrOpen: 0, unread: 0, waiting: 0, oldest: 0 };
+    const total = b.waOpen + b.msgrOpen;
+    return { name, online, p, b, total };
+  });
+
+  // Online pehle, phir bojh ke hisaab se
+  rows.sort((a, b) => (b.online - a.online) || (b.total - a.total));
+
+  const maxTotal = Math.max(1, ...rows.map(r => r.total));
+  const onlineCount = rows.filter(r => r.online).length;
+
+  el.innerHTML =
+    '<div style="font-size:12.5px;color:var(--faint);margin-bottom:6px">' +
+      onlineCount + ' online &middot; ' + rows.length + ' team members' +
+    '</div>' +
+
+    rows.map(r => {
+      const b = r.b;
+      let doing = "";
+      if (r.online) {
+        if (r.p.convoId) {
+          const c = convos.find(x => x.id === r.p.convoId);
+          doing = "Abhi: " + esc(c ? displayNameOf(c) : r.p.convoId);
+        } else {
+          doing = "Online &mdash; koi chat khuli nahi";
+        }
+      } else {
+        doing = "Offline";
+      }
+
+      let waitTxt = "";
+      if (b.waiting && b.oldest) {
+        const mins = Math.round((now - b.oldest) / 60000);
+        const col = mins >= 60 ? "#b91c1c" : mins >= 30 ? "#b45309" : "var(--faint)";
+        waitTxt = '<span style="color:' + col + '">Sab se purani: ' +
+                  (mins >= 60 ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + "m") +
+                  '</span>';
+      }
+
+      return '<div class="tp-row">' +
+        '<span class="tp-dot ' + (r.online ? 'tp-on' : 'tp-off') + '"></span>' +
+        '<div class="tp-name">' + esc(r.name) +
+          '<div class="tp-meta">' + doing + (waitTxt ? ' &middot; ' + waitTxt : '') + '</div>' +
+        '</div>' +
+        '<div class="tp-load">' +
+          '<div class="tp-bar"><div class="tp-fill" style="width:' +
+            Math.round((r.total / maxTotal) * 100) + '%;background:' + colorFor(r.name) + '"></div></div>' +
+        '</div>' +
+        '<div class="tp-nums">' +
+          '<div class="tp-num"><b>' + b.waOpen + '</b><span>WhatsApp</span></div>' +
+          '<div class="tp-num"><b>' + b.msgrOpen + '</b><span>Messenger</span></div>' +
+          '<div class="tp-num"><b>' + (b.commentsToday || 0) + '</b><span>Comments</span></div>' +
+          '<div class="tp-num"><b style="color:' + (b.unread ? 'var(--brand1)' : 'var(--faint)') + '">' +
+            b.unread + '</b><span>Unread</span></div>' +
+        '</div>' +
+      '</div>';
+    }).join("") +
+
+    '<div class="tp-note">' +
+      '<b>WhatsApp / Messenger</b> = abhi khuli hui chats jo is member ko assigned hain.<br>' +
+      '<b>Comments</b> = pichhle 24 ghante mein handle kiye gaye comments.<br>' +
+      '<b>Unread</b> = un mein se jin ka jawab abhi nahi gaya.<br>' +
+      'Online ka matlab: pichhle kuch minute mein dashboard khola hua tha.' +
+    '</div>';
 }
 
 </script>
