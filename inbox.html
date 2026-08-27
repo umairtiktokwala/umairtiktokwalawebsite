@@ -785,6 +785,7 @@ let allLoaded = false;   // saari chats aa gayin?
 // Unread chats ka alag listener — taake purani unread chat kabhi na chhupe
 let convosRecent = [];     // list mein aane wali nayi chats
 let convosUnread = [];     // har wo chat jis mein unread baqi hai
+let activePinned = null;   // jo chat khuli hai wo list se gayab na ho
 let unsubUnread = null;
 const UNREAD_MAX = 1000;   // itni unread chats tak
 
@@ -1119,6 +1120,18 @@ function mergeConvos() {
   for (const c of convosRecent) byId.set(c.id, c);
   for (const c of convosUnread) if (!byId.has(c.id)) byId.set(c.id, c);
 
+  // Jo chat khuli hui hai wo hamesha maujood rahe.
+  // (Purani unread chat kholte hi read ho jati hai — us waqt wo dono
+  //  listener se nikal jati thi aur dashboard usay "bhool" jata tha,
+  //  jis se "No chat selected" aur send band ho jata tha.)
+  if (activeId) {
+    if (byId.has(activeId)) {
+      activePinned = byId.get(activeId);
+    } else if (activePinned && activePinned.id === activeId) {
+      byId.set(activeId, activePinned);
+    }
+  }
+
   const next = [...byId.values()].sort((a, b) => {
     const ta = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : 0;
     const tb = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : 0;
@@ -1392,6 +1405,9 @@ async function openConvo(id) {
   const c = convos.find(x => x.id === id);
   if (!c) return;
 
+  // Kholte hi mehfooz kar lein, taake read hone ke baad gayab na ho
+  activePinned = { ...c, unread: 0 };
+
   // Read mark + auto-assign agar khali hai
   const patch = {};
   if ((c.unread || 0) > 0) patch.unread = 0;
@@ -1548,6 +1564,7 @@ function paintChatHead() {
     try {
       await deleteConversation(activeId);
       activeId = null;
+      activePinned = null;
       if (unsubMessages) { unsubMessages(); unsubMessages = null; }
       if (unsubNotes) { unsubNotes(); unsubNotes = null; }
       if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
@@ -1587,6 +1604,7 @@ function paintChatHead() {
     try {
       await updateDoc(doc(db, "conversations", activeId), { unread: 1 });
       activeId = null;
+      activePinned = null;
       if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
       clearMyPresence();
       $("chatArea").innerHTML = '<div class="placeholder">Pick a conversation to start</div>';
