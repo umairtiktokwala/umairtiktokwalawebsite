@@ -265,6 +265,8 @@
   }
   .mini-btn:hover{border-color:var(--brand1);color:var(--brand1)}
   .mini-btn.primary{background:var(--brand1);border-color:var(--brand1);color:#fff;font-weight:600}
+  .mini-btn.ok{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600}
+  .mini-btn.ok:hover{opacity:.9}
   .window-pill{font-size:11px;padding:4px 10px;border-radius:6px;background:var(--panel2);color:var(--dim)}
   .window-pill.warn{background:rgba(180,83,9,.12);color:#b45309}
   .window-pill.closed{background:rgba(220,38,38,.1);color:#b91c1c}
@@ -601,6 +603,7 @@
         <button data-f="unassigned">Unassigned</button>
         <button data-f="waiting">Waiting</button>
         <button data-f="offline">Offline ki chats <span id="offlineCount"></span></button>
+        <button data-f="closed">Closed</button>
       </div>
       <div class="filters filters-2" id="filters2">
         <button data-s="all" class="active">Everyone</button>
@@ -1261,6 +1264,10 @@ function filteredConvos() {
     // Review account ko sirf Messenger chats dikhti hain
     if (me.reviewer && !isMessenger(c)) return false;
 
+    // Band ki hui chats sirf "Closed" filter mein
+    if (currentFilter === "closed") return c.status === "resolved";
+    if (c.status === "resolved") return false;
+
     if (searchTerm) {
       const hay = (displayNameOf(c) + " " + (c.waNumber || "")).toLowerCase();
       if (!hay.includes(searchTerm)) return false;
@@ -1501,6 +1508,9 @@ function paintChatHead() {
         '<button class="mini-btn" id="assignBtn">Assign &#9662;</button>' +
         '<div class="assign-menu" id="assignMenu"></div>' +
       '</span>' +
+      (c.status === "resolved"
+        ? '<button class="mini-btn" id="reopenBtn">Reopen</button>'
+        : '<button class="mini-btn ok" id="closeBtn">Close</button>') +
       '<button class="mini-btn" id="unreadBtn">Mark unread</button>' +
       (me.reviewer ? '' : '<button class="mini-btn" id="delChatBtn" style="color:var(--danger)">Delete chat</button>') +
       (isMessenger(c) ? ''
@@ -1597,6 +1607,56 @@ function paintChatHead() {
       sv.disabled = false;
       sv.textContent = "Send survey";
     }
+  };
+
+  // ---- Close / Reopen ----
+  // Chat khatam karna. Ek kaam nimta — us ka record bhi banta hai
+  // taake stats mein pata chale kis ne kitne kaam nimtaye.
+  const closeB = $("closeBtn");
+  if (closeB) closeB.onclick = async () => {
+    closeB.disabled = true;
+    closeB.textContent = "...";
+    try {
+      const now = new Date();
+      await updateDoc(doc(db, "conversations", activeId), {
+        status: "resolved",
+        closedBy: me.name,
+        closedAt: now,
+        closedCount: (convos.find(x => x.id === activeId)?.closedCount || 0) + 1,
+        awaitingReply: false,
+        unread: 0,
+        updatedAt: now,
+      });
+      // Har band karne ka alag record — ginti ke liye
+      await addDoc(collection(db, "conversations", activeId, "closures"), {
+        by: me.name,
+        uid: me.uid,
+        at: now,
+        expiresAt: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000),
+      });
+      activeId = null;
+      activePinned = null;
+      if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+      clearMyPresence();
+      $("chatArea").innerHTML = '<div class="placeholder">Pick a conversation to start</div>';
+      renderInfo();
+      renderList();
+    } catch (e) {
+      closeB.disabled = false;
+      closeB.textContent = "Close";
+      alert("Close nahi hui: " + e.message);
+    }
+  };
+
+  const reopenB = $("reopenBtn");
+  if (reopenB) reopenB.onclick = async () => {
+    try {
+      await updateDoc(doc(db, "conversations", activeId), {
+        status: "open",
+        updatedAt: new Date(),
+      });
+      openConvo(activeId);
+    } catch (e) {}
   };
 
   const un = $("unreadBtn");
@@ -2292,6 +2352,7 @@ async function runStats() {
     if (!agentStats[name]) agentStats[name] = {
       replies: 0, yes: 0, no: 0, ratings: [], waits: [],
       wa: 0, msgr: 0, comments: 0,        // channel ke hisaab se
+      closed: 0,                           // kitne kaam nimtaye
       chats: new Set(),                    // kitni ALAG chats handle kin
     };
     return agentStats[name];
@@ -2433,6 +2494,27 @@ async function runStats() {
   const within1h = waits.length
     ? Math.round((waits.filter(w => w <= 3600000).length / waits.length) * 100) : null;
 
+  // ---- Kitne kaam nimtaye (Close ka record) ----
+  let closedTotal = 0;
+  try {
+    const csnap = await getDocs(
+      query(
+        collectionGroup(db, "closures"),
+        where("at", ">=", new Date(from)),
+        where("at", "<=", new Date(to)),
+        orderBy("at", "asc")
+      )
+    );
+    csnap.forEach(d => {
+      const x = d.data();
+      if (!x || !x.by) return;
+      bump(x.by).closed++;
+      closedTotal++;
+    });
+  } catch (e) {
+    console.warn("Closures nahi parhe ja sake:", e.message);
+  }
+
   // ---- Comments — is arse mein kis ne kitne handle kiye ----
   let commentsIn = 0, commentsHandled = 0;
   comments.forEach(cm => {
@@ -2450,7 +2532,7 @@ async function runStats() {
 
   // ---- Sorting ----
   const agents = Object.entries(agentStats)
-    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length || a.waits.length || a.comments)
+    .filter(([, a]) => a.replies || a.yes || a.no || a.ratings.length || a.waits.length || a.comments || a.closed)
     .sort((a, b) => b[1].replies - a[1].replies);
   const maxRep = agents.length ? Math.max(...agents.map(a => a[1].replies), 1) : 1;
 
@@ -2507,6 +2589,19 @@ async function runStats() {
       statCard(unreadChats, "Abhi unread") +
       statCard(waiting, URGENT_MINUTES + "m+ waiting") +
     '</div>' +
+
+    // Kaam nimtaye
+    (closedTotal
+      ? '<div class="info-title" style="margin-top:22px">Kaam nimtaye &mdash; ' + esc(rangeLabel) + '</div>' +
+        '<div class="stats-grid">' +
+          statCard(closedTotal, "Close kiye gaye") +
+          statCard(days ? Math.round(closedTotal / days) : 0, "Rozana average") +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--faint);margin-top:6px">' +
+          'Har dafa jab team ne chat "Close" ki. Ek hi student ki chat kai dafa ' +
+          'close ho sakti hai &mdash; har dafa alag kaam ginta hai.' +
+        '</div>'
+      : '') +
 
     // Comments
     (commentsIn || commentsHandled
@@ -2574,7 +2669,7 @@ async function runStats() {
     (agents.length
       ? '<table class="stat-table"><thead><tr>' +
           '<th>Member</th><th>Replies</th><th>Channel</th><th>Chats</th>' +
-          '<th>Reply time</th><th>Hal huay</th><th>Behaviour</th>' +
+          '<th>Kaam nimtaye</th><th>Reply time</th><th>Hal huay</th><th>Behaviour</th>' +
         '</tr></thead><tbody>' +
         agents.map(([name, a]) => {
           const solved = a.yes + a.no;
@@ -2595,6 +2690,9 @@ async function runStats() {
             '</td>' +
             '<td><b>' + (a.chats ? a.chats.size : 0) + '</b>' +
               '<br><span style="font-size:11px;color:var(--faint)">alag chats</span></td>' +
+            '<td><b style="color:' + ((a.closed || 0) ? 'var(--ok)' : 'var(--faint)') + '">' +
+              (a.closed || 0) + '</b>' +
+              '<br><span style="font-size:11px;color:var(--faint)">close kiye</span></td>' +
             '<td>' + (a.waits.length
               ? '<b style="color:' + waitColor(medianOf(a.waits)) + '">' + fmtDur(medianOf(a.waits)) + '</b>' +
                 '<br><span style="font-size:11px;color:var(--faint)">' + a.waits.length + ' replies</span>'
@@ -2609,7 +2707,7 @@ async function runStats() {
           '</tr>';
         }).join("") +
         '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies +
-        '</td><td></td><td></td><td></td><td></td><td></td></tr>' +
+        '</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>' +
         '</tbody></table>'
       : '<div class="empty" style="padding:14px 0">Is arse mein koi reply nahi.</div>') +
 
@@ -2891,11 +2989,21 @@ function teamLoad() {
   };
 
   const now = Date.now();
+  const dayStart = new Date(); dayStart.setHours(0,0,0,0);
 
   convos.forEach(c => {
     const who = c.assignedTo;
     if (!who) return;
-    if (c.status === "resolved") return;
+
+    // Aaj close ki gayi chats — ginti alag
+    if (c.status === "resolved") {
+      const ct = c.closedAt?.toMillis ? c.closedAt.toMillis() : 0;
+      if (ct >= dayStart.getTime() && c.closedBy) {
+        const cb = ensure(c.closedBy);
+        cb.closedToday = (cb.closedToday || 0) + 1;
+      }
+      return;
+    }
 
     const b = ensure(who);
     if (isMessenger(c)) b.msgrOpen++; else b.waOpen++;
@@ -2992,6 +3100,8 @@ function renderTeamPanel() {
           '<div class="tp-num"><b>' + b.waOpen + '</b><span>WhatsApp</span></div>' +
           '<div class="tp-num"><b>' + b.msgrOpen + '</b><span>Messenger</span></div>' +
           '<div class="tp-num"><b>' + (b.commentsToday || 0) + '</b><span>Comments</span></div>' +
+          '<div class="tp-num"><b style="color:' + ((b.closedToday || 0) ? 'var(--ok)' : 'var(--faint)') + '">' +
+            (b.closedToday || 0) + '</b><span>Nimtaye</span></div>' +
           '<div class="tp-num"><b style="color:' + (b.unread ? 'var(--brand1)' : 'var(--faint)') + '">' +
             b.unread + '</b><span>Unread</span></div>' +
         '</div>' +
@@ -3001,6 +3111,7 @@ function renderTeamPanel() {
     '<div class="tp-note">' +
       '<b>WhatsApp / Messenger</b> = abhi khuli hui chats jo is member ko assigned hain.<br>' +
       '<b>Comments</b> = pichhle 24 ghante mein handle kiye gaye comments.<br>' +
+      '<b>Nimtaye</b> = aaj kitni chats "Close" kin.<br>' +
       '<b>Unread</b> = un mein se jin ka jawab abhi nahi gaya.<br>' +
       'Online ka matlab: pichhle kuch minute mein dashboard khola hua tha.' +
     '</div>';
