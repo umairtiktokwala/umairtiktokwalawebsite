@@ -25,6 +25,10 @@ export const OFFTIME_ENABLED = true;
 // CHALU
 export const NIGHT_ENABLED = true;
 
+// Lunch aur namaz ka break (dopahar 1:30 se 2:30)
+// CHALU
+export const LUNCH_ENABLED = true;
+
 // Ek hi keyword ka jawab dobara bhejne se pehle itne minute ka wait
 // (taake student baar baar "fees" likhe to spam na ho)
 export const KEYWORD_COOLDOWN_MINUTES = 30;
@@ -158,9 +162,37 @@ export const NIGHT_MESSAGE =
   "Please send message again after 8:00 AM\n\n" +
   "_Auto Message_";
 
-// Ek hi banday ko off-time ka message dobara bhejne se pehle itne minute ka wait
-// (taake wo 10 message likhe to 10 baar wohi jawab na jaye)
+// ============================================================
+//  LUNCH / NAMAZ BREAK — dopahar 1:30 se 2:30
+//  Jumma ko NAHI chalta (us din namaz ka waqt lamba hota hai,
+//  aur waise bhi Jumeraat 4 baje se weekend off shuru ho jata hai).
+// ============================================================
+
+export const LUNCH_START_HOUR = 13;   // 1 baje
+export const LUNCH_START_MIN = 30;    // :30  ->  1:30 PM
+export const LUNCH_END_HOUR = 14;     // 2 baje
+export const LUNCH_END_MIN = 30;      // :30  ->  2:30 PM
+
+// Kaun se din — Hafta se Jumeraat (Jumma chhoR kar)
+// (0 = Itwar, 1 = Peer, 2 = Mangal, 3 = Budh, 4 = Jumeraat, 5 = Jumma, 6 = Hafta)
+export const LUNCH_DAYS = [6, 0, 1, 2, 3, 4];
+
+export const LUNCH_MESSAGE =
+  "*Off Time*\n\n" +
+  "1:30 PM to 2:30 PM \u2014 Lunch & Namaz break\n\n" +
+  "Please send message again after 2:30 PM\n\n" +
+  "_Auto Message_";
+
+// ============================================================
+//  COOLDOWN — ek hi banday ko dobara message bhejne se pehle
+//  itne minute ka wait. Har waqfay ka apna alag hai.
+// ============================================================
+
+// Raat aur weekend ke liye
 export const OFFTIME_COOLDOWN_MINUTES = 120;
+
+// Lunch break ke liye — break chhota hai, is liye kam
+export const LUNCH_COOLDOWN_MINUTES = 60;
 
 // ============================================================
 //  DATA CLEANUP

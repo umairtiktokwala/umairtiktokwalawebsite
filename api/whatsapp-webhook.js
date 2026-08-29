@@ -27,7 +27,15 @@ import {
   NIGHT_MESSAGE,
   OFFTIME_ENABLED,
   NIGHT_ENABLED,
+  LUNCH_ENABLED,
+  LUNCH_START_HOUR,
+  LUNCH_START_MIN,
+  LUNCH_END_HOUR,
+  LUNCH_END_MIN,
+  LUNCH_DAYS,
+  LUNCH_MESSAGE,
   OFFTIME_COOLDOWN_MINUTES,
+  LUNCH_COOLDOWN_MINUTES,
 } from "./_config.js";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
@@ -259,13 +267,22 @@ async function processWebhook(body) {
     // ---- Off time ka message ----
     // Working hours ke bahar ho to student ko bata dein.
     // Keyword replies phir bhi chalti rahengi (neeche).
-    const offMsg = OFFTIME_ENABLED ? offTimeMessage() : null;
-    if (offMsg) {
-      const lastOff = prev.lastOffTimeMsg?.toMillis ? prev.lastOffTimeMsg.toMillis() : 0;
-      const offCooldown = OFFTIME_COOLDOWN_MINUTES * 60 * 1000;
-      if (now.getTime() - lastOff > offCooldown) {
-        await sendText(from, offMsg, convoRef, "offtime", inboxNumberId);
-        await convoRef.set({ lastOffTimeMsg: now }, { merge: true });
+    const off = OFFTIME_ENABLED ? offTimeMessage() : null;
+    if (off) {
+      // Lunch ka apna cooldown aur apna record — raat/weekend se alag,
+      // taake ek doosre ko na rokein.
+      const isLunch = off.kind === "lunch";
+      const lastAt = isLunch
+        ? (prev.lastLunchMsg?.toMillis ? prev.lastLunchMsg.toMillis() : 0)
+        : (prev.lastOffTimeMsg?.toMillis ? prev.lastOffTimeMsg.toMillis() : 0);
+      const cooldownMins = isLunch ? LUNCH_COOLDOWN_MINUTES : OFFTIME_COOLDOWN_MINUTES;
+
+      if (now.getTime() - lastAt > cooldownMins * 60 * 1000) {
+        await sendText(from, off.msg, convoRef, "offtime", inboxNumberId);
+        await convoRef.set(
+          isLunch ? { lastLunchMsg: now } : { lastOffTimeMsg: now },
+          { merge: true }
+        );
       }
     }
 
@@ -304,12 +321,16 @@ function pakNow() {
 
 // ---- Abhi off time hai ya nahi ----
 // Off hai to jo message bhejna hai wo wapas karta hai, warna null.
+// Wapas karta hai: { msg, kind }  ya  null
+//   kind = "weekend" | "night" | "lunch"
+//   (kind se pata chalta hai kaun sa cooldown lagana hai)
 function offTimeMessage() {
   const now = pakNow();
   const day = now.getDay();     // 0 = Itwar ... 6 = Sanichar
   const hour = now.getHours();
+  const mins = hour * 60 + now.getMinutes();
 
-  // ---- Weekend: Jumeraat 4pm se Sanichar 8am tak ----
+  // ---- 1. Weekend: Jumeraat 4pm se Sanichar 8am tak ----
   const afterStart =
     day > WEEKEND_START_DAY ||
     (day === WEEKEND_START_DAY && hour >= WEEKEND_START_HOUR);
@@ -317,12 +338,21 @@ function offTimeMessage() {
     day < WEEKEND_END_DAY ||
     (day === WEEKEND_END_DAY && hour < WEEKEND_END_HOUR);
 
-  if (afterStart && beforeEnd) return WEEKEND_MESSAGE;
+  if (afterStart && beforeEnd) return { msg: WEEKEND_MESSAGE, kind: "weekend" };
 
-  // ---- Rozana: subha 8 se raat 11 ke bahar ----
-  // Ye alag switch se chalta hai — abhi band hai, sirf weekend wala chahiye.
+  // ---- 2. Raat: subha 8 se raat 11 ke bahar ----
   if (NIGHT_ENABLED && (hour < WORK_START_HOUR || hour >= WORK_END_HOUR)) {
-    return NIGHT_MESSAGE;
+    return { msg: NIGHT_MESSAGE, kind: "night" };
+  }
+
+  // ---- 3. Lunch aur namaz ka break ----
+  // Minute tak ka hisab, kyunke waqt 1:30 se 2:30 hai.
+  if (LUNCH_ENABLED && Array.isArray(LUNCH_DAYS) && LUNCH_DAYS.includes(day)) {
+    const lunchFrom = LUNCH_START_HOUR * 60 + LUNCH_START_MIN;
+    const lunchTo   = LUNCH_END_HOUR   * 60 + LUNCH_END_MIN;
+    if (mins >= lunchFrom && mins < lunchTo) {
+      return { msg: LUNCH_MESSAGE, kind: "lunch" };
+    }
   }
 
   return null;  // working time hai
