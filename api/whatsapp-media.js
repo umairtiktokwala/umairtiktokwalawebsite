@@ -43,7 +43,9 @@ export default async function handler(req, res) {
 
     if (!metaRes.ok) {
       const err = await metaRes.json().catch(() => ({}));
-      // 30 din purana media Meta delete kar deta hai
+      // 30 din purana / invalid media — browser ko keh dein ke ise
+      // 24 ghante yaad rakhe, taake har baar dobara Meta ko call na kare.
+      res.setHeader("Cache-Control", "private, max-age=86400");
       return res.status(404).json({
         error: err?.error?.message || "Media nahi mila (shayad 30 din purana hai)",
       });
