@@ -421,7 +421,14 @@
     padding:26px 20px;text-align:center;color:var(--faint);font-size:12px;
     background:var(--panel2);border-radius:9px;
   }
-  .media-fail{
+    .media-hold{
+    display:flex;align-items:center;gap:9px;padding:16px 14px;cursor:pointer;
+    background:var(--panel2,#f1f3f8);border:1px dashed #c8cede;border-radius:10px;
+    font-size:13px;color:#5b6178;min-width:200px;
+  }
+  .media-hold:hover{background:#e9edf6;border-color:#9aa6c4;}
+  .media-hold-icon{font-size:20px;}
+.media-fail{
     padding:16px;text-align:center;color:var(--warn);font-size:12px;
     background:rgba(180,83,9,.07);border-radius:9px;line-height:1.5;
   }
@@ -1719,26 +1726,47 @@ function renderBubble(msgId, m) {
       esc(m.text || "") + metaLine + '</div>';
   }
 
-  const src = m.mediaUrlDirect ? m.mediaUrlDirect : mediaUrl(m.mediaId);
+  // Messenger ki media seedha link hoti hai — foran dikha sakte hain.
+  // WhatsApp ki media (mediaId) sirf CLICK par load hoti hai, taake purani/expired
+  // media baar baar Meta ko call na kare (rate limit bachane ke liye).
+  const direct = !!m.mediaUrlDirect;
+  const src = direct ? m.mediaUrlDirect : mediaUrl(m.mediaId);
+  const nm = m.filename || "Document";
   let inner = "";
 
   if (m.type === "image" || m.type === "sticker") {
-    inner = '<img data-full="' + src + '" src="' + src + '" alt="Image" ' +
-      'onerror="this.outerHTML=\'<div class=&quot;media-fail&quot;>Image nahi mili &mdash; 30 din se purani ho sakti hai</div>\'">';
+    if (direct) {
+      inner = '<img data-full="' + src + '" src="' + src + '" alt="Image">';
+    } else {
+      // Click to load
+      inner = '<div class="media-hold" data-load="img" data-id="' + esc(m.mediaId) + '">' +
+        '<span class="media-hold-icon">&#128247;</span>' +
+        '<span>Image &mdash; dekhne ke liye click karein</span></div>';
+    }
   } else if (m.type === "video") {
-    inner = '<video controls preload="metadata" src="' + src + '"></video>';
+    if (direct) {
+      inner = '<video controls preload="none" src="' + src + '"></video>';
+    } else {
+      inner = '<div class="media-hold" data-load="video" data-id="' + esc(m.mediaId) + '">' +
+        '<span class="media-hold-icon">&#127909;</span>' +
+        '<span>Video &mdash; chalane ke liye click karein</span></div>';
+    }
   } else if (m.type === "audio") {
-    inner = '<div class="aud"><span style="font-size:17px">&#127908;</span>' +
-      '<audio controls preload="none" src="' + src + '"></audio></div>';
+    if (direct) {
+      inner = '<div class="aud"><span style="font-size:17px">&#127908;</span>' +
+        '<audio controls preload="none" src="' + src + '"></audio></div>';
+    } else {
+      inner = '<div class="media-hold" data-load="audio" data-id="' + esc(m.mediaId) + '">' +
+        '<span class="media-hold-icon">&#127908;</span>' +
+        '<span>Voice note &mdash; sunne ke liye click karein</span></div>';
+    }
   } else if (m.type === "document") {
-    const nm = m.filename || "Document";
-    const href = m.mediaUrlDirect
-      ? src
-      : src + '&download=1&name=' + encodeURIComponent(nm);
+    // Document sirf link hai — click par khulta hai, ab bhi koi auto-call nahi.
+    const href = direct ? src : src + '&download=1&name=' + encodeURIComponent(nm);
     inner = '<a class="doc-row" href="' + href + '" target="_blank" rel="noopener">' +
       '<span class="doc-icon">&#128196;</span>' +
       '<span><span class="doc-name">' + esc(nm) + '</span><br>' +
-      '<span class="doc-sub">Download</span></span></a>';
+      '<span class="doc-sub">Kholne ke liye click karein</span></span></a>';
   }
 
   const cap = m.text ? '<div class="cap">' + esc(m.text) + '</div>' : "";
@@ -1767,6 +1795,37 @@ function wireBubbles() {
 
   box.querySelectorAll("img[data-full]").forEach(img => {
     img.onclick = () => openLightbox('<img src="' + img.dataset.full + '">');
+  });
+
+  // Click-to-load WhatsApp media (rate limit bachane ke liye — sirf maang par load)
+  box.querySelectorAll(".media-hold").forEach(el => {
+    el.onclick = () => {
+      const kind = el.dataset.load;
+      const src = mediaUrl(el.dataset.id);
+      let node;
+      if (kind === "img") {
+        node = document.createElement("img");
+        node.src = src;
+        node.dataset.full = src;
+        node.alt = "Image";
+        node.onclick = () => openLightbox('<img src="' + src + '">');
+        node.onerror = () => {
+          el.innerHTML = '<span>Image nahi mili &mdash; 30 din se purani ho sakti hai</span>';
+          el.classList.add("media-fail");
+        };
+      } else if (kind === "video") {
+        node = document.createElement("video");
+        node.src = src;
+        node.controls = true;
+        node.autoplay = true;
+      } else if (kind === "audio") {
+        node = document.createElement("audio");
+        node.src = src;
+        node.controls = true;
+        node.autoplay = true;
+      }
+      if (node) el.replaceWith(node);
+    };
   });
 }
 
@@ -2036,35 +2095,9 @@ function send() {
     payload.file ? (payload.file.name + (text ? "\n" + text : "")) : text
   );
 
-  // Undo bar chalayen
-  let left = UNDO_SECONDS;
-  $("undoCount").textContent = left;
-  $("undoBar").classList.add("show");
-
-  const tick = setInterval(() => {
-    left--;
-    const el = $("undoCount");
-    if (el) el.textContent = left;
-    if (left <= 0) flushPending();
-  }, 1000);
-
-  pendingSend = { payload, bubble, tick };
-
-  $("undoBtn").onclick = () => {
-    if (!pendingSend) return;
-    clearInterval(pendingSend.tick);
-    if (pendingSend.bubble) pendingSend.bubble.remove();
-    // Wapas composer mein daal dein taake edit kar sakein
-    const ta2 = $("draft");
-    if (ta2 && pendingSend.payload.text) {
-      ta2.value = pendingSend.payload.text;
-      autoGrow(ta2);
-      ta2.focus();
-    }
-    if (pendingSend.payload.file) stageFile(pendingSend.payload.file);
-    pendingSend = null;
-    $("undoBar").classList.remove("show");
-  };
+  // Undo band — message foran bhej dein (koi intezar nahi)
+  pendingSend = { payload, bubble, tick: null };
+  flushPending();
 }
 
 function flushPending() {
