@@ -1131,6 +1131,7 @@ onAuthStateChanged(auth, async user=>{
   await loadContent(); await loadAnnouncements();
   BATCH=ME.batches[ME.batches.length-1]||null;
   render();
+  pushCourseStats().catch(()=>{});
 });
 
 async function refreshBatches(){
@@ -1202,6 +1203,7 @@ async function toggleDone(l, seconds){
     DONE.add(l.id);
     await dropLegacy(l);
   }
+  pushCourseStats().catch(()=>{});
 }
 
 /* Adhoora watch mehfooz karna — video chalte huay.
@@ -1219,6 +1221,7 @@ async function saveWatch(l, pct, seconds){
     PROG.set(l.id,{done:false,pct,seconds:seconds||0});
     WATCH_SAVED=pct;
     await dropLegacy(l);
+    pushCourseStats().catch(()=>{});
   }catch(e){}
 }
 
@@ -1797,6 +1800,35 @@ function allowedCourses(batch){
 }
 
 /* ===== COURSE render ===== */
+/* ===== COURSE STATS =====
+   Student ke progress ka khulasa us ke apne students/{uid} doc mein likha
+   jata hai: { pct, done, part, total }.
+   Wajah: admin panel pehle har student ke liye alag query bhejta tha —
+   1040 students = 1040 queries, har refresh par. Ab khulasa list ke saath
+   hi aa jata hai aur ek bhi extra query nahi jati.
+   Sirf tab likhta hai jab kuch waqai badla ho. */
+let LAST_STATS_SIG='';
+async function pushCourseStats(){
+  if(!ME || !LESSONS.length) return;
+  const mine=[];
+  (ME.enrollments||[]).forEach(e=>{ (e.courses||[]).forEach(c=>{
+    const cc=String(c).toLowerCase();
+    LESSONS.forEach(l=>{ if(l.batch===e.batch && l.course===cc) mine.push(l); });
+  }); });
+  if(!mine.length) return;
+  let done=0,part=0;
+  mine.forEach(l=>{
+    const p=progFor(l);
+    if(p&&p.done) done++;
+    else if(p&&Number(p.pct||0)>0) part++;
+  });
+  const stats={pct:Math.round(done/mine.length*100),done,part,total:mine.length};
+  const sig=stats.pct+'|'+done+'|'+part+'|'+mine.length;
+  if(sig===LAST_STATS_SIG) return;   // kuch nahi badla — likhne ki zaroorat nahi
+  LAST_STATS_SIG=sig;
+  try{ await updateDoc(doc(db,'students',ME.uid),{courseStats:stats,courseStatsAt:serverTimestamp()}); }catch(e){}
+}
+
 function render(){
   // announcements (for this batch or all)
   renderAnnouncements();

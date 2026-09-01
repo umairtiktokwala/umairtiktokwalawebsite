@@ -136,6 +136,17 @@ button{font-family:var(--body)}
 .stf-chip i{font-size:16px}
 .stf-chip .n{font-size:11.5px;opacity:.7;font-weight:700}
 .stf-sel{padding:9px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+
+/* ---------- % KE FILTER ---------- */
+.pctbar{display:flex;gap:7px;margin-bottom:18px;overflow-x:auto;padding-bottom:5px;-webkit-overflow-scrolling:touch}
+.pctbar::-webkit-scrollbar{height:5px}
+.pctbar::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.pchip{flex-shrink:0;padding:7px 13px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);cursor:pointer;font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap;transition:all .16s;display:inline-flex;align-items:center;gap:6px}
+.pchip:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.pchip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pchip .pn{font-family:var(--mono);font-size:11px;font-weight:700;opacity:.65}
+.pchip.zero{opacity:.45}
+.st-pct.na{color:var(--muted-2)}
 .stf-sel:focus{outline:none;border-color:var(--purple)}
 .stf-load{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border:1.5px solid var(--amber,#F79009);border-radius:99px;background:#FEF4E6;cursor:pointer;font-family:var(--body);font-size:13px;font-weight:700;color:#92400E;white-space:nowrap}
 .stf-load:disabled{opacity:.6;cursor:not-allowed}
@@ -161,6 +172,8 @@ button{font-family:var(--body)}
 .s-text{font-size:14px;color:var(--ink-2);line-height:1.6;background:var(--card-2);padding:12px 14px;border-radius:11px;margin-bottom:14px;white-space:pre-wrap}
 
 /* ---------- CONVERSATION THREAD ---------- */
+.s-rev{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.s-rev i{font-size:14px;color:var(--green)}
 .thread{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 .msg{max-width:80%;padding:11px 14px;border-radius:14px;font-size:13.5px;line-height:1.55}
 .msg .msg-who{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;opacity:.7}
@@ -438,6 +451,12 @@ button{font-family:var(--body)}
             <button class="stf-chip" data-stf="tiktok"><i class="ti ti-brand-tiktok"></i> TikTok</button>
             <button class="stf-chip" data-stf="earning"><i class="ti ti-cash"></i> Earning</button>
             <button class="stf-chip" data-stf="notask"><i class="ti ti-file-off"></i> No task yet</button>
+            <button class="stf-chip" data-stf="invested"><i class="ti ti-coins"></i> Investment added</button>
+            <button class="stf-chip" data-stf="noinvest"><i class="ti ti-coin-off"></i> No investment</button>
+
+            <select class="stf-sel" id="stBatch">
+              <option value="all">All batches</option>
+            </select>
 
             <select class="stf-sel" id="stSort">
               <option value="name">Sort: name</option>
@@ -451,6 +470,8 @@ button{font-family:var(--body)}
 
             <span class="stf-count" id="stCount"></span>
           </div>
+
+          <div class="pctbar" id="stPctBar"></div>
 
           <div class="list" id="stList"></div>
         </div>
@@ -575,7 +596,58 @@ function ytId(url){
 }
 
 let SUBS=[], EARNINGS=[], STUDENTS=[], ANN=[], LESSONS=[], VIEW='review', FILTER='pending', EARN_FILTER='pending', EARN_SEARCH='', EARN_PLATFORM='all', EARN_MONTH='all', SEARCH='';
-let ST_FILTER='all', ST_SORT='name', ST_PROG_ALL=false;
+let ST_FILTER='all', ST_SORT='name', ST_PROG_ALL=false, ST_BATCH='all', ST_PCT='all';
+/* Jo abhi login hai — har review aur message par is ka naam mehfooz hota hai.
+   Pehle sirf waqt likha jata tha, banda nahi. 10 bandon ki team mein
+   ye pata hi nahi chalta tha ke kis ne kaam kiya. */
+let MY_UID='', MY_NAME='';
+/* Kis kis student ne investment form bhara hai — sirf uid ka set.
+   Ek hi query, phir filter isi se chalta hai. */
+let INVESTED=new Set();
+
+/* Student ka progress % — pehle us ke apne record se (courseStats),
+   jo learn.html likhta hai. Wahan na mile to us waqt ki loaded value.
+   Dono na hon to null — yani "abhi maloom nahi".
+   null ko 0% dikhana ghalat hai: May-2026 walon ne course website se
+   pehle dekha tha, un ka 0% "nahi dekha" ka matlab nahi rakhta. */
+function stPct(s){
+  if(s.courseStats && typeof s.courseStats.pct==='number') return s.courseStats.pct;
+  if(typeof s._pct==='number') return s._pct;
+  return null;
+}
+
+/* 10-10 ke daaire */
+const PCT_BUCKETS=[
+  ['all',    'Everyone'],
+  ['unknown','Not known'],
+  ['b0',     '0%'],
+  ['b10',    '1-10%'],
+  ['b20',    '11-20%'],
+  ['b30',    '21-30%'],
+  ['b40',    '31-40%'],
+  ['b50',    '41-50%'],
+  ['b60',    '51-60%'],
+  ['b70',    '61-70%'],
+  ['b80',    '71-80%'],
+  ['b90',    '81-90%'],
+  ['b99',    '91-99%'],
+  ['b100',   '100%']
+];
+function pctBucket(p){
+  if(p===null) return 'unknown';
+  if(p<=0)   return 'b0';
+  if(p>=100) return 'b100';
+  if(p<=10)  return 'b10';
+  if(p<=20)  return 'b20';
+  if(p<=30)  return 'b30';
+  if(p<=40)  return 'b40';
+  if(p<=50)  return 'b50';
+  if(p<=60)  return 'b60';
+  if(p<=70)  return 'b70';
+  if(p<=80)  return 'b80';
+  if(p<=90)  return 'b90';
+  return 'b99';
+}
 const LESSONS_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=0&single=true&output=csv';
 
 /* Dollar rate — jab student ne PKR khali chhora ho to USD is rate se badla jata hai.
@@ -607,7 +679,10 @@ onAuthStateChanged(auth, async user=>{
   try{ const a=await getDoc(doc(db,'admins',user.uid)); isAdmin=a.exists(); }catch(e){}
   if(!isAdmin){ if(splash)splash.style.display='none'; await signOut(auth); $('go').disabled=false; $('go').textContent='Log in'; $('gate').style.display='flex'; return say('This account is not an admin.'); }
   const me=await getDoc(doc(db,'students',user.uid));
-  const nm=me.exists()?(me.data().name||'Admin'):'Admin';
+  let nm=me.exists()?(me.data().name||''):'';
+  if(!nm){ try{ const a=await getDoc(doc(db,'admins',user.uid)); nm=a.exists()?(a.data().name||''):''; }catch(e){} }
+  if(!nm) nm='Admin';
+  MY_NAME=nm; MY_UID=user.uid;
   $('whoName').textContent=nm; $('whoAv').textContent=(nm||'A').charAt(0).toUpperCase();
   if(splash)splash.style.display='none';
   $('gate').style.display='none'; $('panel').style.display='block';
@@ -625,6 +700,8 @@ async function loadAll(){
     const st=await getDocs(collection(db,'students'));
     st.forEach(d=>STUDENTS.push({uid:d.id,...d.data()}));
     try{ const an=await getDocs(collection(db,'announcements')); an.forEach(d=>ANN.push({id:d.id,...d.data()})); ANN.sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0)); }catch(e){}
+    // investments — sirf ye jaanne ke liye ke kis ne form bhara hai
+    try{ INVESTED=new Set(); const iv=await getDocs(collection(db,'investments')); iv.forEach(d=>{ const u=d.data().uid; if(u)INVESTED.add(u); }); }catch(e){ INVESTED=new Set(); }
   }catch(e){ $('subList').innerHTML='<div class="empty">Could not load data. Check Firestore rules.</div>'; return; }
   // lessons — poori list, learn.html jaisi hi ID ke saath
   try{
@@ -783,7 +860,8 @@ function subCard(s){
   let threadHTML='';
   if(s.text) threadHTML+=`<div class="msg student"><div class="msg-who">Student</div>${esc(s.text)}<div class="msg-time">${fmtDateTime(s.at?.seconds)}</div></div>`;
   thread.forEach(m=>{
-    threadHTML+=`<div class="msg ${m.from==='admin'?'admin':'student'}"><div class="msg-who">${m.from==='admin'?'You':'Student'}</div>${esc(m.text)}<div class="msg-time">${fmtDateTime(m.at?.seconds||m.at)}</div></div>`;
+    const who = m.from==='admin' ? (m.byName?esc(m.byName):'Team') : 'Student';
+    threadHTML+=`<div class="msg ${m.from==='admin'?'admin':'student'}"><div class="msg-who">${who}</div>${esc(m.text)}<div class="msg-time">${fmtDateTime(m.at?.seconds||m.at)}</div></div>`;
   });
 
   /* Approved hone ke baad bhi ustad message bhej sakta hai.
@@ -814,6 +892,7 @@ function subCard(s){
       <span class="chip ${esc(s.status)}">${chipTxt}</span>
     </div>
     ${s.link?`<a class="s-link" href="${esc(s.link)}" target="_blank" rel="noopener"><i class="ti ti-link"></i>${esc(s.link)}</a>`:''}
+    ${s.reviewedByName?`<div class="s-rev"><i class="ti ti-user-check"></i> Reviewed by ${esc(s.reviewedByName)}${s.reviewedAt?.seconds?' · '+fmtDateTime(s.reviewedAt.seconds):''}</div>`:''}
     <div class="thread">${threadHTML}</div>
     ${actions}
   </div>`;
@@ -831,10 +910,12 @@ async function decide(id,status,msg,btn){
   btn.disabled=true;
   const s=SUBS.find(x=>x.id===id); if(!s) return;
   const messages=Array.isArray(s.messages)?s.messages.slice():[];
-  if(msg) messages.push({from:'admin',text:msg,at:Math.floor(Date.now()/1000)});
+  if(msg) messages.push({from:'admin',by:MY_UID,byName:MY_NAME,text:msg,at:Math.floor(Date.now()/1000)});
   try{
-    await updateDoc(doc(db,'submissions',id),{status,messages,feedback:msg||s.feedback||'',reviewedAt:serverTimestamp()});
+    await updateDoc(doc(db,'submissions',id),{status,messages,feedback:msg||s.feedback||'',
+      reviewedAt:serverTimestamp(),reviewedBy:MY_UID,reviewedByName:MY_NAME});
     s.status=status; s.messages=messages; if(msg)s.feedback=msg;
+    s.reviewedBy=MY_UID; s.reviewedByName=MY_NAME;
     render();
   }catch(e){ btn.disabled=false; alert('Could not update. Try again.'); }
 }
@@ -844,12 +925,14 @@ async function sendMessage(id,msg,btn){
   btn.disabled=true;
   const s=SUBS.find(x=>x.id===id); if(!s) return;
   const messages=Array.isArray(s.messages)?s.messages.slice():[];
-  messages.push({from:'admin',text:msg,at:Math.floor(Date.now()/1000)});
+  messages.push({from:'admin',by:MY_UID,byName:MY_NAME,text:msg,at:Math.floor(Date.now()/1000)});
   try{
-    // keep status as 'rework' so the student sees it and can resubmit
+    // approved ko approved hi rehne do; baqi ko rework taake student dobara bhej sake
     const newStatus = s.status==='approved' ? 'approved' : 'rework';
-    await updateDoc(doc(db,'submissions',id),{messages,status:newStatus,feedback:msg,reviewedAt:serverTimestamp()});
+    await updateDoc(doc(db,'submissions',id),{messages,status:newStatus,feedback:msg,
+      reviewedAt:serverTimestamp(),reviewedBy:MY_UID,reviewedByName:MY_NAME});
     s.messages=messages; s.status=newStatus; s.feedback=msg;
+    s.reviewedBy=MY_UID; s.reviewedByName=MY_NAME;
     render();
   }catch(e){ btn.disabled=false; alert('Could not send. Try again.'); }
 }
@@ -862,12 +945,14 @@ function updateStudentBar(shown){
   const btn=$('stLoadProg');
   if(!btn) return;
 
-  const needsProgress = (ST_SORT==='lessons_high' || ST_SORT==='lessons_low');
-  const missing = STUDENTS.filter(s=>typeof s._pct!=='number').length;
+  /* Jin ka progress abhi maloom nahi — yani na courseStats bana hai
+     (student portal par aaya hi nahi) aur na is session mein load hua.
+     Button hamesha dikhta hai jab tak koi baqi ho, sirf sort ke waqt nahi. */
+  const missing = STUDENTS.filter(s=>stPct(s)===null).length;
 
-  if(needsProgress && missing>0 && !ST_PROG_ALL){
+  if(missing>0 && !ST_PROG_ALL){
     btn.style.display='inline-flex';
-    btn.innerHTML='<i class="ti ti-download"></i> Load progress for '+missing+' more';
+    btn.innerHTML='<i class="ti ti-download"></i> Load progress for '+missing+' unknown';
     btn.disabled=false;
   }else{
     btn.style.display='none';
@@ -883,6 +968,7 @@ document.querySelectorAll('[data-stf]').forEach(b=>{
 });
 
 $('stSort').onchange=()=>{ ST_SORT=$('stSort').value; renderStudents(); };
+$('stBatch').onchange=()=>{ ST_BATCH=$('stBatch').value; renderStudents(); };
 
 /**
  * Sab students ka progress ek saath laata hai.
@@ -891,7 +977,7 @@ $('stSort').onchange=()=>{ ST_SORT=$('stSort').value; renderStudents(); };
  */
 $('stLoadProg').onclick=async()=>{
   const btn=$('stLoadProg');
-  const pending=STUDENTS.filter(s=>typeof s._pct!=='number');
+  const pending=STUDENTS.filter(s=>stPct(s)===null);
 
   if(!pending.length){ ST_PROG_ALL=true; renderStudents(); return; }
 
@@ -937,18 +1023,31 @@ function renderStudents(){
     return (digits.length>=3&&num.includes(digits))||nm.includes(raw);
   });
 
-  // --- naye filters ---
+  // --- batch / course / task / investment ke filter ---
+  if(ST_BATCH!=='all')            list=list.filter(s=>(s.batches||[]).includes(ST_BATCH));
   if(ST_FILTER==='facebook')      list=list.filter(s=>studentCourses(s).includes('facebook'));
   else if(ST_FILTER==='tiktok')   list=list.filter(s=>studentCourses(s).includes('tiktok'));
   else if(ST_FILTER==='earning')  list=list.filter(s=>hasEarning(s.uid));
   else if(ST_FILTER==='notask')   list=list.filter(s=>!hasSubmitted(s.uid));
+  else if(ST_FILTER==='invested') list=list.filter(s=>INVESTED.has(s.uid));
+  else if(ST_FILTER==='noinvest') list=list.filter(s=>!INVESTED.has(s.uid));
+
+  // --- % ke daaire ki ginti — pct filter lagne SE PEHLE,
+  //     taake har pill par apni asal ginti likhi rahe ---
+  const counts={};
+  list.forEach(s=>{ const b=pctBucket(stPct(s)); counts[b]=(counts[b]||0)+1; });
+  counts.all=list.length;
+  paintPctBar(counts);
+
+  // --- ab % ka filter ---
+  if(ST_PCT!=='all') list=list.filter(s=>pctBucket(stPct(s))===ST_PCT);
 
   // --- sort ---
   if(ST_SORT==='lessons_high' || ST_SORT==='lessons_low'){
     const dir = ST_SORT==='lessons_high' ? -1 : 1;
     list=list.slice().sort((a,b)=>{
-      const av = typeof a._pct==='number' ? a._pct : -1;
-      const bv = typeof b._pct==='number' ? b._pct : -1;
+      const av = stPct(a)===null ? -1 : stPct(a);
+      const bv = stPct(b)===null ? -1 : stPct(b);
       if(av===bv) return String(a.name||'').localeCompare(String(b.name||''));
       return (av-bv)*dir;
     });
@@ -964,12 +1063,15 @@ function renderStudents(){
     const init=(s.name||s.number||'S').charAt(0).toUpperCase();
     const cs=studentCourses(s);
     const badges=cs.map(c=>c==='facebook'?'<span class="cbadge fb">FB</span>':(c==='tiktok'?'<span class="cbadge tt">TT</span>':'')).join('');
-    const pct=s._pct||0;
+    const p=stPct(s);
+    // maloom na ho to "—" — 0% dikhana ghalat tasveer deta hai
+    const bar = p===null ? 0 : p;
+    const lbl = p===null ? '<span class="st-pct na">—</span>' : `<span class="st-pct">${p}%</span>`;
     return `<div class="st ${s.suspended?'off':''}" data-open="${esc(s.uid)}">
       <div class="s-av">${esc(init)}</div>
       <div class="st-who"><div class="st-nm">${esc(s.name||'No name')}</div><div class="st-meta">${esc(s.number||'')}</div></div>
       <div class="st-badges">${badges||'<span class="cbadge">—</span>'}</div>
-      <div class="st-prog"><div class="st-bar"><div class="st-fill" style="width:${pct}%"></div></div><span class="st-pct">${pct}%</span></div>
+      <div class="st-prog"><div class="st-bar"><div class="st-fill" style="width:${bar}%"></div></div>${lbl}</div>
       <button class="sus ${s.suspended?'on':''}" data-sus="${esc(s.uid)}" data-now="${s.suspended?1:0}">${s.suspended?'Suspended':'Suspend'}</button>
     </div>`;
   }).join('');
@@ -977,13 +1079,26 @@ function renderStudents(){
   wrap.querySelectorAll('[data-sus]').forEach(b=>{ b.onclick=e=>{ e.stopPropagation(); const now=b.dataset.now==='1'; if(!now&&!confirm('Pause this student\'s access?'))return; toggleSuspend(b.dataset.sus,now,b); }; });
   wrap.querySelectorAll('[data-open]').forEach(el=>{ el.onclick=()=>openStudent(el.dataset.open); });
 
-  // compute progress % for each (async, updates bars)
-  list.forEach(s=>computeProgress(s));
+  /* Yahan pehle har student ke liye alag Firestore query jati thi —
+     1040 students = 1040 queries, har dafa jab ye tab khulta tha.
+     Ab pct student ke apne record (courseStats) se aata hai, jo
+     list ke saath hi ek query mein mil jata hai. Koi extra query nahi.
+     Jin ka courseStats abhi nahi bana (portal par aaye hi nahi),
+     un ke liye upar wala button hai. */
+}
+
+/* % ke filter pills — har ek par us ki ginti */
+function paintPctBar(counts){
+  const bar=$('stPctBar'); if(!bar) return;
+  bar.innerHTML=PCT_BUCKETS.map(([k,label])=>{
+    const n=counts[k]||0;
+    return `<button class="pchip ${k===ST_PCT?'on':''} ${n===0&&k!=='all'?'zero':''}" data-pct="${k}">${esc(label)} <span class="pn">${n}</span></button>`;
+  }).join('');
+  bar.querySelectorAll('[data-pct]').forEach(b=>{ b.onclick=()=>{ ST_PCT=b.dataset.pct; renderStudents(); }; });
 }
 
 /* Ek student ke poore progress docs ek Map mein.
-   Nayi ID (yt_xxx) aur purani ID (L5) dono is mein aati hain —
-   milane ka kaam lessonState karta hai. */
+   Nayi ID (yt_xxx) aur purani ID (L5) dono is mein aati hain. */
 async function fetchProgressMap(uid){
   const map=new Map();
   const snap=await getDocs(collection(db,'students',uid,'progress'));
@@ -995,25 +1110,22 @@ async function fetchProgressMap(uid){
 }
 
 /* Ek lesson ki haalat:
-   'done'  = poora dekha
-   'part'  = adhoora chhora (aur kitna)
-   'none'  = kabhi khola hi nahi */
+   'done' = poora dekha | 'part' = adhoora | 'none' = kabhi khola hi nahi */
 function lessonState(map,l){
   const p = map.get(l.id) || (l.legacyId?map.get(l.legacyId):null);
   if(!p) return {state:'none',pct:0};
   if(p.done) return {state:'done',pct:100};
-  const pct=Math.max(0,Math.min(99,Math.round(p.pct||0)));
-  // purane records mein pct nahi tha — un ko adhoora hi ginte hain
-  return {state:'part',pct};
+  return {state:'part',pct:Math.max(0,Math.min(99,Math.round(p.pct||0)))};
 }
 
+/* Sirf un students ke liye jin ka courseStats abhi nahi bana —
+   "Load progress" wala button ise chalata hai. */
 async function computeProgress(s, silent){
   if(s._pctDone) return;
   s._pctDone=true;
   try{
     const map=await fetchProgressMap(s.uid);
     s._prog=map;
-    // is student ke apne batch + course ke lessons
     const mine=[];
     (s.enrollments||[]).forEach(e=>{ (e.courses||[]).forEach(c=>{
       const cc=String(c).toLowerCase();
@@ -1021,9 +1133,9 @@ async function computeProgress(s, silent){
     }); });
     let done=0,part=0;
     mine.forEach(l=>{ const st=lessonState(map,l); if(st.state==='done')done++; else if(st.state==='part')part++; });
-    s._done=done; s._part=part; s._total=mine.length; s._none=mine.length-done-part;
+    s._done=done; s._part=part; s._total=mine.length;
     s._pct=mine.length?Math.min(100,Math.round(done/mine.length*100)):0;
-    if(!silent && VIEW==='students'){ const bar=document.querySelector(`[data-open="${s.uid}"] .st-fill`); const pc=document.querySelector(`[data-open="${s.uid}"] .st-pct`); if(bar)bar.style.width=s._pct+'%'; if(pc)pc.textContent=s._pct+'%'; }
+    if(!silent && VIEW==='students'){ const bar=document.querySelector(`[data-open="${s.uid}"] .st-fill`); const pc=document.querySelector(`[data-open="${s.uid}"] .st-pct`); if(bar)bar.style.width=s._pct+'%'; if(pc){pc.textContent=s._pct+'%';pc.classList.remove('na');} }
   }catch(e){ s._pctDone=false; }
 }
 
@@ -1222,12 +1334,26 @@ $('detModal').onclick=e=>{ if(e.target===$('detModal')) $('detModal').classList.
 
 /* ===== ANNOUNCEMENTS ===== */
 function buildBatchOptions(){
-  const sel=$('annScope'); if(!sel) return;
   const batches=new Set();
   STUDENTS.forEach(s=>(s.batches||[]).forEach(b=>batches.add(b)));
-  let html='<option value="all">Show to all students</option>';
-  Array.from(batches).sort().forEach(b=>{ html+=`<option value="${esc(b)}">Only ${esc(batchLabel(b))}</option>`; });
-  sel.innerHTML=html;
+  const sorted=Array.from(batches).sort();
+
+  // announcement ka scope
+  const sel=$('annScope');
+  if(sel){
+    let html='<option value="all">Show to all students</option>';
+    sorted.forEach(b=>{ html+=`<option value="${esc(b)}">Only ${esc(batchLabel(b))}</option>`; });
+    sel.innerHTML=html;
+  }
+
+  // Students tab ka batch filter
+  const bs=$('stBatch');
+  if(bs){
+    let h='<option value="all">All batches</option>';
+    sorted.forEach(b=>{ h+=`<option value="${esc(b)}">${esc(batchLabel(b))}</option>`; });
+    bs.innerHTML=h;
+    if(sorted.includes(ST_BATCH)) bs.value=ST_BATCH; else ST_BATCH='all';
+  }
 }
 
 $('annPost').onclick=async()=>{
