@@ -338,6 +338,24 @@
   .chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:5px;background:var(--panel2);color:var(--dim);margin:3px 4px 0 0;border:1px solid var(--line)}
   .placeholder{flex:1;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:14px}
 
+  /* ---------- Performance panel (button dabane par) ---------- */
+  .perf-box{margin-top:10px}
+  .perf-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:9px}
+  .perf-c{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:8px 6px;text-align:center}
+  .perf-c b{display:block;font-size:16px;font-weight:700;line-height:1.25}
+  .perf-c span{font-size:9.5px;color:var(--faint)}
+  .perf-c.ok b{color:var(--ok)}
+  .perf-c.half b{color:var(--warn)}
+  .perf-c.no b{color:var(--faint)}
+  .perf-pct{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .perf-bar{flex:1;height:7px;background:var(--panel2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+  .perf-fill{height:100%;background:linear-gradient(135deg,var(--brand1),var(--brand2))}
+  .perf-num{font-size:12px;font-weight:700;min-width:34px;text-align:right}
+  .perf-line{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .perf-line span:first-child{color:var(--faint)}
+  .perf-note{font-size:11.5px;color:var(--faint);background:var(--panel2);border:1px dashed var(--line);border-radius:var(--radius);padding:10px;text-align:center}
+  .perf-warn{font-size:11px;color:var(--warn);margin-top:7px;line-height:1.45}
+
   /* ---------- Modal ---------- */
   .modal-bg{
     position:fixed;inset:0;background:rgba(15,18,34,.4);z-index:100;
@@ -2214,6 +2232,19 @@ function renderInfo() {
   if (c.lastOpenedBy) rows += infoRow("Last opened by", c.lastOpenedBy);
   rows += infoRow("First message", c.createdAt ? fmtDate(c.createdAt) : "&mdash;", true);
 
+  /* Performance — sirf button dabane par load hota hai.
+     Har chat khulne par khud load karte to ek hi bande ki chat din mein
+     100 dafa khulne par 100 dafa data jata. Team ko zyadatar sirf jawab
+     dena hota hai; performance kabhi kabhaar chahiye. */
+  const perfBox = isMessenger(c)
+    ? ''
+    : '<div class="info-title" style="margin-top:22px">Performance</div>' +
+      '<div class="perf-box" id="perfBox">' +
+        (PERF_CACHE[c.id]
+          ? perfHTML(PERF_CACHE[c.id])
+          : '<button class="mini-btn" id="perfBtn" style="width:100%">Show course &amp; task record</button>') +
+      '</div>';
+
   const active = c.labels || [];
   const labelPicker =
     '<div class="info-title" style="margin-top:20px">Labels</div>' +
@@ -2240,7 +2271,7 @@ function renderInfo() {
       (isMessenger(c) ? 'Messenger &middot; Facebook Page' : '+' + esc(c.waNumber || c.id)) +
     '</div>' +
     '<div style="margin-top:14px">' + rows + '</div>' +
-    labelPicker + notesBox;
+    perfBox + labelPicker + notesBox;
 
   panel.querySelectorAll("[data-label]").forEach(el => {
     el.onclick = async () => {
@@ -2250,6 +2281,9 @@ function renderInfo() {
       try { await updateDoc(doc(db, "conversations", activeId), { labels: next }); } catch (e) {}
     };
   });
+
+  const pb = $("perfBtn");
+  if (pb) pb.onclick = () => loadPerf(c);
 
   renderNotes();
   const add = $("noteAdd");
@@ -2292,6 +2326,129 @@ function renderNotes() {
       try { await deleteDoc(doc(db, "conversations", activeId, "notes", b.dataset.note)); } catch (e) {}
     };
   });
+}
+
+/* ===== PERFORMANCE =====
+   Ek chat ka record ek dafa lene ke baad yaad rakha jata hai.
+   Wahi chat dobara khule to Firestore par dobara nahi jata.
+   Page refresh par cache khali ho jata hai — jo theek hai. */
+const PERF_CACHE = {};
+
+function perfHTML(p) {
+  if (p.notFound) {
+    return '<div class="perf-note">Is number ka koi student record nahi mila.</div>';
+  }
+  if (p.error) {
+    return '<div class="perf-note">Record load nahi hua. Dobara koshish karein.</div>' +
+      '<button class="mini-btn" id="perfBtn" style="width:100%;margin-top:7px">Try again</button>';
+  }
+
+  let out = "";
+
+  if (p.stats) {
+    const st = p.stats;
+    out +=
+      '<div class="perf-pct">' +
+        '<div class="perf-bar"><div class="perf-fill" style="width:' + (st.pct || 0) + '%"></div></div>' +
+        '<span class="perf-num">' + (st.pct || 0) + '%</span>' +
+      '</div>' +
+      '<div class="perf-grid">' +
+        '<div class="perf-c ok"><b>' + (st.done || 0) + '</b><span>Fully watched</span></div>' +
+        '<div class="perf-c half"><b>' + (st.part || 0) + '</b><span>Partly</span></div>' +
+        '<div class="perf-c no"><b>' + Math.max(0, (st.total || 0) - (st.done || 0) - (st.part || 0)) + '</b><span>Not opened</span></div>' +
+      '</div>';
+  } else {
+    out += '<div class="perf-note">Ye student abhi tak portal par nahi aaya.</div>';
+  }
+
+  out +=
+    '<div class="perf-line"><span>Tasks submitted</span><span>' + p.subTotal + '</span></div>' +
+    '<div class="perf-line"><span>Approved</span><span>' + p.subApproved + '</span></div>' +
+    '<div class="perf-line"><span>In review</span><span>' + p.subPending + '</span></div>' +
+    '<div class="perf-line"><span>Sent back</span><span>' + p.subRework + '</span></div>' +
+    '<div class="perf-line"><span>Time on portal</span><span>' + p.timeText + '</span></div>' +
+    '<div class="perf-line"><span>Active days</span><span>' + p.days + '</span></div>';
+
+  if (!p.subTotal) {
+    out += '<div class="perf-warn">Is student ne abhi tak koi task submit nahi kiya.</div>';
+  }
+  if (p.oldBatch) {
+    out += '<div class="perf-warn">Note: ye May-2026 batch mein bhi hai. Us batch ne course website banne se pehle dekha tha, is liye 0% ka matlab "nahi dekha" nahi.</div>';
+  }
+  return out;
+}
+
+function fmtMins(sec) {
+  const m = Math.round((sec || 0) / 60);
+  if (m < 60) return m + "m";
+  const h = Math.floor(m / 60), r = m % 60;
+  return h + "h" + (r ? " " + r + "m" : "");
+}
+
+async function loadPerf(c) {
+  const box = $("perfBox");
+  if (box) box.innerHTML = '<div class="perf-note">Loading&hellip;</div>';
+  const convoId = c.id;
+
+  const p = { subTotal: 0, subApproved: 0, subPending: 0, subRework: 0, timeText: "0m", days: 0, stats: null };
+
+  try {
+    // number se student ka record — usi mein courseStats bhi aa jata hai
+    const digits = String(c.waNumber || c.id).replace(/\D/g, "");
+    const tries = [digits];
+    if (digits.length >= 10) {
+      const last10 = digits.slice(-10);
+      if (!tries.includes("92" + last10)) tries.push("92" + last10);
+      if (!tries.includes("0" + last10)) tries.push("0" + last10);
+    }
+
+    let sdoc = null;
+    for (const n of tries) {
+      const snap = await getDocs(query(collection(db, "students"), where("number", "==", n), limit(1)));
+      if (!snap.empty) { sdoc = snap.docs[0]; break; }
+    }
+
+    if (!sdoc) {
+      p.notFound = true;
+      PERF_CACHE[convoId] = p;
+      if (activeId === convoId && $("perfBox")) $("perfBox").innerHTML = perfHTML(p);
+      return;
+    }
+
+    const sd = sdoc.data() || {};
+    p.uid = sdoc.id;
+    if (sd.courseStats && typeof sd.courseStats.pct === "number") p.stats = sd.courseStats;
+    p.oldBatch = (sd.batches || []).some(b => String(b).indexOf("May") === 0);
+
+    // tasks
+    const subs = await getDocs(query(collection(db, "submissions"), where("uid", "==", p.uid)));
+    subs.forEach(d => {
+      const st = (d.data() || {}).status;
+      p.subTotal++;
+      if (st === "approved") p.subApproved++;
+      else if (st === "pending") p.subPending++;
+      else p.subRework++;
+    });
+
+    // portal par guzara waqt
+    try {
+      const ds = await getDocs(collection(db, "students", p.uid, "days"));
+      let total = 0;
+      ds.forEach(d => { const sec = (d.data() || {}).seconds || 0; total += sec; if (sec > 0) p.days++; });
+      p.timeText = fmtMins(total);
+    } catch (e) {}
+
+  } catch (e) {
+    p.error = true;
+  }
+
+  PERF_CACHE[convoId] = p;
+  // chat badal gayi ho to kuch mat karo
+  if (activeId === convoId && $("perfBox")) {
+    $("perfBox").innerHTML = perfHTML(p);
+    const again = $("perfBtn");
+    if (again) again.onclick = () => { delete PERF_CACHE[convoId]; loadPerf(c); };
+  }
 }
 
 function infoRow(label, value, raw) {
