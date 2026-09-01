@@ -353,9 +353,11 @@ button{font-family:var(--body)}
 <div id="denied">
   <div class="denied-box">
     <div class="denied-ic"><i class="ti ti-wallet"></i></div>
-    <h2>PayPal Service</h2>
+    <h2 id="deniedTitle">PayPal Service</h2>
     <p id="deniedMsg">This service is not active on your account yet.</p>
 
+    <!-- Shown when the service is genuinely not active for this student -->
+    <div id="deniedInfo">
     <div class="feat-list">
       <div class="feat">
         <span class="feat-ic"><i class="ti ti-users"></i></span>
@@ -402,6 +404,46 @@ button{font-family:var(--body)}
       </a>
       <a class="db" href="learn.html">Learning Portal</a>
     </div>
+    </div>
+
+    <!-- Shown to a PayPal Service student whose finance record is still being created -->
+    <div id="setupInfo" style="display:none">
+      <p class="denied-cta">Meanwhile, please keep these ready so your payments are never delayed:</p>
+
+      <div class="feat-list">
+        <div class="feat">
+          <span class="feat-ic"><i class="ti ti-user"></i></span>
+          <div>
+            <b>Your full name and city</b>
+            Add these from the Profile section as soon as you are in.
+          </div>
+        </div>
+        <div class="feat">
+          <span class="feat-ic"><i class="ti ti-camera"></i></span>
+          <div>
+            <b>Your profile picture</b>
+            A clear photo of yourself, also from the Profile section.
+          </div>
+        </div>
+        <div class="feat">
+          <span class="feat-ic"><i class="ti ti-building-bank"></i></span>
+          <div>
+            <b>Your bank or wallet account details</b>
+            Bank account, JazzCash or EasyPaisa — added from Payment Methods.
+          </div>
+        </div>
+      </div>
+
+      <p class="denied-cta">This page checks again by itself, so you can simply wait here. If it has been more than 15 minutes and you still see this message, contact us on WhatsApp.</p>
+
+      <div class="denied-btns">
+        <a class="db solid" id="setupWa" href="#" target="_blank" rel="noopener">
+          <i class="ti ti-brand-whatsapp"></i> Talk to us on WhatsApp
+        </a>
+        <a class="db" href="learn.html">Learning Portal</a>
+      </div>
+    </div>
+
     <div class="denied-small">
       <button id="deniedRetry">Check again</button>
       <span>·</span>
@@ -779,7 +821,8 @@ function clearSheetMsg(id){ $(id).className='smsg'; }
 let SECTION='overview', PENDING_NUM='';
 
 $('sideWa').href = WHATSAPP;
-$('deniedWa').href = WHATSAPP
+$('deniedWa').href = WHATSAPP;
+$('setupWa').href  = WHATSAPP
   + '?text=' + encodeURIComponent('Assalam o Alaikum, mujhe PayPal Service ke baare mein maloomat chahiye.');
 
 /* ===== number -> email ===== */
@@ -859,19 +902,57 @@ $('deniedRetry').onclick=async()=>{
 
 /* ===== screens ===== */
 function showAuth(){
+  stopSetupWatch();
+  SETUP_TRIES=0;
   $('splash').style.display='none';
   $('auth').style.display='grid';
   $('app').style.display='none';
   $('denied').style.display='none';
 }
-function showDenied(msg){
+/* Automatic re-check while a new account is being created.
+   Runs every 45 seconds, up to 20 times (about 15 minutes),
+   then stops so the page never loops forever. */
+let SETUP_TIMER=null, SETUP_TRIES=0;
+
+function stopSetupWatch(){
+  if(SETUP_TIMER){ clearTimeout(SETUP_TIMER); SETUP_TIMER=null; }
+}
+function startSetupWatch(){
+  stopSetupWatch();
+  if(SETUP_TRIES>=20) return;
+  SETUP_TIMER=setTimeout(async()=>{
+    SETUP_TIMER=null;
+    SETUP_TRIES++;
+    if(auth.currentUser) await boot(auth.currentUser);
+  },45000);
+}
+
+/* mode 'setup' = record is still being created.
+   Anything else = the service is genuinely not active. */
+function showDenied(msg, mode){
+  const setup = mode==='setup';
+
   $('splash').style.display='none';
   $('auth').style.display='none';
   $('app').style.display='none';
   $('denied').style.display='flex';
-  if(msg) $('deniedMsg').textContent=msg;
+
+  $('deniedInfo').style.display = setup ? 'none' : '';
+  $('setupInfo').style.display  = setup ? '' : 'none';
+  $('deniedTitle').textContent  = setup ? 'Setting up your account' : 'PayPal Service';
+
+  if(setup){
+    $('deniedMsg').textContent =
+      'Your signup is complete and your finance account is being prepared. This usually takes about 5 minutes.';
+    startSetupWatch();
+  }else{
+    stopSetupWatch();
+    if(msg) $('deniedMsg').textContent=msg;
+  }
 }
 function showApp(){
+  stopSetupWatch();
+  SETUP_TRIES=0;
   $('splash').style.display='none';
   $('auth').style.display='none';
   $('denied').style.display='none';
@@ -1595,10 +1676,19 @@ async function boot(user){
     joinedText: joined
   };
 
+  /* Only a PayPal Service student can ever be activated automatically,
+     so only they are told their record is still being prepared. */
+  const batchText = Array.isArray(d.batches)
+    ? d.batches.join(', ')
+    : String(d.batches || '');
+  const isServiceStudent = /paypal/i.test(batchText);
+
   ACCESS = await checkFinanceAccess(user.uid);
   if(!ACCESS.ok){
     if(ACCESS.reason==='error'){
       showDenied('We could not check your access just now. Please check your connection and tap "Check again" below.');
+    }else if(ACCESS.reason==='none' && isServiceStudent){
+      showDenied('', 'setup');
     }else{
       showDenied('This service is not active on your account yet.');
     }
