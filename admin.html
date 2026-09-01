@@ -277,6 +277,40 @@ button{font-family:var(--body)}
 .inv-r-d{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
 .inv-r-a{font-family:var(--display);font-weight:800;font-size:15px;white-space:nowrap}
 .inv-none{font-size:12.5px;color:var(--muted);background:var(--card-2);border:1px dashed var(--line);border-radius:12px;padding:16px;text-align:center;margin-bottom:20px}
+
+/* ---------- WATCH BREAKDOWN (student modal) ---------- */
+.wsum{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.wsum-c{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;text-align:center}
+.wsum-c b{display:block;font-family:var(--display);font-size:19px;line-height:1.2}
+.wsum-c span{font-size:10.5px;color:var(--muted)}
+.wsum-c.ok b{color:var(--green)}
+.wsum-c.half b{color:var(--amber)}
+.wsum-c.no b{color:var(--muted-2)}
+
+.wmod{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden}
+.wmod-h{padding:11px 13px;background:var(--card-2);display:flex;align-items:center;gap:9px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.wmod-h .wmod-c{margin-left:auto;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--muted)}
+.wmod-b{display:none}
+.wmod.open .wmod-b{display:block}
+.wles{padding:9px 13px;display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);font-size:12.5px}
+.wles-t{flex:1;min-width:0;color:var(--ink-2)}
+.wles-s{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.wles-s.done{background:var(--soft-green);color:var(--green)}
+.wles-s.part{background:var(--soft-amber);color:#B45309}
+.wles-s.none{background:var(--card-2);color:var(--muted-2)}
+.wles.none .wles-t{color:var(--muted-2)}
+
+/* ---------- STUDENT'S TASKS (modal) ---------- */
+.dsub{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px}
+.dsub-h{display:flex;align-items:center;gap:9px;margin-bottom:7px;flex-wrap:wrap}
+.dsub-m{font-size:12px;font-weight:700;color:var(--ink-2)}
+.dsub-st{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:99px;margin-left:auto}
+.dsub-st.approved{background:var(--soft-green);color:var(--green)}
+.dsub-st.pending{background:var(--soft-amber);color:#B45309}
+.dsub-st.rework{background:var(--soft-pink);color:var(--pink)}
+.dsub-l{font-size:11.5px;word-break:break-all}
+.dsub-l a{color:var(--blue);text-decoration:underline}
+.dsub-d{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:5px}
 @media(max-width:560px){.inv-money{grid-template-columns:1fr}}
 
 </style>
@@ -474,7 +508,13 @@ button{font-family:var(--body)}
       <div class="inv-h"><i class="ti ti-coins"></i> Investments <span class="inv-since" id="dInvSince"></span></div>
       <div class="inv-rows" id="dInvList"></div>
 
-      <div id="dCourses"></div>
+      <div class="inv-h"><i class="ti ti-checklist"></i> Task submissions <span class="inv-since" id="dSubCount"></span></div>
+      <div id="dSubs"></div>
+
+      <div class="inv-h"><i class="ti ti-player-play"></i> Lesson by lesson <span class="inv-since" id="dLesSince"></span></div>
+      <div class="wsum" id="dWatchSum"></div>
+      <div id="dLessons"></div>
+
     </div>
   </div>
 </div>
@@ -514,6 +554,25 @@ function batchLabel(b){ const s=String(b||'').trim(); const m=s.match(/^([A-Za-z
 function fmtTime(sec){ const m=Math.round((sec||0)/60); if(m<60)return m+'m'; const h=Math.floor(m/60),r=m%60; return h+'h'+(r?' '+r+'m':''); }
 function fmtDate(sec){ if(!sec)return''; return new Date(sec*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 function fmtDateTime(sec){ if(!sec)return''; return new Date(sec*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+new Date(sec*1000).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+
+/* CSV ko theek se parhna — quotes ke andar comma ho to row nahi tootti.
+   Pehle yahan seedha split(',') tha, jo "Download, Edit & Post Videos"
+   jaise title par bikhar jata tha. */
+function parseCSV(text){
+  const rows=[]; let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else{ if(c==='"')q=true; else if(c===','){row.push(cell);cell='';} else if(c==='\n'){row.push(cell);rows.push(row);row=[];cell='';} else if(c!=='\r')cell+=c; }
+  }
+  if(cell||row.length){row.push(cell);rows.push(row);}
+  return rows;
+}
+/* YouTube URL se video ki ID — lesson ID isi se banti hai */
+function ytId(url){
+  const m=String(url||'').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  return m?m[1]:'';
+}
 
 let SUBS=[], EARNINGS=[], STUDENTS=[], ANN=[], LESSONS=[], VIEW='review', FILTER='pending', EARN_FILTER='pending', EARN_SEARCH='', EARN_PLATFORM='all', EARN_MONTH='all', SEARCH='';
 let ST_FILTER='all', ST_SORT='name', ST_PROG_ALL=false;
@@ -567,11 +626,22 @@ async function loadAll(){
     st.forEach(d=>STUDENTS.push({uid:d.id,...d.data()}));
     try{ const an=await getDocs(collection(db,'announcements')); an.forEach(d=>ANN.push({id:d.id,...d.data()})); ANN.sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0)); }catch(e){}
   }catch(e){ $('subList').innerHTML='<div class="empty">Could not load data. Check Firestore rules.</div>'; return; }
-  // lessons (to compute progress totals per batch/course)
+  // lessons — poori list, learn.html jaisi hi ID ke saath
   try{
-    const rows=(await (await fetch(LESSONS_CSV)).text()).split('\n');
-    // lightweight parse: batch,course,module,title,url,order
-    LESSONS=rows.slice(1).map(line=>{ const c=line.split(','); return {batch:(c[0]||'').trim(),course:(c[1]||'').trim().toLowerCase()}; }).filter(l=>l.batch&&l.course);
+    const rows=parseCSV(await (await fetch(LESSONS_CSV)).text()).slice(1);
+    const seen={};
+    LESSONS=rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
+      .map((r,i)=>{
+        const url=(r[4]||'').trim();
+        const vid=ytId(url);
+        let id;
+        if(vid){ seen[vid]=(seen[vid]||0)+1; id='yt_'+vid+(seen[vid]>1?'_'+seen[vid]:''); }
+        else { id='L'+(i+1); }
+        return {batch:(r[0]||'').trim(),course:(r[1]||'').trim().toLowerCase(),
+          module:(r[2]||'').trim()||'Lessons',title:(r[3]||'').trim(),url,
+          order:parseInt(r[5])||(i+1),id,legacyId:'L'+(i+1)};
+      })
+      .sort((a,b)=>a.order-b.order);
   }catch(e){ LESSONS=[]; }
   buildBatchOptions();
   render();
@@ -716,8 +786,17 @@ function subCard(s){
     threadHTML+=`<div class="msg ${m.from==='admin'?'admin':'student'}"><div class="msg-who">${m.from==='admin'?'You':'Student'}</div>${esc(m.text)}<div class="msg-time">${fmtDateTime(m.at?.seconds||m.at)}</div></div>`;
   });
 
+  /* Approved hone ke baad bhi ustad message bhej sakta hai.
+     Ye status ko approved hi rehne deta hai (sendMessage dekhein),
+     aur student ke portal par alert ban jata hai. */
   const actions = s.status==='approved'
-    ? `<div class="s-btns"><span class="chip approved"><i class="ti ti-circle-check"></i> Approved</span></div>`
+    ? `<div class="s-act">
+        <div class="s-btns" style="margin-bottom:2px"><span class="chip approved"><i class="ti ti-circle-check"></i> Approved</span></div>
+        <textarea placeholder="Send another message to this student…" data-fb="${esc(s.id)}"></textarea>
+        <div class="s-btns">
+          <button class="msgbtn" data-msg="${esc(s.id)}"><i class="ti ti-send"></i> Send message</button>
+        </div>
+      </div>`
     : `<div class="s-act">
         <textarea placeholder="Write a message to the student…" data-fb="${esc(s.id)}"></textarea>
         <div class="s-btns">
@@ -832,9 +911,6 @@ $('stLoadProg').onclick=async()=>{
 };
 
 /* ===== STUDENTS ===== */
-// lessons count per batch+course (for progress %)
-function lessonsFor(batch,course){ return LESSONS.filter(l=>l.batch===batch && l.course===course).length; }
-
 function studentCourses(s){
   const cs=new Set();
   (s.enrollments||[]).forEach(e=>(e.courses||[]).forEach(c=>cs.add(String(c).toLowerCase())));
@@ -905,17 +981,48 @@ function renderStudents(){
   list.forEach(s=>computeProgress(s));
 }
 
+/* Ek student ke poore progress docs ek Map mein.
+   Nayi ID (yt_xxx) aur purani ID (L5) dono is mein aati hain —
+   milane ka kaam lessonState karta hai. */
+async function fetchProgressMap(uid){
+  const map=new Map();
+  const snap=await getDocs(collection(db,'students',uid,'progress'));
+  snap.forEach(d=>{
+    const v=d.data()||{};
+    map.set(d.id,{done:!!v.done, pct:Number(v.pct||0), seconds:Number(v.seconds||0)});
+  });
+  return map;
+}
+
+/* Ek lesson ki haalat:
+   'done'  = poora dekha
+   'part'  = adhoora chhora (aur kitna)
+   'none'  = kabhi khola hi nahi */
+function lessonState(map,l){
+  const p = map.get(l.id) || (l.legacyId?map.get(l.legacyId):null);
+  if(!p) return {state:'none',pct:0};
+  if(p.done) return {state:'done',pct:100};
+  const pct=Math.max(0,Math.min(99,Math.round(p.pct||0)));
+  // purane records mein pct nahi tha — un ko adhoora hi ginte hain
+  return {state:'part',pct};
+}
+
 async function computeProgress(s, silent){
   if(s._pctDone) return;
   s._pctDone=true;
   try{
-    const snap=await getDocs(collection(db,'students',s.uid,'progress'));
-    const done=snap.size;
-    // total lessons across this student's enrolled batch+course
-    let total=0;
-    (s.enrollments||[]).forEach(e=>{ (e.courses||[]).forEach(c=>{ total+=lessonsFor(e.batch,String(c).toLowerCase()); }); });
-    s._done=done; s._total=total;
-    s._pct=total?Math.min(100,Math.round(done/total*100)):0;
+    const map=await fetchProgressMap(s.uid);
+    s._prog=map;
+    // is student ke apne batch + course ke lessons
+    const mine=[];
+    (s.enrollments||[]).forEach(e=>{ (e.courses||[]).forEach(c=>{
+      const cc=String(c).toLowerCase();
+      LESSONS.forEach(l=>{ if(l.batch===e.batch && l.course===cc) mine.push(l); });
+    }); });
+    let done=0,part=0;
+    mine.forEach(l=>{ const st=lessonState(map,l); if(st.state==='done')done++; else if(st.state==='part')part++; });
+    s._done=done; s._part=part; s._total=mine.length; s._none=mine.length-done-part;
+    s._pct=mine.length?Math.min(100,Math.round(done/mine.length*100)):0;
     if(!silent && VIEW==='students'){ const bar=document.querySelector(`[data-open="${s.uid}"] .st-fill`); const pc=document.querySelector(`[data-open="${s.uid}"] .st-pct`); if(bar)bar.style.width=s._pct+'%'; if(pc)pc.textContent=s._pct+'%'; }
   }catch(e){ s._pctDone=false; }
 }
@@ -934,40 +1041,106 @@ async function openStudent(uid){
   $('dAv').textContent=(s.name||s.number||'S').charAt(0).toUpperCase();
   $('dName').textContent=s.name||'No name';
   $('dNum').textContent=s.number||'';
-  $('dTime').textContent='…'; $('dDays').textContent='…'; $('dCourses').innerHTML='';
+  $('dTime').textContent='…'; $('dDays').textContent='…';
   $('dInvested').textContent='…'; $('dEarnedPkr').textContent='…'; $('dProfit').textContent='…';
   $('dProfit').className='det-n'; $('dInvSince').textContent='';
   $('dInvList').innerHTML='<div class="inv-none">Loading…</div>';
+  $('dSubs').innerHTML='<div class="inv-none">Loading…</div>'; $('dSubCount').textContent='';
+  $('dWatchSum').innerHTML=''; $('dLessons').innerHTML='<div class="inv-none">Loading…</div>'; $('dLesSince').textContent='';
   $('detModal').classList.add('open');
   loadStudentInvestments(uid);
+  renderStudentSubs(s);
   // load time + progress
-  let totalSec=0, days=0, doneSet=new Set();
+  let totalSec=0, days=0;
+  let pmap=null;
   try{
     const dsnap=await getDocs(collection(db,'students',uid,'days'));
     dsnap.forEach(d=>{ const sec=d.data().seconds||0; totalSec+=sec; if(sec>0)days++; });
-    const psnap=await getDocs(collection(db,'students',uid,'progress'));
-    psnap.forEach(d=>doneSet.add(d.id));
+    pmap=await fetchProgressMap(uid);
+    s._prog=pmap;
   }catch(e){}
+  if(OPEN_UID!==uid) return;   // beech mein doosra student khul gaya
   $('dTime').textContent=fmtTime(totalSec);
   $('dDays').textContent=days;
-  // per course progress
-  const enr=s.enrollments||[];
-  let html='';
-  enr.forEach(e=>{
-    (e.courses||[]).forEach(c=>{
-      c=String(c).toLowerCase();
-      const total=lessonsFor(e.batch,c);
-      // we can't cheaply know which done-ids belong to which course, so show overall done vs this course total
-      const pct=total?Math.min(100,Math.round(doneSet.size/Math.max(total,doneSet.size)*100)):0;
-      const badge=c==='facebook'?'<span class="cbadge fb">Facebook</span>':'<span class="cbadge tt">TikTok</span>';
-      html+=`<div class="det-course">
-        <h4><i class="ti ti-book-2"></i> ${esc(batchLabel(e.batch))} ${badge}</h4>
-        <div class="det-pbar"><div class="det-pfill" style="width:${pct}%"></div></div>
-        <div class="det-psub">${doneSet.size} lessons completed · ${total} total in this course</div>
-      </div>`;
-    });
+  renderStudentLessons(s,pmap);
+}
+
+/* ===== STUDENT KE TASKS (modal mein) ===== */
+function renderStudentSubs(s){
+  const mine=SUBS.filter(x=>x.uid===s.uid)
+    .sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0));
+  const box=$('dSubs');
+  if(!mine.length){
+    $('dSubCount').textContent='';
+    box.innerHTML='<div class="inv-none">This student has not submitted any task yet.</div>';
+    return;
+  }
+  $('dSubCount').textContent=mine.length+(mine.length===1?' task':' tasks');
+  box.innerHTML=mine.map(x=>{
+    const st=x.status==='approved'?'approved':(x.status==='pending'?'pending':'rework');
+    const lbl=st==='approved'?'Approved':(st==='pending'?'In review':'Sent back');
+    const msgs=Array.isArray(x.messages)?x.messages.length:0;
+    return `<div class="dsub">
+      <div class="dsub-h">
+        <span class="dsub-m">${esc(courseName(x.course))} · ${esc(x.module||'')}</span>
+        <span class="dsub-st ${st}">${lbl}</span>
+      </div>
+      ${x.link?`<div class="dsub-l"><a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.link)}</a></div>`:'<div class="dsub-l">No link — text only</div>'}
+      <div class="dsub-d">${fmtDateTime(x.at?.seconds)}${msgs?' · '+msgs+(msgs===1?' message':' messages'):''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== LESSON BY LESSON (modal mein) =====
+   Teen haalat: poora dekha / adhoora chhora / kabhi khola hi nahi */
+function renderStudentLessons(s,pmap){
+  const box=$('dLessons'), sum=$('dWatchSum');
+  if(!pmap){ sum.innerHTML=''; box.innerHTML='<div class="inv-none">Could not load progress.</div>'; return; }
+  if(!LESSONS.length){ sum.innerHTML=''; box.innerHTML='<div class="inv-none">Lesson list not loaded. Check the lessons sheet.</div>'; return; }
+
+  // sirf wahi lessons jo is student ke batch + course ke hain
+  const mine=[];
+  (s.enrollments||[]).forEach(e=>{ (e.courses||[]).forEach(c=>{
+    const cc=String(c).toLowerCase();
+    LESSONS.forEach(l=>{ if(l.batch===e.batch && l.course===cc) mine.push(l); });
+  }); });
+
+  if(!mine.length){ sum.innerHTML=''; box.innerHTML='<div class="inv-none">No lessons found for this student\'s batch and course.</div>'; return; }
+
+  let nDone=0,nPart=0,nNone=0;
+  const mods={};
+  mine.forEach(l=>{
+    const st=lessonState(pmap,l);
+    if(st.state==='done')nDone++; else if(st.state==='part')nPart++; else nNone++;
+    const key=courseName(l.course)+' · '+l.module;
+    (mods[key]=mods[key]||[]).push({l,st});
   });
-  $('dCourses').innerHTML=html||'<div class="det-psub">No course info.</div>';
+
+  sum.innerHTML=`
+    <div class="wsum-c ok"><b>${nDone}</b><span>Fully watched</span></div>
+    <div class="wsum-c half"><b>${nPart}</b><span>Partly watched</span></div>
+    <div class="wsum-c no"><b>${nNone}</b><span>Never opened</span></div>`;
+  $('dLesSince').textContent=mine.length+' lessons';
+
+  const names=Object.keys(mods).sort((a,b)=>{
+    const oa=Math.min(...mods[a].map(x=>x.l.order||9999));
+    const ob=Math.min(...mods[b].map(x=>x.l.order||9999));
+    return oa-ob;
+  });
+  box.innerHTML=names.map(m=>{
+    const rows=mods[m].sort((a,b)=>(a.l.order||0)-(b.l.order||0));
+    const d=rows.filter(x=>x.st.state==='done').length;
+    return `<div class="wmod">
+      <div class="wmod-h"><i class="ti ti-folder"></i> ${esc(m)}<span class="wmod-c">${d}/${rows.length}</span></div>
+      <div class="wmod-b">${rows.map(x=>{
+        const tag=x.st.state==='done'?'<span class="wles-s done">100%</span>'
+                 :(x.st.state==='part'?`<span class="wles-s part">${x.st.pct}%</span>`
+                 :'<span class="wles-s none">Not opened</span>');
+        return `<div class="wles ${x.st.state}"><span class="wles-t">${esc(x.l.title)}</span>${tag}</div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('.wmod-h').forEach(h=>{ h.onclick=()=>h.parentElement.classList.toggle('open'); });
 }
 /* ===== STUDENT INVESTMENTS (read-only — no approve/reject) ===== */
 const invPkr = n => Number(n||0).toLocaleString('en-US');
