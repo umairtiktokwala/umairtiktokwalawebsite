@@ -317,6 +317,16 @@ button{font-family:var(--body)}
 .mnote{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
 .mnote i{font-size:16px}
 .mnote.ok{color:var(--green)}
+
+/* watch bar — video ke neeche, kitna dekha */
+.mwatch{display:flex;align-items:center;gap:11px;padding:11px 20px 0}
+.mwatch-bar{flex:1;height:6px;background:var(--card-2);border-radius:99px;overflow:hidden}
+.mwatch-fill{height:100%;width:0;background:var(--grad);border-radius:99px;transition:width .5s linear}
+.mwatch-pct{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--muted);min-width:34px;text-align:right}
+
+/* aadha dekha hua lesson — amber nishan */
+.lesson.part .l-check{border-color:var(--amber);background:var(--soft-amber);color:var(--amber);font-size:9.5px;font-family:var(--mono);font-weight:600}
+.lesson.part .l-ic{background:var(--soft-amber);color:var(--amber)}
 .mdone{padding:13px 28px;border:none;border-radius:99px;cursor:pointer;background:var(--ink);color:#fff;font-weight:700;font-size:14px;transition:transform .2s}
 .mdone:hover:not(:disabled){transform:translateY(-1px)}
 .mdone:disabled{background:var(--line);color:var(--muted-2);cursor:not-allowed}
@@ -752,7 +762,11 @@ button{font-family:var(--body)}
       <button class="mx" id="mX"><i class="ti ti-x"></i></button>
     </div>
     <div class="mvid">
-      <iframe id="mFrame" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div id="mFrame"></div>
+    </div>
+    <div class="mwatch" id="mWatch" style="display:none">
+      <div class="mwatch-bar"><div class="mwatch-fill" id="mWatchFill"></div></div>
+      <span class="mwatch-pct" id="mWatchPct">0%</span>
     </div>
     <div class="mfoot">
       <div class="mnote" id="mNote"><i class="ti ti-eye"></i> <span>Watch the video, then mark it complete</span></div>
@@ -761,6 +775,7 @@ button{font-family:var(--body)}
   </div>
 </div>
 
+<script src="https://www.youtube.com/iframe_api"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
@@ -863,6 +878,19 @@ function fmt(sec){
 let ME=null, LESSONS=[], TASKS=[], DONE=new Set(), DAYS={}, SUBS={}, NOTES=[], ANN=[], EARNINGS=[], INVESTMENTS=[];
 let BATCH=null, TAB=null, OPEN=null, T0=0, SESSION=Date.now(), SECTION='course';
 let watchTimer=null;
+
+/* PROG — har lesson ka poora record: { done, pct, seconds }
+   DONE sirf mukammal lessons ka set hai (purana code isi par chalta hai).
+   Dono saath chalte hain. */
+let PROG=new Map();
+
+/* YouTube player — asal watch % nikalne ke liye.
+   Agar API load na ho (net band, blocked), to PLAYER null rehta hai
+   aur video phir bhi saada iframe se chalti hai. */
+let PLAYER=null, YT_READY=false, watchTick=null;
+let WATCH_MAX=0;    // is session mein sab se zyada kitna dekha
+let WATCH_SAVED=0;  // Firestore mein aakhri dafa kya likha tha
+window.onYouTubeIframeAPIReady=function(){ YT_READY=true; };
 /* Jo number student ne abhi form mein likha — agar record adhoora nikla
    to isi se dobara bana lete hain. */
 let PENDING_NUM='';
@@ -1124,17 +1152,74 @@ async function refreshBatches(){
 
 /* ===== progress ===== */
 async function loadProgress(){
-  DONE.clear();
+  DONE.clear(); PROG.clear();
   const snap=await getDocs(collection(db,'students',ME.uid,'progress'));
-  snap.forEach(d=>DONE.add(d.id));
+  snap.forEach(d=>{
+    const v=d.data()||{};
+    PROG.set(d.id,{done:!!v.done, pct:Number(v.pct||0), seconds:Number(v.seconds||0)});
+    if(v.done) DONE.add(d.id);
+  });
 }
-async function toggleDone(lessonId, seconds){
-  if(DONE.has(lessonId)){
-    await deleteDoc(doc(db,'students',ME.uid,'progress',lessonId)); DONE.delete(lessonId);
+
+/* Ek lesson ka record — pehle nayi ID se, na mile to purani se.
+   Isi se purana progress zaya hone se bachta hai. */
+function progFor(l){
+  if(!l) return null;
+  return PROG.get(l.id) || (l.legacyId?PROG.get(l.legacyId):null) || null;
+}
+function isDone(l){ const p=progFor(l); return !!(p&&p.done); }
+
+/* Lesson kitna dekha: 100 = mukammal, 1-99 = adhoora, 0 = shuru hi nahi kiya */
+function pctFor(l){
+  const p=progFor(l);
+  if(!p) return 0;
+  if(p.done) return 100;
+  return Math.max(0,Math.min(99,Math.round(p.pct||0)));
+}
+
+/* Purana doc (L5 waghera) hata dena — nayi ID par likhne ke baad.
+   Nakaam ho jaye to koi harj nahi, dobara koshish hoti rahegi. */
+async function dropLegacy(l){
+  if(!l||!l.legacyId||l.legacyId===l.id) return;
+  if(!PROG.has(l.legacyId)) return;
+  try{
+    await deleteDoc(doc(db,'students',ME.uid,'progress',l.legacyId));
+    PROG.delete(l.legacyId); DONE.delete(l.legacyId);
+  }catch(e){}
+}
+
+async function toggleDone(l, seconds){
+  const p=progFor(l);
+  if(p&&p.done){
+    // wapas "not done" — dono IDs saaf kar do
+    try{ await deleteDoc(doc(db,'students',ME.uid,'progress',l.id)); }catch(e){}
+    await dropLegacy(l);
+    PROG.delete(l.id); DONE.delete(l.id); DONE.delete(l.legacyId);
   }else{
-    await setDoc(doc(db,'students',ME.uid,'progress',lessonId),{done:true,seconds:seconds||0,at:serverTimestamp()});
-    DONE.add(lessonId);
+    const rec={done:true, pct:100, seconds:Math.max(seconds||0,(p&&p.seconds)||0), at:serverTimestamp()};
+    await setDoc(doc(db,'students',ME.uid,'progress',l.id),rec);
+    PROG.set(l.id,{done:true,pct:100,seconds:rec.seconds});
+    DONE.add(l.id);
+    await dropLegacy(l);
   }
+}
+
+/* Adhoora watch mehfooz karna — video chalte huay.
+   Sirf tab likhta hai jab pehle se zyada dekha ho, taake
+   Firestore par be-faida writes na jayein. */
+async function saveWatch(l, pct, seconds){
+  if(!l||!ME) return;
+  pct=Math.max(0,Math.min(100,Math.round(pct||0)));
+  const p=progFor(l);
+  if(p&&p.done) return;                       // pehle se mukammal hai
+  if(p&&Number(p.pct||0)>=pct) return;        // pehle se zyada dekha hua hai
+  try{
+    await setDoc(doc(db,'students',ME.uid,'progress',l.id),
+      {done:false, pct, seconds:seconds||0, at:serverTimestamp()}, {merge:true});
+    PROG.set(l.id,{done:false,pct,seconds:seconds||0});
+    WATCH_SAVED=pct;
+    await dropLegacy(l);
+  }catch(e){}
 }
 
 /* ===== time ===== */
@@ -1185,9 +1270,28 @@ async function loadContent(){
   if(LESSONS_CSV && LESSONS_CSV.indexOf('http')===0){
     try{
       const rows=parseCSV(await(await fetch(LESSONS_CSV)).text()).slice(1);
+      /* Lesson ki ID ab YouTube video se banti hai, sheet ke row number se nahi.
+         Pehle 'L1','L2'… hoti thi — us ka matlab tha ke sheet mein ek row
+         beech mein daalte hi neeche ke sab lessons ki ID khisak jati thi aur
+         har student ka progress ghalat lesson par chala jata tha.
+         Ab video wahi rahegi to ID bhi wahi rahegi.
+         legacyId purani ID hai — purana progress isi se milta hai. */
+      const seen={};
       LESSONS=rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
-        .map((r,i)=>({batch:cleanBatch(r[0]),course:(r[1]||'').trim().toLowerCase(),module:(r[2]||'').trim()||'Lessons',
-          title:(r[3]||'').trim(),url:(r[4]||'').trim(),order:parseInt(r[5])||(i+1),id:'L'+(i+1)}))
+        .map((r,i)=>{
+          const url=(r[4]||'').trim();
+          const vid=ytId(url);
+          let id;
+          if(vid){
+            // ek hi video do jagah lagi ho to dusri ko alag ID milti hai
+            seen[vid]=(seen[vid]||0)+1;
+            id='yt_'+vid+(seen[vid]>1?'_'+seen[vid]:'');
+          }else{
+            id='L'+(i+1);   // URL nahi hai — purana tareeqa hi rehne do
+          }
+          return {batch:cleanBatch(r[0]),course:(r[1]||'').trim().toLowerCase(),module:(r[2]||'').trim()||'Lessons',
+            title:(r[3]||'').trim(),url,order:parseInt(r[5])||(i+1),id,legacyId:'L'+(i+1)};
+        })
         .sort((a,b)=>a.order-b.order);
     }catch(e){ LESSONS=[]; }
   }
@@ -1231,7 +1335,8 @@ async function submitTask(batch,course,module,link,text,btn){
   const payload={uid:ME.uid,key,name:ME.name||'',number:ME.number||'',batch,course,module,
     link:link||'',text:text||'',status:'pending',messages:prevMsgs,at:serverTimestamp()};
   try{
-    if(existing){ await updateDoc(doc(db,'submissions',existing.id),payload); SUBS[key]={id:existing.id,...payload}; }
+    const seen=existing?Number(existing.studentSeenAt||0):0;
+    if(existing){ await updateDoc(doc(db,'submissions',existing.id),payload); SUBS[key]={id:existing.id,...payload,studentSeenAt:seen}; }
     else{ const id=ME.uid+'_'+key.replace(/[^a-zA-Z0-9]/g,'_'); await setDoc(doc(db,'submissions',id),payload); SUBS[key]={id,...payload}; }
     renderTasks(); if(SECTION==='course') render();
   }catch(e){ btn.disabled=false; btn.textContent='Submit'; alert('Could not submit. Please try again.'); }
@@ -1480,7 +1585,7 @@ function renderProfile(){
   $('pfCourses').textContent = cs && cs.length ? cs.map(courseName).join(' · ') : '—';
 
   const inBatch=LESSONS.filter(l=>l.batch===BATCH && (!cs||cs.includes(l.course)));
-  const done=inBatch.filter(l=>DONE.has(l.id)).length;
+  const done=inBatch.filter(l=>isDone(l)).length;
   $('pfLessons').textContent = inBatch.length ? done+' of '+inBatch.length : '—';
 
   updateSaveBtn();
@@ -1565,9 +1670,52 @@ $('pfSave').onclick = async ()=>{
    3. Lessons baaqi     — hosla barhane wale andaz mein
    Teen teen banner ek saath dikhane se student sab ko nazarandaz
    karna seekh jata hai, is liye do par rok di gayi hai. */
+/* Ustad ke wo message jo student ne abhi nahi dekhe.
+   Har submission par 'studentSeenAt' likha jata hai — us ke baad
+   aane wala har admin message "naya" hai.
+   Ye approved task par bhi chalta hai. */
+function unseenMsgs(){
+  let n=0;
+  Object.keys(SUBS).forEach(k=>{
+    const s=SUBS[k]; if(!s) return;
+    const msgs=Array.isArray(s.messages)?s.messages:[];
+    const seen=Number(s.studentSeenAt||0);
+    msgs.forEach(m=>{
+      if(m.from!=='admin') return;
+      const t=Number((m.at&&m.at.seconds)||m.at||0);
+      if(t>seen) n++;
+    });
+  });
+  return n;
+}
+
+/* Student Tasks section kholta hai to sab message "dekhe huay" ho jate hain. */
+async function markMsgsSeen(){
+  const now=Math.floor(Date.now()/1000);
+  const jobs=[];
+  Object.keys(SUBS).forEach(k=>{
+    const s=SUBS[k]; if(!s||!s.id) return;
+    const msgs=Array.isArray(s.messages)?s.messages:[];
+    const seen=Number(s.studentSeenAt||0);
+    const has=msgs.some(m=>m.from==='admin' && Number((m.at&&m.at.seconds)||m.at||0)>seen);
+    if(!has) return;
+    s.studentSeenAt=now;
+    jobs.push(updateDoc(doc(db,'submissions',s.id),{studentSeenAt:now}).catch(()=>{}));
+  });
+  if(jobs.length){ await Promise.all(jobs); try{ renderAlerts(); }catch(e){} }
+}
+
 function renderAlerts(){
   const box=$('alertBox'); if(!box) return;
   const out=[];
+
+  // 0. ustad ka naya message — sab se ahem
+  const nm=unseenMsgs();
+  if(nm){
+    out.push(alertHTML('warn','ti-message-dots','tasks',
+      nm===1 ? 'Your teacher sent you a message' : 'Your teacher sent you '+nm+' messages',
+      'Open Tasks to read it.'));
+  }
 
   // 1. profile
   if(!hasRealName() || !hasCity()){
@@ -1592,7 +1740,7 @@ function renderAlerts(){
   // 3. lessons
   if(out.length<2){
     const inBatch=LESSONS.filter(l=>l.batch===BATCH && (!cs||cs.includes(l.course)));
-    const done=inBatch.filter(l=>DONE.has(l.id)).length;
+    const done=inBatch.filter(l=>isDone(l)).length;
     const left=inBatch.length-done;
 
     if(inBatch.length && left>0){
@@ -1636,6 +1784,8 @@ function switchSection(s){
     if(b.dataset.s)b.classList.toggle('on',b.dataset.s===s);
   });
   if(s==='tasks')renderTasks(); if(s==='notes')renderNotes(); if(s==='earnings')renderEarnings(); if(s==='invest')renderInvest(); if(s==='profile')renderProfile();
+  // Tasks khul gaya — ustad ke message ab "dekhe huay" hain
+  if(s==='tasks') markMsgsSeen().catch(()=>{});
 }
 document.querySelectorAll('#sideNav .snav').forEach(b=>{ b.onclick=()=>switchSection(b.dataset.s); });
 document.querySelectorAll('#mnav button').forEach(b=>{ if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s); });
@@ -1684,7 +1834,7 @@ function render(){
 
   // progress (this batch, allowed courses)
   const mine=inBatch.filter(l=>!allowed||allowed.includes(l.course));
-  const done=mine.filter(l=>DONE.has(l.id)).length;
+  const done=mine.filter(l=>isDone(l)).length;
   const pct=mine.length?Math.round(done/mine.length*100):0;
   $('progLbl').textContent=batchLabel(BATCH);
   $('progN').innerHTML=pct+'<span>%</span>';
@@ -1706,7 +1856,7 @@ function render(){
   // and order lessons inside each module too
   modNames.forEach(m=>mods[m].sort((a,b)=>(a.order||0)-(b.order||0)));
   $('mods').innerHTML=modNames.map((m,i)=>{
-    const ls=mods[m], d=ls.filter(l=>DONE.has(l.id)).length;
+    const ls=mods[m], d=ls.filter(l=>isDone(l)).length;
     return `<div class="module ${i===0?'open':''}">
       <div class="mod-h">
         <span class="mod-n">${String(i+1).padStart(2,'0')}</span>
@@ -1715,12 +1865,14 @@ function render(){
         <span class="mod-ic"></span>
       </div>
       <div class="lessons">
-        ${ls.map(l=>`<div class="lesson ${DONE.has(l.id)?'done':''}" data-l="${l.id}">
-          <span class="l-check">${DONE.has(l.id)?'<i class="ti ti-check"></i>':''}</span>
+        ${ls.map(l=>{
+          const dn=isDone(l), pc=pctFor(l), part=!dn&&pc>0;
+          return `<div class="lesson ${dn?'done':''} ${part?'part':''}" data-l="${esc(l.id)}">
+          <span class="l-check">${dn?'<i class="ti ti-check"></i>':(part?pc+'%':'')}</span>
           <span class="l-ic"><i class="ti ti-player-play"></i></span>
           <span class="l-t">${esc(l.title)}</span>
-          <span class="l-play"><i class="ti ti-player-play"></i><span>${DONE.has(l.id)?'Rewatch':'Watch'}</span></span>
-        </div>`).join('')}
+          <span class="l-play"><i class="ti ti-player-play"></i><span>${dn?'Rewatch':(part?'Continue':'Watch')}</span></span>
+        </div>`;}).join('')}
       </div>
     </div>`;
   }).join('');
@@ -1810,23 +1962,94 @@ function wireTaskButtons(wrap){
 }
 
 /* ===== VIDEO (watch before complete) ===== */
+/* Video ko saada iframe se chalana — jab YouTube ki API na mile.
+   Is soorat mein watch % nahi banta, sirf waqt se button khulta hai. */
+function mountPlain(vid){
+  const box=$('mFrame');
+  box.innerHTML='';
+  if(!vid) return;
+  const f=document.createElement('iframe');
+  f.setAttribute('allow','accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+  f.setAttribute('allowfullscreen','');
+  f.src='https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&modestbranding=1&iv_load_policy=3&color=white&playsinline=1';
+  box.appendChild(f);
+}
+
+/* Har 5 second mein dekhta hai ke video kitni chal chuki.
+   Sab se zyada jitna dekha (WATCH_MAX) wahi ginti hai — student
+   peeche le jaye to % ghatta nahi.
+   Firestore par tab likhta hai jab pichhli dafa se 5% zyada ho —
+   is se writes kam rehte hain. */
+function startWatchTick(){
+  clearInterval(watchTick);
+  watchTick=setInterval(()=>{
+    if(!PLAYER||!OPEN) return;
+    let dur=0,cur=0;
+    try{ dur=PLAYER.getDuration()||0; cur=PLAYER.getCurrentTime()||0; }catch(e){ return; }
+    if(dur<1) return;
+    const pct=Math.max(0,Math.min(100,Math.round(cur/dur*100)));
+    if(pct>WATCH_MAX) WATCH_MAX=pct;
+    paintWatch();
+    // 90% dekh li to "Mark complete" khol do
+    if(WATCH_MAX>=90 && !isDone(OPEN)){
+      const btn=$('mDone');
+      if(btn.disabled){
+        btn.disabled=false;
+        $('mNote').className='mnote ok';
+        $('mNote').innerHTML='<i class="ti ti-circle-check"></i> <span>You can mark this complete now</span>';
+      }
+    }
+    if(WATCH_MAX-WATCH_SAVED>=5) saveWatch(OPEN,WATCH_MAX,Math.round((Date.now()-T0)/1000));
+  },5000);
+}
+function paintWatch(){
+  const box=$('mWatch'); if(!box) return;
+  if(WATCH_MAX<=0){ box.style.display='none'; return; }
+  box.style.display='flex';
+  $('mWatchFill').style.width=WATCH_MAX+'%';
+  $('mWatchPct').textContent=WATCH_MAX+'%';
+}
+
 function openLesson(id){
   const l=LESSONS.find(x=>x.id===id); if(!l) return;
   OPEN=l; T0=Date.now();
   const vid=ytId(l.url);
+  const p=progFor(l);
+  WATCH_MAX=(p&&!p.done)?Number(p.pct||0):0;   // jahan chhora tha wahin se ginti
+  WATCH_SAVED=WATCH_MAX;
   $('mTitle').textContent=l.title;
-  $('mFrame').src=vid?'https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&modestbranding=1&iv_load_policy=3&color=white&playsinline=1':'';
-  const btn=$('mDone'), noteEl=$('mNote'), isDone=DONE.has(l.id);
-  if(isDone){
+  paintWatch();
+
+  // player lagao — API mil gayi to asli tracking, warna saada iframe
+  try{ if(PLAYER&&PLAYER.destroy) PLAYER.destroy(); }catch(e){}
+  PLAYER=null;
+  $('mFrame').innerHTML='';
+  if(vid && YT_READY && window.YT && window.YT.Player){
+    const holder=document.createElement('div');
+    $('mFrame').appendChild(holder);
+    try{
+      PLAYER=new window.YT.Player(holder,{
+        videoId:vid,
+        host:'https://www.youtube-nocookie.com',
+        playerVars:{rel:0,modestbranding:1,iv_load_policy:3,playsinline:1},
+        events:{ onReady:()=>startWatchTick() }
+      });
+    }catch(e){ PLAYER=null; mountPlain(vid); }
+  }else{
+    mountPlain(vid);
+  }
+
+  const btn=$('mDone'), noteEl=$('mNote'), done=isDone(l);
+  if(done){
     btn.disabled=false; btn.textContent='✓ Completed'; btn.classList.add('done');
     noteEl.className='mnote ok'; noteEl.innerHTML='<i class="ti ti-circle-check"></i> <span>You have completed this lesson</span>';
   }else{
     btn.disabled=true; btn.textContent='Mark complete'; btn.classList.remove('done');
     noteEl.className='mnote'; noteEl.innerHTML='<i class="ti ti-eye"></i> <span>Watch the video to unlock "complete"</span>';
-    // unlock after MIN_WATCH seconds
+    // waqt wala raasta — agar YouTube API na chale to bhi button khul jaye
     clearTimeout(watchTimer);
     watchTimer=setTimeout(()=>{
-      if(OPEN&&OPEN.id===l.id&&!DONE.has(l.id)){
+      if(OPEN&&OPEN.id===l.id&&!isDone(l)){
         btn.disabled=false;
         noteEl.className='mnote ok'; noteEl.innerHTML='<i class="ti ti-circle-check"></i> <span>You can mark this complete now</span>';
       }
@@ -1834,7 +2057,20 @@ function openLesson(id){
   }
   $('modal').classList.add('open');
 }
-function shutModal(){ $('modal').classList.remove('open'); $('mFrame').src=''; OPEN=null; clearTimeout(watchTimer); }
+
+function shutModal(){
+  // band karte waqt jo dekha tha wo mehfooz kar lo
+  if(OPEN && WATCH_MAX>WATCH_SAVED) saveWatch(OPEN,WATCH_MAX,Math.round((Date.now()-T0)/1000));
+  clearInterval(watchTick); watchTick=null;
+  try{ if(PLAYER&&PLAYER.destroy) PLAYER.destroy(); }catch(e){}
+  PLAYER=null;
+  $('modal').classList.remove('open');
+  $('mFrame').innerHTML='';
+  $('mWatch').style.display='none';
+  OPEN=null; WATCH_MAX=0; WATCH_SAVED=0;
+  clearTimeout(watchTimer);
+  if(SECTION==='course') render();
+}
 $('mX').onclick=shutModal;
 $('modal').onclick=e=>{ if(e.target===$('modal')) shutModal(); };
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('modal').classList.contains('open')) shutModal(); });
@@ -1842,8 +2078,8 @@ $('mDone').onclick=async()=>{
   if(!OPEN) return;
   const secs=Math.round((Date.now()-T0)/1000);
   const btn=$('mDone'); btn.disabled=true;
-  await toggleDone(OPEN.id,secs);
-  const nowDone=DONE.has(OPEN.id);
+  await toggleDone(OPEN,secs);
+  const nowDone=isDone(OPEN);
   btn.textContent=nowDone?'✓ Completed':'Mark complete'; btn.classList.toggle('done',nowDone); btn.disabled=false;
   const noteEl=$('mNote');
   if(nowDone){ noteEl.className='mnote ok'; noteEl.innerHTML='<i class="ti ti-circle-check"></i> <span>You have completed this lesson</span>'; }
