@@ -484,6 +484,18 @@
   .bubble:hover .msg-menu{opacity:1}
   .bubble.in .msg-menu{right:auto;left:5px}
 
+  /* ---------- Toast (chhota paigham neeche) ---------- */
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(14px);
+    background:#1B1F2A; color:#fff; font-size:13px; font-weight:500;
+    padding:11px 18px; border-radius:10px; z-index:9999;
+    box-shadow:0 6px 24px rgba(0,0,0,.22);
+    opacity:0; pointer-events:none; transition:opacity .18s, transform .18s;
+    max-width:90vw; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast.bad{background:#B42318}
+
   /* ---------- Undo bar ---------- */
   .undo-bar{
     display:none;align-items:center;justify-content:space-between;gap:10px;
@@ -777,6 +789,22 @@ const PRESENCE_REFRESH_SEC = 45;
 // Presence itne second purani ho to samjho banda chala gaya
 const PRESENCE_STALE_SEC = 120;
 
+/* Chhota paigham neeche dikhana.
+   bad = true ho to laal (nakami ke liye). */
+let toastTimer = null;
+function say(text, bad) {
+  let el = document.getElementById("toastBox");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toastBox";
+    document.body.appendChild(el);
+  }
+  el.className = "toast" + (bad ? " bad show" : " show");
+  el.textContent = text;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove("show"); }, bad ? 5000 : 2600);
+}
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -1005,10 +1033,7 @@ async function clearMyPresence() {
   if (!me.uid) return;
   try { await deleteDoc(doc(db, "presence", me.uid)); } catch (e) {}
 }
-document.addEventListener("click", () => {
-  const am = document.getElementById("assignMenu");
-  if (am) am.classList.remove("show");
-});
+document.addEventListener("click", () => { closeAssignMenu(); });
 
 window.addEventListener("beforeunload", () => {
   if (me.uid) navigator.sendBeacon ? clearMyPresence() : clearMyPresence();
@@ -1186,6 +1211,115 @@ function mergeConvos() {
   renderList();
   updateTotalBadge();
   if (activeId) { renderInfo(); paintChatHead(); }
+  runAutoAssign();
+}
+
+// ============================================================
+//  AUTO-ASSIGN  —  sirf FREE chats ke liye
+//
+//  Paid students par ye NAHI chalta. Un ka rishta teen mahine ka hota
+//  hai aur jo banda unhein jaanta hai wahi behtar jawab deta hai.
+//  Free wale zyadatar ek hi sawal poochte hain (fees, batch kab) —
+//  wahan sirf jaldi jawab chahiye, kisi rishte ki zaroorat nahi.
+//
+//  Ye browser mein chalta hai, server par nahi. Yani dashboard band ho
+//  to auto-assign bhi ruk jata hai. Kaam ke auqat (8 se 11) mein koi na
+//  koi dashboard khole baitha hota hai, is liye amli tor par chalta rehta hai.
+//
+//  Do bandon ke browser ek saath ek hi chat na uthayein, is liye sirf
+//  SAB SE PURANA online member ye kaam karta hai. Baqi khamosh rehte hain.
+// ============================================================
+
+// Ek bande ke paas zyada se zyada itni chats jinka jawab baqi ho.
+// Is se aage us ko naya kaam nahi milta. Yahan badal sakte hain.
+const AUTO_ASSIGN_MAX = 30;
+
+// Poora nizaam band karna ho to ise false kar dein.
+const AUTO_ASSIGN_ENABLED = true;
+
+let autoAssignBusy = false;
+
+/* Kya main wo banda hoon jo ye kaam karega?
+   Sab online members mein se jis ki presence sab se purani hai, wohi.
+   Sab ke paas yehi hisaab hai, is liye faisla yaksan nikalta hai. */
+function amIAutoAssigner() {
+  const online = Object.values(presenceAll || {});
+  if (!online.length) return false;
+  let first = online[0];
+  for (const p of online) {
+    if (p.at < first.at || (p.at === first.at && String(p.uid) < String(first.uid))) first = p;
+  }
+  return first.uid === me.uid;
+}
+
+/* Free chat = na koi batch, na verified.
+   Dono shart is liye ke kabhi koi paisa de chuka hota hai magar batch
+   abhi lagi nahi hoti — wo verified hoga aur batch khali. Sirf batch
+   dekhein to aisa banda ghalti se auto-assign ho jayega. */
+function isFreeChat(c) {
+  if (isPaid(c)) return false;
+  if (batchesOf(c).length) return false;
+  return true;
+}
+
+async function runAutoAssign() {
+  if (!AUTO_ASSIGN_ENABLED || autoAssignBusy) return;
+  if (!me.uid || me.reviewer) return;
+  if (!amIAutoAssigner()) return;
+
+  // Har member ke paas abhi kitni chats hain jinka jawab baqi hai
+  const load = {};
+  convos.forEach(c => {
+    if (c.status === "resolved") return;
+    if (!c.awaitingReply) return;
+    if (!c.assignedUid) return;
+    load[c.assignedUid] = (load[c.assignedUid] || 0) + 1;
+  });
+
+  // Jo abhi online hain aur hadd ke andar hain
+  const avail = Object.values(presenceAll || {})
+    .filter(p => (load[p.uid] || 0) < AUTO_ASSIGN_MAX)
+    .sort((a, b) => (load[a.uid] || 0) - (load[b.uid] || 0));
+
+  if (!avail.length) return;
+
+  // Kaam ki chats — purani pehle, taake koi lamba intezar na kare
+  const pending = convos
+    .filter(c =>
+      c.status !== "resolved" &&
+      c.awaitingReply &&
+      !c.assignedUid &&        // kisi ke naam nahi
+      isFreeChat(c) &&         // paid par nahi chalta
+      !presence[c.id]          // koi banda abhi ye chat khole nahi baitha
+    )
+    .sort((a, b) => (a.lastMessageAt?.toMillis?.() || 0) - (b.lastMessageAt?.toMillis?.() || 0));
+
+  if (!pending.length) return;
+
+  autoAssignBusy = true;
+  try {
+    for (const c of pending) {
+      // har baar sab se kam bojh wala
+      avail.sort((a, b) => (load[a.uid] || 0) - (load[b.uid] || 0));
+      const pick = avail.find(p => (load[p.uid] || 0) < AUTO_ASSIGN_MAX);
+      if (!pick) break;        // sab hadd tak pahunch gaye — baqi unassigned rahengi
+
+      try {
+        await updateDoc(doc(db, "conversations", c.id), {
+          assignedUid: pick.uid,
+          assignedTo: pick.name,
+          autoAssigned: true,
+          autoAssignedAt: serverTimestamp()
+        });
+        load[pick.uid] = (load[pick.uid] || 0) + 1;
+        console.log("Auto-assigned", c.id, "->", pick.name);
+      } catch (e) {
+        console.log("Auto-assign skipped:", c.id, e.message);
+      }
+    }
+  } finally {
+    autoAssignBusy = false;
+  }
 }
 
 $("search").oninput = (e) => { searchTerm = e.target.value.toLowerCase(); renderList(); };
@@ -1578,13 +1712,20 @@ function paintChatHead() {
           ev.stopPropagation();
           const uid = el.dataset.uid;
           const t = team.find(x => x.uid === uid);
+          const convoId = activeId;               // beech mein chat badal sakti hai
+          el.textContent = "…";
           try {
-            await updateDoc(doc(db, "conversations", activeId), {
+            await updateDoc(doc(db, "conversations", convoId), {
               assignedUid: uid || null,
               assignedTo: t ? t.name : null
             });
-          } catch (e) {}
-          am.classList.remove("show");
+            // Pehle yahan khali catch tha — nakaam hone par kuch nahi dikhta tha
+            // aur bande ko lagta tha ke us ne click hi nahi kiya.
+            say(t ? ("Assign kar di — " + t.name) : "Chat ab kisi ke naam nahi hai");
+          } catch (e) {
+            say("Assign nahi hui: " + (e && e.message ? e.message : "koi masla aa gaya"), true);
+          }
+          closeAssignMenu();
         };
       });
     };
@@ -2207,7 +2348,27 @@ function addPendingBubble(text) {
 }
 
 // ---------- Info panel ----------
+/* Assign menu khula ho to right panel dobara na banayein.
+   Masla ye tha: renderInfo() har dafa chalta hai jab conversations mein
+   koi tabdeeli aaye. Rozana 1,000 messages par ye har chand second mein
+   hota hai. Menu khula ho aur panel dobara ban jaye to menu ke saath us ke
+   click handlers bhi mit jate the — banda naam par click karta tha aur
+   kuch nahi hota tha.
+   Ab menu khula ho to render rok dete hain, aur menu band hote hi
+   jo render rukа tha wo chala dete hain. */
+let infoDirty = false;
+function assignMenuOpen() {
+  const am = document.getElementById("assignMenu");
+  return !!(am && am.classList.contains("show"));
+}
+function closeAssignMenu() {
+  const am = document.getElementById("assignMenu");
+  if (am) am.classList.remove("show");
+  if (infoDirty) { infoDirty = false; renderInfo(); }
+}
+
 function renderInfo() {
+  if (assignMenuOpen()) { infoDirty = true; return; }
   const c = convos.find(x => x.id === activeId);
   const panel = $("infoPanel");
   if (!c) {
@@ -2345,7 +2506,16 @@ function perfHTML(p) {
 
   let out = "";
 
-  if (p.stats) {
+  /* May-2026 batch ne course website banne se PEHLE dekha tha.
+     Un ka 0% "nahi dekha" ka matlab nahi rakhta — aur bara 0% likha ho
+     to team foran ghalat natija nikal leti hai. Is liye aise students par
+     % aur ginti dikhate hi nahi, sirf wajah likh dete hain. */
+  const oldOnly = p.oldBatch && p.stats && (p.stats.done || 0) === 0 && (p.stats.part || 0) === 0;
+
+  if (oldOnly) {
+    out += '<div class="perf-note">May-2026 batch &mdash; course website se pehle dekha tha. ' +
+           'Yahan ka record is student ke liye maani nahi rakhta.</div>';
+  } else if (p.stats) {
     const st = p.stats;
     out +=
       '<div class="perf-pct">' +
@@ -2357,6 +2527,9 @@ function perfHTML(p) {
         '<div class="perf-c half"><b>' + (st.part || 0) + '</b><span>Partly</span></div>' +
         '<div class="perf-c no"><b>' + Math.max(0, (st.total || 0) - (st.done || 0) - (st.part || 0)) + '</b><span>Not opened</span></div>' +
       '</div>';
+  } else if (p.days > 0) {
+    // portal par aaya hua hai, bas naye code se abhi nahi guzra
+    out += '<div class="perf-note">Naya portal abhi tak nahi khola &mdash; lesson ka record nahi bana.</div>';
   } else {
     out += '<div class="perf-note">Ye student abhi tak portal par nahi aaya.</div>';
   }
@@ -2372,8 +2545,8 @@ function perfHTML(p) {
   if (!p.subTotal) {
     out += '<div class="perf-warn">Is student ne abhi tak koi task submit nahi kiya.</div>';
   }
-  if (p.oldBatch) {
-    out += '<div class="perf-warn">Note: ye May-2026 batch mein bhi hai. Us batch ne course website banne se pehle dekha tha, is liye 0% ka matlab "nahi dekha" nahi.</div>';
+  if (p.oldBatch && !oldOnly) {
+    out += '<div class="perf-warn">Note: ye May-2026 batch mein bhi hai. Us batch ka kuch hissa website se pehle dekha gaya tha.</div>';
   }
   return out;
 }
