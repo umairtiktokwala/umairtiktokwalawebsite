@@ -203,6 +203,34 @@ button{font-family:var(--body)}
 .chipf:hover{border-color:var(--ink-2);color:var(--ink-2)}
 .chipf.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .chipf i{font-size:15px}
+.entry-card{padding:22px;margin-bottom:26px}
+.entry-head h3{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;margin-bottom:6px}
+.entry-head p{font-size:13.5px;color:var(--muted);margin-bottom:20px;line-height:1.55}
+.entry-grid-head{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr 34px;gap:10px;font-size:12px;font-weight:700;color:var(--muted);padding:0 2px 8px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.entry-grid-head em{font-weight:500;font-style:normal;opacity:.7}
+.erow{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr 34px;gap:10px;align-items:center;margin-bottom:9px}
+.erow input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;font-family:var(--body);font-size:14px;background:var(--card);color:var(--ink)}
+.erow input:focus{outline:none;border-color:var(--ink-2)}
+.erow .calc{font-size:14px;font-weight:700;text-align:right;padding-right:4px;color:var(--ink)}
+.erow .calc small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.erow .del{width:34px;height:34px;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:9px;font-size:17px}
+.erow .del:hover{background:var(--line);color:#c02640}
+.addrow{margin:6px 0 20px;padding:9px 15px;border:1.5px dashed var(--line);background:none;border-radius:11px;cursor:pointer;font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.addrow:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.entry-foot{display:flex;gap:12px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--line)}
+.entry-foot .f.small{margin-bottom:8px;min-width:150px}
+.entry-foot .f.grow{flex:1;min-width:200px}
+.entry-total{padding:14px 0 4px;font-size:14px;font-weight:700;color:var(--ink)}
+.entry-total span{color:var(--muted);font-weight:600}
+.entry-note{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+.sec-h{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em;margin:0 0 14px}
+@media(max-width:760px){
+.entry-grid-head{display:none}
+.erow{grid-template-columns:1fr 1fr;gap:8px;padding:12px;border:1px solid var(--line);border-radius:13px;margin-bottom:10px}
+.erow input:first-child{grid-column:1/-1}
+.erow .calc{grid-column:1/2;text-align:left}
+.erow .del{grid-column:2/3;justify-self:end}
+}
 .chipf .n{font-size:11px;opacity:.75;font-weight:700}
 .self{padding:8px 13px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer}
 .self:focus{outline:none;border-color:var(--purple)}
@@ -249,6 +277,7 @@ button{font-family:var(--body)}
       <nav class="side-nav" id="nav">
         <button class="snav on" data-s="overview"><i class="ti ti-layout-dashboard"></i> Overview</button>
         <button class="snav" data-s="claims"><i class="ti ti-photo-check"></i> Claims <span class="dot" id="dotClaims">0</span></button>
+        <button class="snav" data-s="entries"><i class="ti ti-file-plus"></i> New entries</button>
         <button class="snav" data-s="payouts"><i class="ti ti-cash"></i> Payouts</button>
         <button class="snav" data-s="methods"><i class="ti ti-building-bank"></i> Methods <span class="dot" id="dotMethods">0</span></button>
         <button class="snav" data-s="students"><i class="ti ti-users"></i> Students</button>
@@ -274,6 +303,64 @@ button{font-family:var(--body)}
       <div class="content">
         <div id="secOverview"></div>
         <div id="secClaims" style="display:none"></div>
+        <div id="secEntries" style="display:none">
+          <div class="card entry-card">
+            <div class="entry-head">
+              <h3>Add payments</h3>
+              <p>Pick the PayPal account, then add one line per payment. Leave the student number empty when you do not know whose payment it is &mdash; it will sit in the pool until the student claims it.</p>
+            </div>
+
+            <div class="f">
+              <label for="eqEmail">PayPal account</label>
+              <input list="eqEmailList" id="eqEmail" placeholder="Search or type an email">
+              <datalist id="eqEmailList"></datalist>
+            </div>
+
+            <div class="entry-grid-head">
+              <span>Student number <em>(optional)</em></span>
+              <span>Gross USD</span>
+              <span>PayPal fee</span>
+              <span>Payable PKR</span>
+              <span></span>
+            </div>
+            <div id="eqRows"></div>
+            <datalist id="eqPhoneList"></datalist>
+
+            <button class="addrow" id="eqAdd"><i class="ti ti-plus"></i> Add another line</button>
+
+            <div class="entry-foot">
+              <div class="f small">
+                <label for="eqType">Earning type</label>
+                <select id="eqType">
+                  <option value="tiktok">TikTok</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="f small">
+                <label for="eqStatus">Status</label>
+                <select id="eqStatus">
+                  <option value="Verified">Verified</option>
+                  <option value="Pending">Pending</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="Declined">Declined</option>
+                </select>
+              </div>
+              <div class="f small grow">
+                <label for="eqNotes">Notes <em>(optional)</em></label>
+                <input id="eqNotes" placeholder="Applies to every line above">
+              </div>
+            </div>
+
+            <div class="entry-total" id="eqTotal"></div>
+            <div class="smsg" id="eqMsg"></div>
+            <button class="btn" id="eqSave">Send to sheet</button>
+            <p class="entry-note">These lines are written to the Payment Entries sheet by the 5-minute sync. The sheet works out the commission and PKR exactly as it always has.</p>
+          </div>
+
+          <h3 class="sec-h">Recently sent</h3>
+          <div id="eqList"></div>
+        </div>
         <div id="secPayouts" style="display:none"></div>
         <div id="secMethods" style="display:none"></div>
         <div id="secStudents" style="display:none"></div>
@@ -406,7 +493,7 @@ function toast(msg){
 let ME=null;
 let SETTINGS={usdToPkrRate:270,commissionBelowPct:15,commissionAbovePct:10,thresholdUsd:1000,coolingHours:2};
 let stFilter='all', commCycle='all';
-let CLAIMS=[], SETTLEMENTS=[], METHODS=[], STUDENTS=[], ASSIGNMENTS=[], ENTRIES=[];
+let CLAIMS=[], SETTLEMENTS=[], METHODS=[], STUDENTS=[], ASSIGNMENTS=[], ENTRIES=[], QUEUE=[];
 let LOADED=false;
 let SECTION='overview';
 let payoutTab='pending', payoutSort='low';
@@ -462,13 +549,26 @@ async function grabAll(col){
 async function loadAll(){
   if(LOADED) return;
 
-  const [claims, settlements, students, assignments, entries] = await Promise.all([
+  const [claims, settlements, students, assignments, entries, queued] = await Promise.all([
     grabAll('paymentClaims'),
     grabAll('settlements'),
     grabAll('financeStudents'),
     grabAll('paypalAssignments'),
-    grabAll('paymentEntries')
+    grabAll('paymentEntries'),
+    grabAll('entryQueue')
   ]);
+
+  QUEUE = queued.map(d=>({
+    id:d.id,
+    paypalEmail:d.paypalEmail||'',
+    studentPhone:d.studentPhone||'',
+    grossUsd:Number(d.grossUsd||0),
+    feeUsd:Number(d.feeUsd||0),
+    status:d.entryStatus||'',
+    processed:d.processed===true,
+    sheetRow:Number(d.sheetRow||0),
+    at:tsSec(d.createdAt)
+  })).sort((a,b)=>b.at-a.at);
 
   CLAIMS = claims.map(d=>({
     id:d.id,
@@ -535,6 +635,7 @@ async function loadAll(){
   }));
 
   SETTINGS = await loadSettings();
+  paintEntryForm();
 
   METHODS = await loadMethods();
   LOADED = true;
@@ -1070,6 +1171,7 @@ function row_(label, value){
 const TITLES={
   overview:['Overview','Everything that needs your attention'],
   claims:['Claims','Payment claims waiting for review'],
+  entries:['New entries','Add payments straight into the sheet'],
   payouts:['Payouts','Who to pay, and who has been paid'],
   methods:['Methods','Bank and wallet details to review'],
   students:['Students','Search anyone on the service'],
@@ -1097,6 +1199,7 @@ function render(){
   $('secPayouts').innerHTML = renderPayouts();
   $('secMethods').innerHTML = renderMethods(pendingMethods);
   $('secStudents').innerHTML = renderStudents();
+  $('eqList').innerHTML = renderQueue();
   $('secCommission').innerHTML = renderCommission();
 
   wire();
@@ -1375,6 +1478,211 @@ function empty(icon,msg){
   return '<div class="empty"><i class="ti '+icon+'"></i>'+esc(msg)+'</div>';
 }
 
+
+/* ==========================================================================
+   NEW ENTRIES  ->  entryQueue  ->  Payment Entries sheet
+
+   Nothing is written to paymentEntries from here. Each line goes into the
+   entryQueue collection, and the 5-minute Apps Script sync drops it into
+   the Payment Entries sheet. The sheet's own formulas then work out the
+   commission, the rate and the PKR exactly as they always have, and the
+   claim matcher keeps reading the sheet as before.
+
+   The PKR shown on this screen is only a preview of what the sheet will
+   produce. The sheet stays the one place the money is worked out.
+   ========================================================================== */
+
+/** Same maths as the sheet: L=MAX(0,J-K), M=IF(L<threshold,below,above),
+    N=L*M, O=L-N, P=rate, Q=O*P, R=INT(Q). */
+function entryMaths(gross, fee){
+  const g = Number(gross||0);
+  const f = Number(fee||0);
+  const net = Math.max(0, Math.round((g-f)*100)/100);
+  if(net<=0) return {net:0, pct:0, commUsd:0, payableUsd:0, rate:SETTINGS.usdToPkrRate, pkr:0};
+  const pct = net < SETTINGS.thresholdUsd
+    ? SETTINGS.commissionBelowPct
+    : SETTINGS.commissionAbovePct;
+  const commUsd    = Math.round(net*pct)/100;
+  const payableUsd = Math.round((net-commUsd)*100)/100;
+  const pkr        = Math.floor(payableUsd*SETTINGS.usdToPkrRate);
+  return {net, pct, commUsd, payableUsd, rate:SETTINGS.usdToPkrRate, pkr};
+}
+
+/** Fill the two datalists once the data is in. */
+function paintEntryForm(){
+  const emails=[...new Set(ASSIGNMENTS
+    .filter(a=>a.status!=='ended' && a.email)
+    .map(a=>a.email))].sort();
+  $('eqEmailList').innerHTML = emails.map(e=>'<option value="'+esc(e)+'">').join('');
+
+  const people=STUDENTS.filter(s=>s.enabled && s.phone);
+  $('eqPhoneList').innerHTML = people
+    .map(s=>'<option value="'+esc(s.phone)+'">'+esc(s.name||s.phone)+'</option>')
+    .join('');
+
+  if(!$('eqRows').children.length){ addEntryRow(); addEntryRow(); addEntryRow(); }
+}
+
+function entryRowHtml(){
+  return '<div class="erow">'
+    + '<input list="eqPhoneList" class="e-phone" placeholder="Leave empty for the pool">'
+    + '<input type="number" class="e-gross" step="0.01" min="0" placeholder="0.00">'
+    + '<input type="number" class="e-fee" step="0.01" min="0" placeholder="0.00">'
+    + '<div class="calc">&mdash;</div>'
+    + '<button class="del" title="Remove this line"><i class="ti ti-x"></i></button>'
+    + '</div>';
+}
+
+function addEntryRow(){
+  const holder=$('eqRows');
+  holder.insertAdjacentHTML('beforeend', entryRowHtml());
+  wireEntryRows();
+}
+
+function wireEntryRows(){
+  document.querySelectorAll('#eqRows .erow').forEach(row=>{
+    row.querySelectorAll('input').forEach(i=>{ i.oninput = paintEntryTotals; });
+    row.querySelector('.del').onclick = ()=>{
+      if(document.querySelectorAll('#eqRows .erow').length<=1){
+        row.querySelectorAll('input').forEach(i=>i.value='');
+      }else{
+        row.remove();
+      }
+      paintEntryTotals();
+    };
+  });
+  paintEntryTotals();
+}
+
+function paintEntryTotals(){
+  let lines=0, usd=0, pkr=0;
+
+  document.querySelectorAll('#eqRows .erow').forEach(row=>{
+    const gross=row.querySelector('.e-gross').value;
+    const fee=row.querySelector('.e-fee').value;
+    const cell=row.querySelector('.calc');
+
+    if(!Number(gross||0)){ cell.innerHTML='&mdash;'; return; }
+
+    const m=entryMaths(gross, fee);
+    cell.innerHTML = 'PKR '+m.pkr.toLocaleString()
+      + '<small>'+m.pct+'% &middot; net $'+m.net.toFixed(2)+'</small>';
+
+    lines++; usd+=m.net; pkr+=m.pkr;
+  });
+
+  $('eqTotal').innerHTML = lines
+    ? lines+' line'+(lines>1?'s':'')+' &middot; <span>net</span> $'+usd.toFixed(2)
+      +' &middot; <span>payable</span> PKR '+pkr.toLocaleString()
+    : '<span>Add a gross amount to see the payable PKR.</span>';
+}
+
+function eqSay(msg, ok){
+  const box=$('eqMsg');
+  box.textContent=msg;
+  box.className='smsg'+(msg?(ok?' ok show':' show'):'');
+}
+
+async function saveEntries(){
+  const btn=$('eqSave');
+  const email=String($('eqEmail').value||'').trim().toLowerCase();
+
+  if(!email) return eqSay('Pick a PayPal account first.');
+  if(email.indexOf('@')<0) return eqSay('That does not look like an email address.');
+
+  const rows=[];
+  let bad=false;
+
+  document.querySelectorAll('#eqRows .erow').forEach(row=>{
+    const phone=String(row.querySelector('.e-phone').value||'').trim();
+    const gross=Number(row.querySelector('.e-gross').value||0);
+    const fee=Number(row.querySelector('.e-fee').value||0);
+
+    if(!gross && !phone) return;               // empty line, skip
+    if(gross<=0){ bad=true; return; }
+    if(fee>gross){ bad=true; return; }
+
+    rows.push({phone, gross, fee});
+  });
+
+  if(bad) return eqSay('Every line needs a gross amount, and the fee cannot be more than the gross.');
+  if(!rows.length) return eqSay('Nothing to send yet.');
+
+  btn.disabled=true;
+  eqSay('Sending…', true);
+
+  const type=$('eqType').value;
+  const status=$('eqStatus').value;
+  const notes=String($('eqNotes').value||'').trim();
+  let done=0;
+
+  try{
+    for(const r of rows){
+      const id='eq_'+Date.now()+'_'+Math.floor(Math.random()*9000+1000);
+      await setDoc(doc(db,'entryQueue',id), {
+        paypalEmail:  email,
+        studentPhone: r.phone,
+        grossUsd:     r.gross,
+        feeUsd:       r.fee,
+        earningType:  type,
+        entryStatus:  status,
+        notes:        notes,
+        processed:    false,
+        addedBy:      ME && ME.uid ? ME.uid : 'admin',
+        createdAt:    serverTimestamp()
+      });
+      done++;
+    }
+
+    $('eqRows').innerHTML='';
+    addEntryRow(); addEntryRow(); addEntryRow();
+    $('eqNotes').value='';
+
+    eqSay(done+' line'+(done>1?'s':'')+' queued. They will appear in the sheet within 5 minutes.', true);
+    toast('Sent to sheet');
+
+    LOADED=false;
+    await loadAll();
+    render();
+  }catch(e){
+    console.error(e);
+    eqSay('Could not send: '+(e.message||e));
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+function renderQueue(){
+  if(!QUEUE.length) return empty('ti-inbox','Nothing sent yet.');
+
+  const recent=QUEUE.slice(0,40);
+  let h='<div class="rows">';
+
+  recent.forEach(q=>{
+    const m=entryMaths(q.grossUsd, q.feeUsd);
+    const state = q.processed
+      ? '<span class="pill ok">In sheet'+(q.sheetRow?' &middot; row '+q.sheetRow:'')+'</span>'
+      : '<span class="pill">Waiting for sync</span>';
+
+    h += '<div class="row">'
+      +   '<div style="flex:1;min-width:180px">'
+      +     '<b>'+esc(q.paypalEmail)+'</b>'
+      +     '<div class="muted" style="font-size:12.5px;margin-top:3px">'
+      +       (q.studentPhone ? esc(q.studentPhone) : 'Pool &mdash; waiting for a claim')
+      +       ' &middot; '+fmtDate(q.at)
+      +     '</div>'
+      +   '</div>'
+      +   '<div style="text-align:right">'
+      +     '<b>$'+m.net.toFixed(2)+'</b>'
+      +     '<div class="muted" style="font-size:12.5px;margin-top:3px">PKR '+m.pkr.toLocaleString()+'</div>'
+      +   '</div>'
+      +   state
+      + '</div>';
+  });
+
+  return h+'</div>';
+}
+
 /* ===== events ===== */
 function wire(){
   document.querySelectorAll('[data-claim]').forEach(b=>{
@@ -1427,13 +1735,16 @@ function wire(){
   };
 }
 
+$('eqAdd').onclick = addEntryRow;
+$('eqSave').onclick = saveEntries;
+
 $('lbX').onclick = ()=>$('lb').classList.remove('show');
 $('lb').onclick = e=>{ if(e.target.id==='lb') $('lb').classList.remove('show'); };
 
 document.querySelectorAll('#nav .snav').forEach(b=>{
   b.onclick=()=>{
     SECTION=b.dataset.s;
-    ['Overview','Claims','Payouts','Methods','Students','Commission'].forEach(k=>{
+    ['Overview','Claims','Entries','Payouts','Methods','Students','Commission'].forEach(k=>{
       $('sec'+k).style.display = (k.toLowerCase()===SECTION)?'block':'none';
     });
     document.querySelectorAll('#nav .snav').forEach(x=>x.classList.toggle('on', x.dataset.s===SECTION));
