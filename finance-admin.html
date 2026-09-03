@@ -223,6 +223,9 @@ button{font-family:var(--body)}
 .entry-total{padding:14px 0 4px;font-size:14px;font-weight:700;color:var(--ink)}
 .entry-total span{color:var(--muted);font-weight:600}
 .entry-note{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+.warnbox{display:flex;gap:12px;align-items:flex-start;background:#fff6ed;border:1.5px solid #f6c99a;border-radius:15px;padding:14px 16px;margin-bottom:22px;color:#8a4b12;font-size:13.5px;line-height:1.55}
+.warnbox i{font-size:19px;flex-shrink:0;margin-top:1px}
+.warnbox b{display:block;margin-bottom:3px}
 .sec-h{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em;margin:0 0 14px}
 @media(max-width:760px){
 .entry-grid-head{display:none}
@@ -278,7 +281,7 @@ button{font-family:var(--body)}
         <button class="snav on" data-s="overview"><i class="ti ti-layout-dashboard"></i> Overview</button>
         <button class="snav" data-s="claims"><i class="ti ti-photo-check"></i> Claims <span class="dot" id="dotClaims">0</span></button>
         <button class="snav" data-s="entries"><i class="ti ti-file-plus"></i> New entries</button>
-        <button class="snav" data-s="payouts"><i class="ti ti-cash"></i> Payouts</button>
+        <button class="snav" data-s="payouts"><i class="ti ti-cash"></i> Payouts <span class="dot" id="dotPayouts">0</span></button>
         <button class="snav" data-s="methods"><i class="ti ti-building-bank"></i> Methods <span class="dot" id="dotMethods">0</span></button>
         <button class="snav" data-s="students"><i class="ti ti-users"></i> Students</button>
         <button class="snav" data-s="commission"><i class="ti ti-chart-line"></i> Commission</button>
@@ -494,6 +497,7 @@ let ME=null;
 let SETTINGS={usdToPkrRate:270,commissionBelowPct:15,commissionAbovePct:10,thresholdUsd:1000,coolingHours:2};
 let stFilter='all', commCycle='all';
 let CLAIMS=[], SETTLEMENTS=[], METHODS=[], STUDENTS=[], ASSIGNMENTS=[], ENTRIES=[], QUEUE=[];
+let BUILDING=false, AUTO_BUILD_TIMER=null;
 let LOADED=false;
 let SECTION='overview';
 let payoutTab='pending', payoutSort='low';
@@ -522,7 +526,7 @@ $('loginForm').addEventListener('submit', async ev=>{
   }
 });
 
-$('buildBtn').onclick = buildSettlements;
+$('buildBtn').onclick = ()=>buildSettlements(false);
 
 $('outBtn').onclick = ()=>signOut(auth);
 $('refreshBtn').onclick = async ()=>{
@@ -746,7 +750,51 @@ function bankState(uid){
  * jinka Student UID bhara hua ho. Jo settlement pehle se paid ho,
  * usay haath nahi lagta.
  */
-async function buildSettlements(){
+/* Counts verified/paid entries whose money is not in any settlement yet.
+   This is the safety net: if the automatic build ever stops, this number
+   goes up and you can see it on Overview instead of finding out later. */
+function unbuiltEntryCount(){
+  const inSettlements={};
+  SETTLEMENTS.forEach(s=>{
+    const k=s.cycleId+'||'+s.studentUid;
+    inSettlements[k]=(inSettlements[k]||0)+s.verifiedUsd;
+  });
+
+  const wanted={};
+  ENTRIES.forEach(e=>{
+    if(e.status!=='verified' && e.status!=='paid') return;
+    if(!e.studentUid) return;
+    const k=(e.cycleId || new Date().toISOString().slice(0,7))+'||'+e.studentUid;
+    wanted[k]=(wanted[k]||0)+e.netUsd;
+  });
+
+  let n=0;
+  Object.keys(wanted).forEach(k=>{
+    if(Math.round((wanted[k]-(inSettlements[k]||0))*100)/100 > 0.01) n++;
+  });
+  return n;
+}
+
+/* Runs itself every 5 minutes while this page is open, so a new verified
+   payment reaches Payouts without anyone remembering to press the button.
+
+   Only ONE place in the whole system builds settlements — this function.
+   The sheet's own rollup stays switched off on purpose: two builders was
+   what produced duplicate settlements before. */
+function startAutoBuild(){
+  if(AUTO_BUILD_TIMER) return;
+  AUTO_BUILD_TIMER=setInterval(()=>{
+    if(BUILDING) return;                 // pichla abhi chal raha hai
+    if(document.hidden) return;          // tab peeche hai, rehne do
+    buildSettlements(true);
+  }, 5*60*1000);
+}
+
+/* quiet = true means it was started by the timer, not by the button. */
+async function buildSettlements(quiet){
+  if(BUILDING) return;
+  BUILDING=true;
+
   const btn=$('buildBtn');
   if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Working…'; }
 
@@ -851,13 +899,18 @@ async function buildSettlements(){
 
   if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-refresh-dot"></i> Build settlements'; }
 
+  BUILDING=false;
+
+  // The timer runs quietly. Only say something when it actually did work.
+  if(quiet && !created && !updated && !settled && !failed) return;
+
   toast(
     created+' new · '+updated+' updated'
     + (settled?' · '+settled+' fully paid':'')
     + (failed?' · '+failed+' failed':'')
   );
 
-  if(noUid){
+  if(noUid && !quiet){
     setTimeout(()=>toast(noUid+' entries have no student yet — they stay in the pool'), 2600);
   }
 }
@@ -1193,6 +1246,7 @@ function render(){
 
   setDot('dotClaims', pendingClaims.length);
   setDot('dotMethods', pendingMethods.length);
+  setDot('dotPayouts', unpaid.length);
 
   $('secOverview').innerHTML = renderOverview(pendingClaims, conflicts, unpaidPkr, paidThisMonth, unpaid);
   $('secClaims').innerHTML = renderClaims(pendingClaims);
@@ -1216,7 +1270,20 @@ function renderOverview(pendingClaims, conflicts, unpaidPkr, paidThisMonth, unpa
     + stat(conflicts, 'Conflicts', conflicts?'red':'')
     + stat('PKR '+short(unpaidPkr), 'Unpaid', '')
     + stat('PKR '+short(paidThisMonth), 'Paid this month', 'green')
+    + stat(unpaid.length, 'To pay', unpaid.length?'amber':'')
     + '</div>';
+
+  /* Safety net. Settlements rebuild themselves every 5 minutes, so this
+     should normally be zero. If it is not, money has been verified but is
+     not showing in Payouts yet — press Build settlements. */
+  const unbuilt = unbuiltEntryCount();
+  if(unbuilt){
+    h += '<div class="warnbox">'
+      +    '<i class="ti ti-alert-triangle"></i>'
+      +    '<div><b>'+unbuilt+' student'+(unbuilt>1?'s have':' has')+' verified money not yet in Payouts.</b>'
+      +    'This normally clears by itself within 5 minutes. If it stays, press Build settlements above.</div>'
+      +  '</div>';
+  }
 
   h += '<h3 class="sec-h">Next payouts</h3>';
   const next = unpaid.slice().sort((a,b)=>dueAmount(a)-dueAmount(b)).slice(0,5);
@@ -1775,6 +1842,10 @@ onAuthStateChanged(auth, async user=>{
   $('secOverview').innerHTML='<div class="loading">Loading…</div>';
   await loadAll();
   render();
+
+  // Build once on open, then keep it fresh every 5 minutes.
+  await buildSettlements(true);
+  startAutoBuild();
 });
 </script>
 </body>
