@@ -2,6 +2,16 @@
 //  AUTO-REPLY SETTINGS
 //  Is file ko kabhi bhi edit kar sakte hain.
 //  Save kar ke Vercel pe deploy karein, foran kaam karega.
+//
+//  ABHI KI HALAT (3 September 2026):
+//    Welcome ......... BAND
+//    Keyword ......... BAND
+//    Weekend ......... CHALU
+//    Raat ............ CHALU
+//    Lunch/Namaz ..... CHALU
+//
+//  Yaani student ko sirf OFF TIME ke message jayenge.
+//  Baqi har jawab team khud degi.
 // ============================================================
 
 // Pehli baar message karne wale ko ye jayega
@@ -15,6 +25,10 @@ export const WELCOME_ENABLED = false;
 
 // Keyword replies on/off
 // BAND — team khud jawab degi
+//
+// AHEM: ye band hai kyunke purana matn purani tareekhein bhej raha tha.
+// Chalu karne se PEHLE neeche AUTO_REPLIES ka matn parh kar taza kar lein,
+// warna students ko ghalat maloomat jayengi.
 export const KEYWORDS_ENABLED = false;
 
 // Off-time ke auto message on/off (master switch)
@@ -35,10 +49,17 @@ export const KEYWORD_COOLDOWN_MINUTES = 30;
 
 // ============================================================
 //  KEYWORD LIST
+//  ABHI BAND HAI (KEYWORDS_ENABLED = false) — ye matn kahin nahi jata.
+//
 //  - keywords: jo lafz message mein aayen (chhote huroof mein likhein)
 //  - reply: jo jawab jayega
 //  Upar wali entry pehle check hoti hai. Nayi entry add karni ho to
 //  bas comma ke baad naya { } block likh dein.
+//
+//  QAEDA: reply mein koi tareekh ya batch ka naam mat likhein.
+//  Wo purana ho jata hai aur koi khabar nahi hoti. Jaisa 25 July / 1 September
+//  ke saath hua tha — mahinon purani tareekh students ko jati rahi.
+//  Tareekh wali baat team se karwayein, auto-reply se nahi.
 // ============================================================
 
 export const AUTO_REPLIES = [
@@ -51,8 +72,9 @@ export const AUTO_REPLIES = [
       "start", "starting", "next batch", "admission open"
     ],
     reply:
-      "Support Program ka naya batch *1 September* ko shuru hoga.\n\n" +
-      "Registration khulne par team aap ko itlaa kar degi. Shukriya!",
+      "Support Program ke bare mein poochhne ka shukriya.\n\n" +
+      "Hamari team abhi aap ko poori tafseel bhej degi — fees, batch aur " +
+      "registration ka tareeqa.",
   },
 
   // ---- Timings ----
@@ -77,6 +99,7 @@ export const AUTO_REPLIES = [
 // ============================================================
 //  SURVEY (masla hal hua ya nahi)
 //  Team "Send survey" button dabati hai, ye message student ko jata hai.
+//  Ye auto-reply nahi hai — team khud bhejti hai, is liye chalu hai.
 // ============================================================
 
 export const SURVEY_MESSAGE =
