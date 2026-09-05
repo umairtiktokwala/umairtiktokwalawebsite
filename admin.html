@@ -8,8 +8,10 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"></noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css"></noscript>
 <style>
 :root{
   --ink:#0F1222; --ink-2:#2A2F45;
@@ -345,6 +347,28 @@ button{font-family:var(--body)}
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="UTW Academy">
+<!-- ============================================================
+     RAFTAR — screen khali kyun rehti thi
+     ------------------------------------------------------------
+     Pehle fonts aur icons <link rel="stylesheet"> se aate the.
+     Us ka matlab hai: browser jab tak ye do alag servers se CSS
+     download na kar le, screen par KUCH BHI nahi dikhata.
+     Google se CSS, phir gstatic se font ki files, phir jsDelivr se
+     icons ka font — teen alag rabte, aur ye sab Firebase se PEHLE.
+     Pakistan ke mobile net par yehi 2-4 second kha jata tha.
+
+     Ab wo "media=print + onload" wale tareeqe se aate hain. Browser
+     unhein kam darje ka samajh kar background mein utha leta hai aur
+     screen foran dikha deta hai. Font aa kar khud lag jata hai.
+     <noscript> un logon ke liye hai jin ka JavaScript band ho.
+
+     Saath mein Firebase ke module "modulepreload" se pehle hi shuru
+     ho jate hain — pehle wo CSS ke baad shuru hote the.
+     ============================================================ -->
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" crossorigin>
 </head>
 <body>
 
@@ -705,20 +729,51 @@ onAuthStateChanged(auth, async user=>{
 /* ===== load all data ===== */
 async function loadAll(){
   SUBS=[]; EARNINGS=[]; STUDENTS=[]; ANN=[]; LESSONS=[];
-  try{
-    const s=await getDocs(collection(db,'submissions'));
-    s.forEach(d=>SUBS.push({id:d.id,...d.data()}));
+
+  /* Ye chhe cheezein ek doosre par munhasir NAHI hain.
+     Pehle ek ke baad ek chalti thin — 1,040 students ka bara query
+     khatam hone tak baqi sab rukey rehte the.
+     Ab sab ek saath jati hain. Wahi chhe queries, koi extra kharcha
+     nahi — sirf tarteeb badli hai.
+     allSettled is liye ke ek nakaam ho to baqi chalti rahen. */
+  const [rSubs, rEarn, rStud, rAnn, rInv, rCsv] = await Promise.allSettled([
+    getDocs(collection(db,'submissions')),
+    getDocs(collection(db,'earningSubmissions')),
+    getDocs(collection(db,'students')),
+    getDocs(collection(db,'announcements')),
+    getDocs(collection(db,'investments')),
+    fetch(LESSONS_CSV).then(r=>r.text())
+  ]);
+
+  if(rSubs.status==='fulfilled'){
+    rSubs.value.forEach(d=>SUBS.push({id:d.id,...d.data()}));
     SUBS.sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0));
-    try{ const es=await getDocs(collection(db,'earningSubmissions')); es.forEach(d=>EARNINGS.push({id:d.id,...d.data()})); EARNINGS.sort((a,b)=>(b.submittedAt?.seconds||0)-(a.submittedAt?.seconds||0)); buildEarningMonthOptions(); }catch(e){}
-    const st=await getDocs(collection(db,'students'));
-    st.forEach(d=>STUDENTS.push({uid:d.id,...d.data()}));
-    try{ const an=await getDocs(collection(db,'announcements')); an.forEach(d=>ANN.push({id:d.id,...d.data()})); ANN.sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0)); }catch(e){}
-    // investments — sirf ye jaanne ke liye ke kis ne form bhara hai
-    try{ INVESTED=new Set(); const iv=await getDocs(collection(db,'investments')); iv.forEach(d=>{ const u=d.data().uid; if(u)INVESTED.add(u); }); }catch(e){ INVESTED=new Set(); }
-  }catch(e){ $('subList').innerHTML='<div class="empty">Could not load data. Check Firestore rules.</div>'; return; }
+  }
+  if(rEarn.status==='fulfilled'){
+    rEarn.value.forEach(d=>EARNINGS.push({id:d.id,...d.data()}));
+    EARNINGS.sort((a,b)=>(b.submittedAt?.seconds||0)-(a.submittedAt?.seconds||0));
+    buildEarningMonthOptions();
+  }
+  if(rStud.status==='fulfilled'){
+    rStud.value.forEach(d=>STUDENTS.push({uid:d.id,...d.data()}));
+  }else{
+    $('subList').innerHTML='<div class="empty">Could not load data. Check Firestore rules.</div>';
+    return;
+  }
+  if(rAnn.status==='fulfilled'){
+    rAnn.value.forEach(d=>ANN.push({id:d.id,...d.data()}));
+    ANN.sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0));
+  }
+  // investments — sirf ye jaanne ke liye ke kis ne form bhara hai
+  INVESTED=new Set();
+  if(rInv.status==='fulfilled'){
+    rInv.value.forEach(d=>{ const u=d.data().uid; if(u)INVESTED.add(u); });
+  }
+
   // lessons — poori list, learn.html jaisi hi ID ke saath
   try{
-    const rows=parseCSV(await (await fetch(LESSONS_CSV)).text()).slice(1);
+    if(rCsv.status!=='fulfilled') throw new Error('csv');
+    const rows=parseCSV(rCsv.value).slice(1);
     const seen={};
     LESSONS=rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
       .map((r,i)=>{
