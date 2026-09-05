@@ -95,6 +95,9 @@ button{font-family:var(--body)}
 .snav:hover{background:var(--card-2);color:var(--ink-2)}
 .snav.on{background:var(--ink);color:#fff}
 .snav.on i{color:#fff}
+/* Prompt Library ek link hai (naya tab kholta hai), button nahi.
+   Isay baqi nav items jaisa hi dikhana hai. */
+.snav-link{text-decoration:none;box-sizing:border-box}
 .side-foot{padding-top:18px;border-top:1px solid var(--line);margin-top:8px}
 .side-wa{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;background:var(--soft-green);color:#0B7A47;font-size:13.5px;font-weight:600;transition:all .16s}
 .side-wa:hover{background:#D6F5E5}
@@ -126,8 +129,8 @@ button{font-family:var(--body)}
   .shell{grid-template-columns:1fr}
   .side{display:none}
   .mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--card);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));justify-content:space-around}
-  .mnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;border-radius:10px}
-  .mnav button i{font-size:21px}
+  .mnav button,.mnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;border-radius:10px;text-decoration:none}
+  .mnav button i,.mnav a i{font-size:21px}
   .mnav button.on{color:var(--purple)}
   .content{padding-bottom:90px}
 }
@@ -317,31 +320,6 @@ button{font-family:var(--body)}
 .mnote{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
 .mnote i{font-size:16px}
 .mnote.ok{color:var(--green)}
-
-/* ---------- Prompt Library card ---------- */
-.plib{
-  display:flex;align-items:center;gap:14px;
-  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
-  padding:16px 18px;margin-bottom:18px;text-decoration:none;color:var(--ink);
-  box-shadow:var(--shadow);
-  transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease;
-}
-.plib:hover{border-color:var(--purple);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-.plib-ic{
-  width:44px;height:44px;flex:0 0 44px;border-radius:13px;
-  background:var(--grad);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:21px;
-}
-.plib-txt{flex:1;min-width:0}
-.plib-t{display:block;font-family:var(--display);font-size:16px;font-weight:700;line-height:1.3}
-.plib-s{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
-.plib-go{color:var(--muted-2);font-size:19px;flex:0 0 auto;display:flex}
-@media(max-width:520px){
-  .plib{padding:14px 15px;gap:12px}
-  .plib-ic{width:38px;height:38px;flex:0 0 38px;font-size:18px;border-radius:11px}
-  .plib-t{font-size:15px}
-  .plib-s{font-size:12px}
-}
 
 /* watch bar — video ke neeche, kitna dekha */
 .mwatch{display:flex;align-items:center;gap:11px;padding:11px 20px 0}
@@ -533,6 +511,14 @@ button{font-family:var(--body)}
         <button class="snav" data-s="notes"><i class="ti ti-notebook"></i> Notebook</button>
         <button class="snav" data-s="earnings"><i class="ti ti-chart-line"></i> My Earnings</button>
         <button class="snav" data-s="invest"><i class="ti ti-coins"></i> My Investment</button>
+        <!-- Prompt Library — Umair ki apni videos ke prompts (Google Doc).
+             Ye section nahi badalta, naya tab kholta hai. Is liye ye ek
+             link hai — data-s wala switch is par nahi chalta.
+             Link /preview par khatam hota hai (na ke /edit) taake Google ka
+             menu aur "Sign in" ka button na aaye — phone par saaf dikhe.
+             Doc mein jo likha jaye wo foran nazar aata hai; site par kuch
+             badalne ki zaroorat nahi. -->
+        <a class="snav snav-link" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i> Prompt Library</a>
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
       </nav>
       <div class="side-foot">
@@ -601,21 +587,6 @@ button{font-family:var(--body)}
               <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
             </div>
           </div>
-
-          <!-- Prompt Library — Umair ki apni videos ke prompts.
-               Ye ek Google Doc hai jise Umair khud update karte rehte hain.
-               Site par kuch badalne ki zaroorat nahi — doc mein likhte hi
-               students ko nazar aa jata hai.
-               Link /preview par khatam hota hai (na ke /edit) taake Google ka
-               menu aur "Sign in" ka button na aaye — phone par saaf dikhe. -->
-          <a class="plib" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener">
-            <span class="plib-ic"><i class="ti ti-sparkles"></i></span>
-            <span class="plib-txt">
-              <span class="plib-t">Prompt Library</span>
-              <span class="plib-s">Meri videos ke saare prompts — ek hi jagah</span>
-            </span>
-            <span class="plib-go"><i class="ti ti-external-link"></i></span>
-          </a>
 
           <div class="tabs" id="tabs"></div>
           <div class="mod-g" id="mods"><div class="empty"><i class="ti ti-loader-2"></i>Loading your course…</div></div>
@@ -801,6 +772,7 @@ button{font-family:var(--body)}
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
+    <a href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Prompts</a>
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
     <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923498319331','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
