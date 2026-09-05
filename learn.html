@@ -409,6 +409,19 @@ button{font-family:var(--body)}
 @media(max-width:430px){.mnav button{font-size:9.5px;padding:7px 2px}.mnav button i{font-size:19px}}
 
 </style>
+
+<!-- Google Analytics (GA4) — website ke visitors ka hisaab.
+     Ye tag admin.html, inbox.html aur finance-admin.html par NAHI lagta:
+     un safhon par students ke naam aur number khule hote hain, aur
+     un par sirf team aati hai — un ka data mil jaye to visitors ki
+     poori report kharab ho jati hai. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZBJ7FW689J"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ZBJ7FW689J');
+</script>
 </head>
 <body>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css">
@@ -1232,11 +1245,25 @@ async function loadTime(){
   snap.forEach(d=>{DAYS[d.id]=(d.data().seconds||0);});
   paintTime();
 }
+/* lastSeen — student ke apne record mein aakhri din ka nishan.
+   Waqt ka poora hisaab days subcollection mein hai, lekin admin ko
+   1040 students ki ginti ke liye 1040 alag queries karni paRtin.
+   Ab wo nishan students ki list ke saath hi aa jata hai — koi extra
+   query nahi. Wahi tarkeeb jo courseStats ke liye istemal ki thi. */
+let LAST_SEEN_WRITTEN = '';
+
 async function addTime(sec){
   if(!ME||sec<5) return;
   sec=Math.min(sec,2*60*60);
   const k=todayKey(); DAYS[k]=(DAYS[k]||0)+sec; paintTime();
   try{ await setDoc(doc(db,'students',ME.uid,'days',k),{seconds:DAYS[k],at:serverTimestamp()}); }catch(e){}
+
+  // Din badalne par hi likhte hain — har minute nahi, warna
+  // ek student ke rozana 60+ be-faida writes chale jayenge.
+  if(LAST_SEEN_WRITTEN !== k){
+    LAST_SEEN_WRITTEN = k;
+    try{ await updateDoc(doc(db,'students',ME.uid),{lastSeen:k,lastSeenAt:serverTimestamp()}); }catch(e){}
+  }
 }
 function streakDays(){
   let n=0; const d=new Date();
