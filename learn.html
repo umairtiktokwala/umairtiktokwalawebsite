@@ -318,6 +318,31 @@ button{font-family:var(--body)}
 .mnote i{font-size:16px}
 .mnote.ok{color:var(--green)}
 
+/* ---------- Prompt Library card ---------- */
+.plib{
+  display:flex;align-items:center;gap:14px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px 18px;margin-bottom:18px;text-decoration:none;color:var(--ink);
+  box-shadow:var(--shadow);
+  transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+.plib:hover{border-color:var(--purple);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.plib-ic{
+  width:44px;height:44px;flex:0 0 44px;border-radius:13px;
+  background:var(--grad);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:21px;
+}
+.plib-txt{flex:1;min-width:0}
+.plib-t{display:block;font-family:var(--display);font-size:16px;font-weight:700;line-height:1.3}
+.plib-s{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.plib-go{color:var(--muted-2);font-size:19px;flex:0 0 auto;display:flex}
+@media(max-width:520px){
+  .plib{padding:14px 15px;gap:12px}
+  .plib-ic{width:38px;height:38px;flex:0 0 38px;font-size:18px;border-radius:11px}
+  .plib-t{font-size:15px}
+  .plib-s{font-size:12px}
+}
+
 /* watch bar — video ke neeche, kitna dekha */
 .mwatch{display:flex;align-items:center;gap:11px;padding:11px 20px 0}
 .mwatch-bar{flex:1;height:6px;background:var(--card-2);border-radius:99px;overflow:hidden}
@@ -576,6 +601,21 @@ button{font-family:var(--body)}
               <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
             </div>
           </div>
+
+          <!-- Prompt Library — Umair ki apni videos ke prompts.
+               Ye ek Google Doc hai jise Umair khud update karte rehte hain.
+               Site par kuch badalne ki zaroorat nahi — doc mein likhte hi
+               students ko nazar aa jata hai.
+               Link /preview par khatam hota hai (na ke /edit) taake Google ka
+               menu aur "Sign in" ka button na aaye — phone par saaf dikhe. -->
+          <a class="plib" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener">
+            <span class="plib-ic"><i class="ti ti-sparkles"></i></span>
+            <span class="plib-txt">
+              <span class="plib-t">Prompt Library</span>
+              <span class="plib-s">Meri videos ke saare prompts — ek hi jagah</span>
+            </span>
+            <span class="plib-go"><i class="ti ti-external-link"></i></span>
+          </a>
 
           <div class="tabs" id="tabs"></div>
           <div class="mod-g" id="mods"><div class="empty"><i class="ti ti-loader-2"></i>Loading your course…</div></div>
