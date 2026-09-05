@@ -321,6 +321,77 @@ button{font-family:var(--body)}
 .mnote i{font-size:16px}
 .mnote.ok{color:var(--green)}
 
+/* ---------- PROMPT BOOK (portal ke andar) ---------- */
+.pbk-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+#pbkSearch{
+  flex:1;min-width:220px;padding:13px 16px;border:1.5px solid var(--line);
+  border-radius:14px;background:var(--card);font-family:var(--body);
+  font-size:14.5px;color:var(--ink);outline:none;transition:border-color .16s;
+}
+#pbkSearch:focus{border-color:var(--blue)}
+#pbkSearch::placeholder{color:var(--muted-2)}
+.pbk-count{font-size:12.5px;color:var(--muted);white-space:nowrap}
+
+.pbk-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;-webkit-overflow-scrolling:touch}
+.pbk-chips::-webkit-scrollbar{height:5px}
+.pbk-chips::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.pbk-chip{
+  flex-shrink:0;padding:7px 14px;border:1.5px solid var(--line);border-radius:99px;
+  background:var(--card);cursor:pointer;font-family:var(--body);font-size:12.5px;
+  font-weight:600;color:var(--muted);white-space:nowrap;transition:all .16s;
+}
+.pbk-chip:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.pbk-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+.pbk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.pbk-card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;
+}
+.pbk-img{width:100%;aspect-ratio:9/16;object-fit:cover;background:var(--card-2);display:block}
+.pbk-body{padding:15px 16px 16px;display:flex;flex-direction:column;flex:1}
+.pbk-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.pbk-tag{
+  font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;padding:4px 9px;border-radius:6px;
+  background:var(--soft-blue);color:var(--blue);
+}
+.pbk-tag.tool{background:var(--soft-purple);color:var(--purple)}
+.pbk-title{font-family:var(--display);font-size:15.5px;font-weight:700;line-height:1.3;margin-bottom:10px}
+.pbk-prompt{
+  font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--ink-2);
+  background:var(--card-2);border-radius:11px;padding:12px 13px;margin-bottom:12px;
+  max-height:120px;overflow:hidden;position:relative;white-space:pre-wrap;word-break:break-word;
+}
+.pbk-prompt::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:38px;
+  background:linear-gradient(180deg,transparent,var(--card-2));
+}
+.pbk-prompt.open{max-height:none}
+.pbk-prompt.open::after{display:none}
+.pbk-acts{display:flex;gap:8px;margin-top:auto}
+.pbk-btn{
+  flex:1;padding:10px 12px;border-radius:11px;border:1.5px solid var(--line);
+  background:var(--card);cursor:pointer;font-family:var(--body);font-size:12.5px;
+  font-weight:600;color:var(--ink-2);transition:all .16s;
+}
+.pbk-btn:hover{border-color:var(--ink-2)}
+.pbk-btn.copy{background:var(--ink);border-color:var(--ink);color:#fff}
+.pbk-btn.copy:hover{opacity:.88}
+.pbk-btn.done{background:var(--green);border-color:var(--green);color:#fff}
+
+.pbk-more{
+  display:block;margin:24px auto 0;padding:12px 28px;border-radius:99px;
+  border:1.5px solid var(--line);background:var(--card);cursor:pointer;
+  font-family:var(--body);font-size:14px;font-weight:600;color:var(--ink-2);transition:all .16s;
+}
+.pbk-more:hover{border-color:var(--ink);background:var(--card-2)}
+
+@media(max-width:520px){
+  .pbk-grid{grid-template-columns:1fr}
+  #pbkSearch{font-size:16px}   /* 16px se kam ho to iPhone zoom kar deta hai */
+}
+
 /* watch bar — video ke neeche, kitna dekha */
 .mwatch{display:flex;align-items:center;gap:11px;padding:11px 20px 0}
 .mwatch-bar{flex:1;height:6px;background:var(--card-2);border-radius:99px;overflow:hidden}
@@ -519,6 +590,7 @@ button{font-family:var(--body)}
              Doc mein jo likha jaye wo foran nazar aata hai; site par kuch
              badalne ki zaroorat nahi. -->
         <a class="snav snav-link" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i> Prompt Library</a>
+        <button class="snav" data-s="prompts"><i class="ti ti-book"></i> Prompt Book</button>
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
       </nav>
       <div class="side-foot">
@@ -590,6 +662,23 @@ button{font-family:var(--body)}
 
           <div class="tabs" id="tabs"></div>
           <div class="mod-g" id="mods"><div class="empty"><i class="ti ti-loader-2"></i>Loading your course…</div></div>
+        </div>
+
+        <!-- ===== PROMPT BOOK SECTION =====
+             Wahi 876 prompts jo prompt-book.html par hain, lekin portal ke
+             andar. Pehle student ko app/portal band kar ke public site par
+             jana paRta tha — ab wo yahin rehta hai.
+             Data usi published Google Sheet CSV se aata hai, is liye sheet
+             mein kuch badlein to dono jagah khud badal jata hai. -->
+        <div id="secPrompts" style="display:none">
+          <div class="pbk-top">
+            <input type="text" id="pbkSearch" placeholder="Prompt dhoondein — title, category ya tool se…" autocomplete="off">
+            <div class="pbk-count" id="pbkCount"></div>
+          </div>
+          <div class="pbk-chips" id="pbkChips"></div>
+          <div class="empty" id="pbkState"><i class="ti ti-loader-2"></i>Loading prompts…</div>
+          <div class="pbk-grid" id="pbkGrid" hidden></div>
+          <button class="pbk-more" id="pbkMore" hidden>Aur dikhayein</button>
         </div>
 
         <!-- ===== TASKS SECTION ===== -->
@@ -772,7 +861,8 @@ button{font-family:var(--body)}
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
-    <a href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Prompts</a>
+    <a href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Library</a>
+    <button data-s="prompts"><i class="ti ti-book"></i>Prompts</button>
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
     <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923498319331','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
@@ -1820,7 +1910,8 @@ function switchSection(s){
   $('secEarnings').style.display = s==='earnings'?'block':'none';
   $('secInvest').style.display = s==='invest'?'block':'none';
   $('secProfile').style.display = s==='profile'?'block':'none';
-  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo']};
+  $('secPrompts').style.display = s==='prompts'?'block':'none';
+  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo'],prompts:['Prompt Book','Search, copy and use — 800+ AI video prompts']};
   $('pageTitle').textContent=t[s][0]; $('pageSub').textContent=t[s][1];
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
     if(b.dataset.s)b.classList.toggle('on',b.dataset.s===s);
@@ -1828,9 +1919,148 @@ function switchSection(s){
   if(s==='tasks')renderTasks(); if(s==='notes')renderNotes(); if(s==='earnings')renderEarnings(); if(s==='invest')renderInvest(); if(s==='profile')renderProfile();
   // Tasks khul gaya — ustad ke message ab "dekhe huay" hain
   if(s==='tasks') markMsgsSeen().catch(()=>{});
+  // Prompt book pehli dafa khulne par hi load hota hai — us se pehle nahi.
+  // 876 prompts har login par uthana be-faida hai.
+  if(s==='prompts') loadPromptBook();
 }
 document.querySelectorAll('#sideNav .snav').forEach(b=>{ b.onclick=()=>switchSection(b.dataset.s); });
 document.querySelectorAll('#mnav button').forEach(b=>{ if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s); });
+
+/* ===== PROMPT BOOK (portal ke andar) =====
+   Wahi data jo prompt-book.html par hai — usi published Sheet CSV se.
+   Sheet mein kuch badlein to dono jagah khud badal jata hai.
+
+   Pehli dafa section khulne par hi load hota hai (switchSection se),
+   har login par nahi — 876 prompts be-wajah uthana theek nahi. */
+const PBK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
+const PBK_PER_PAGE = 12;
+
+let PBK_ALL = [], PBK_FILTER = 'All', PBK_SHOWN = 0, PBK_Q = '', PBK_LOADED = false;
+
+async function loadPromptBook(){
+  if(PBK_LOADED) return;
+  PBK_LOADED = true;                       // dobara koshish na ho
+  const state = $('pbkState');
+  try{
+    const res = await fetch(PBK_CSV);
+    if(!res.ok) throw new Error(res.status);
+    const rows = parseCSV(await res.text()).slice(1);
+    PBK_ALL = rows.map(pbkRow).filter(p => p.prompt).reverse();   // naye pehle
+    if(!PBK_ALL.length){ state.innerHTML = '<i class="ti ti-mood-empty"></i>Abhi koi prompt nahi hai.'; return; }
+    pbkChips();
+    pbkRender(true);
+  }catch(e){
+    PBK_LOADED = false;                    // nakaam hua to dobara koshish ho sake
+    state.innerHTML = '<i class="ti ti-alert-triangle"></i>Prompt book load nahi hua. Net check karein aur dobara koshish karein.';
+  }
+}
+
+/* Cloudinary ke purane URL mein comma hota tha (f_auto,q_auto). Agar wo
+   sheet mein bina quotes ke paste hua ho to CSV us ko kai khanon mein tor
+   deta hai. Yahan usay wapas jorte hain. */
+function pbkRow(r){
+  r = r.map(c => (c||'').trim());
+  if(r[0] && r[0].indexOf('http') === 0){
+    while(r.length > 5 && r[1] && !/\s/.test(r[1]) && !/^https?:/.test(r[1])
+          && (r[1].indexOf('/') > -1 || /^[a-z]_[a-z0-9]+$/i.test(r[1]))){
+      r[0] = r[0] + ',' + r[1];
+      r.splice(1,1);
+    }
+  }
+  return { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
+}
+
+function pbkChips(){
+  const cats = ['All', ...new Set(PBK_ALL.map(p=>p.cat).filter(Boolean))];
+  const bar = $('pbkChips');
+  bar.innerHTML = cats.map(c =>
+    `<button class="pbk-chip${c==='All'?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`
+  ).join('');
+  bar.querySelectorAll('.pbk-chip').forEach(b=>{
+    b.onclick = () => {
+      bar.querySelectorAll('.pbk-chip').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      PBK_FILTER = b.dataset.cat;
+      pbkRender(true);
+    };
+  });
+}
+
+function pbkRender(reset){
+  if(reset) PBK_SHOWN = 0;
+  const grid = $('pbkGrid'), state = $('pbkState'), more = $('pbkMore'), count = $('pbkCount');
+  const q = PBK_Q.trim().toLowerCase();
+
+  const list = PBK_ALL.filter(p => {
+    if(PBK_FILTER !== 'All' && p.cat !== PBK_FILTER) return false;
+    if(!q) return true;
+    return (p.title||'').toLowerCase().includes(q)
+        || (p.prompt||'').toLowerCase().includes(q)
+        || (p.cat||'').toLowerCase().includes(q)
+        || (p.tool||'').toLowerCase().includes(q);
+  });
+
+  count.textContent = q && list.length
+    ? list.length + (list.length === 1 ? ' prompt mila' : ' prompts mile')
+    : '';
+
+  if(!list.length){
+    grid.hidden = true; more.hidden = true; state.hidden = false;
+    state.innerHTML = '<i class="ti ti-search-off"></i>' + (q
+      ? 'Is lafz se koi prompt nahi mila — koi doosra lafz try karein.'
+      : 'Is category mein kuch nahi hai.');
+    return;
+  }
+
+  state.hidden = true; grid.hidden = false;
+  PBK_SHOWN = Math.min(PBK_SHOWN + PBK_PER_PAGE, list.length);
+  const page = list.slice(0, PBK_SHOWN);
+
+  grid.innerHTML = page.map((p,i) => `
+    <article class="pbk-card">
+      ${p.img ? `<img class="pbk-img" src="${esc(p.img)}" alt="${esc(p.title)}" loading="lazy" onerror="this.style.display='none'">` : ''}
+      <div class="pbk-body">
+        ${(p.cat||p.tool) ? `<div class="pbk-meta">
+          ${p.cat  ? `<span class="pbk-tag">${esc(p.cat)}</span>` : ''}
+          ${p.tool ? `<span class="pbk-tag tool">${esc(p.tool)}</span>` : ''}
+        </div>` : ''}
+        ${p.title ? `<h3 class="pbk-title">${esc(p.title)}</h3>` : ''}
+        <div class="pbk-prompt" id="pbkP${i}">${esc(p.prompt)}</div>
+        <div class="pbk-acts">
+          <button class="pbk-btn copy" data-pbkcopy="${i}">Copy prompt</button>
+          <button class="pbk-btn" data-pbkopen="${i}">Read all</button>
+        </div>
+      </div>
+    </article>`).join('');
+
+  more.hidden = PBK_SHOWN >= list.length;
+
+  grid.querySelectorAll('[data-pbkcopy]').forEach(b=>{
+    b.onclick = async () => {
+      const txt = page[+b.dataset.pbkcopy].prompt;
+      try{ await navigator.clipboard.writeText(txt); }
+      catch(e){
+        // purane browser ya bina https ke clipboard nahi chalti
+        const ta=document.createElement('textarea'); ta.value=txt;
+        document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(_){}
+        ta.remove();
+      }
+      const t = b.textContent;
+      b.textContent = 'Copied'; b.classList.add('done');
+      setTimeout(()=>{ b.textContent=t; b.classList.remove('done'); }, 1400);
+    };
+  });
+  grid.querySelectorAll('[data-pbkopen]').forEach(b=>{
+    b.onclick = () => {
+      const el = document.getElementById('pbkP'+b.dataset.pbkopen);
+      b.textContent = el.classList.toggle('open') ? 'Show less' : 'Read all';
+    };
+  });
+}
+
+$('pbkSearch').oninput = e => { PBK_Q = e.target.value; pbkRender(true); };
+$('pbkMore').onclick   = () => pbkRender(false);
 
 /* ===== which courses can this student see in this batch ===== */
 function allowedCourses(batch){

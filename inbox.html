@@ -484,6 +484,13 @@
   .bubble:hover .msg-menu{opacity:1}
   .bubble.in .msg-menu{right:auto;left:5px}
 
+  /* ---------- Blocked ka nishan ---------- */
+  .blocked-bar{
+    background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius);
+    padding:11px 13px;margin-bottom:14px;font-size:12.5px;color:#B42318;line-height:1.5;
+  }
+  .blocked-bar b{font-weight:700}
+
   /* ---------- Toast (chhota paigham neeche) ---------- */
   .toast{
     position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(14px);
@@ -1672,6 +1679,11 @@ function paintChatHead() {
         : '<button class="mini-btn ok" id="closeBtn">Close</button>') +
       '<button class="mini-btn" id="unreadBtn">Mark unread</button>' +
       (me.reviewer ? '' : '<button class="mini-btn" id="delChatBtn" style="color:var(--danger)">Delete chat</button>') +
+      // Block sirf WhatsApp par — Messenger ke liye Meta ka ye API nahi hai.
+      (me.reviewer || isMessenger(c) ? ''
+        : c.blocked
+          ? '<button class="mini-btn" id="blockBtn">Unblock</button>'
+          : '<button class="mini-btn" id="blockBtn" style="color:var(--danger)">Block</button>') +
       (isMessenger(c) ? ''
         : c.surveyPending ? '<span class="mini-btn" style="cursor:default">Survey sent</span>'
                           : '<button class="mini-btn" id="surveyBtn">Send survey</button>') +
@@ -1751,6 +1763,53 @@ function paintChatHead() {
       alert("Delete nahi hui: " + e.message);
       dc.disabled = false;
       dc.textContent = "Delete chat";
+    }
+  };
+
+  /* Block / Unblock — badtameezi karne walon ke liye.
+     Meta ki shart: sirf wahi banda block ho sakta hai jis ne pichle
+     24 ghante mein message kiya ho. Button hamesha dikhta hai lekin
+     nakaam ho sakta hai — us soorat mein wajah saaf batayi jati hai. */
+  const bb = $("blockBtn");
+  if (bb) bb.onclick = async () => {
+    const isBlocked = !!c.blocked;
+    const ask = isBlocked
+      ? "Is number ko unblock kar dein?\n\nWo dobara message bhej sakega."
+      : "Is number ko block kar dein?\n\n"
+        + "\u2022 Wo aap ko message nahi bhej sakega\n"
+        + "\u2022 Aap bhi us ko message nahi bhej sakenge\n"
+        + "\u2022 Us ko koi itlaa nahi jayegi\n\n"
+        + "Meta sirf un logon ko block karne deta hai jinho ne pichle 24 ghante mein message kiya ho.";
+    if (!confirm(ask)) return;
+
+    const convoId = activeId;
+    bb.disabled = true;
+    bb.textContent = isBlocked ? "Unblock ho raha hai\u2026" : "Block ho raha hai\u2026";
+    try {
+      const r = await fetch("/api/whatsapp-block", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          convoId,
+          waNumber: c.waNumber || convoId,
+          phoneNumberId: c.phoneNumberId || null,
+          action: isBlocked ? "unblock" : "block",
+          by: me.uid,
+          byName: me.name
+        })
+      });
+      const data = await r.json();
+      if (data.ok) {
+        say(isBlocked ? "Unblock ho gaya" : "Block ho gaya");
+      } else {
+        say(data.error || "Nahi ho saka", true);
+        bb.disabled = false;
+        bb.textContent = isBlocked ? "Unblock" : "Block";
+      }
+    } catch (e) {
+      say("Request nahi ja saki: " + (e && e.message ? e.message : "masla"), true);
+      bb.disabled = false;
+      bb.textContent = isBlocked ? "Unblock" : "Block";
     }
   };
 
@@ -2397,6 +2456,12 @@ function renderInfo() {
      Har chat khulne par khud load karte to ek hi bande ki chat din mein
      100 dafa khulne par 100 dafa data jata. Team ko zyadatar sirf jawab
      dena hota hai; performance kabhi kabhaar chahiye. */
+  const blockedBar = c.blocked
+    ? '<div class="blocked-bar"><b>Ye number block hai.</b> Wo message nahi bhej sakta, aur aap bhi nahi bhej sakte.'
+      + (c.blockedByName ? ' Block kiya: ' + esc(c.blockedByName) + '.' : '')
+      + '</div>'
+    : '';
+
   const perfBox = isMessenger(c)
     ? ''
     : '<div class="info-title" style="margin-top:22px">Performance</div>' +
@@ -2431,6 +2496,7 @@ function renderInfo() {
     '<div class="info-number">' +
       (isMessenger(c) ? 'Messenger &middot; Facebook Page' : '+' + esc(c.waNumber || c.id)) +
     '</div>' +
+    blockedBar +
     '<div style="margin-top:14px">' + rows + '</div>' +
     perfBox + labelPicker + notesBox;
 
