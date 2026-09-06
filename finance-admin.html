@@ -609,6 +609,8 @@ async function loadAll(){
     status:String(d.status||'submitted').toLowerCase(),
     proofUrl:d.proofUrl||d.paymentProofUrl||'',
     matchNote:d.matchNote||'',
+    linkedEntryId:d.linkedEntryId||'',
+    entryQueueId:d.entryQueueId||'',
     at:tsSec(d.createdAt)
   })).sort((a,b)=>b.at-a.at);
 
@@ -941,10 +943,70 @@ async function buildSettlements(quiet){
 }
 
 /* ===== actions ===== */
+
+/* Approving a claim used to only stamp it 'verified'. That was misleading:
+   the money lives in paymentEntries, not in the claim, so an approved claim
+   never reached Payouts and the student was left waiting.
+
+   Now approving also queues the matching payment line, exactly as if you had
+   typed it in New entries — same email, same amount, and the student already
+   filled in. The sheet then works out the commission and PKR as always. */
 async function setClaim(id, status){
+  const c = CLAIMS.find(x=>x.id===id);
+
+  if(status==='verified' && c){
+    const already = c.linkedEntryId || c.entryQueueId;
+
+    if(!already){
+      if(!c.paypalEmail) return toast('This claim has no PayPal email — cannot create the entry');
+      if(!(c.netUsd>0))  return toast('This claim has no amount — cannot create the entry');
+      if(!c.studentPhone && !c.studentUid) return toast('This claim has no student — cannot create the entry');
+
+      const who = c.studentName || c.studentPhone || 'this student';
+      if(!confirm('Approve and add $'+c.netUsd.toFixed(2)+' for '+who+'?\n\n'
+                + 'A payment line will be created on '+c.paypalEmail+'. '
+                + 'It reaches the sheet within 5 minutes and then shows up in Payouts.')) return;
+
+      try{
+        const eqId = 'eq_'+Date.now()+'_'+Math.floor(Math.random()*9000+1000);
+
+        await setDoc(doc(db,'entryQueue',eqId), {
+          paypalEmail:  String(c.paypalEmail).toLowerCase(),
+          studentPhone: c.studentPhone || '',
+          grossUsd:     c.netUsd,
+          feeUsd:       0,
+          earningType:  'tiktok',
+          entryStatus:  'Verified',
+          notes:        'From approved claim',
+          processed:    false,
+          addedBy:      ME && ME.uid ? ME.uid : 'admin',
+          createdAt:    serverTimestamp()
+        });
+
+        /* linkedEntryId also stops the Apps Script matcher from picking this
+           claim up again every five minutes. */
+        await updateDoc(doc(db,'paymentClaims',id), {
+          status:        'verified',
+          linkedEntryId: eqId,
+          entryQueueId:  eqId,
+          matchNote:     '',
+          reviewedAt:    serverTimestamp()
+        });
+
+        c.status='verified'; c.linkedEntryId=eqId; c.entryQueueId=eqId;
+        render();
+        toast('Approved · payment queued for the sheet');
+      }catch(e){
+        console.error(e);
+        toast('Could not save — try again');
+      }
+      return;
+    }
+  }
+
   try{
     await updateDoc(doc(db,'paymentClaims',id), { status, reviewedAt: serverTimestamp() });
-    const c=CLAIMS.find(x=>x.id===id); if(c) c.status=status;
+    if(c) c.status=status;
     render();
     toast(status==='verified' ? 'Claim approved' : 'Claim rejected');
   }catch(e){ toast('Could not save — try again'); }
