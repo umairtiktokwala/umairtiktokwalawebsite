@@ -217,6 +217,9 @@ button{font-family:var(--body)}
 .f input,.f select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:11px;font-family:var(--body);font-size:15px;background:var(--card);color:var(--ink)}
 .f input:focus,.f select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 4px var(--soft-purple)}
 .f .hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}
+.guide-link{display:inline-flex;align-items:center;gap:7px;margin-top:9px;padding:8px 13px;border:1.5px solid var(--line);background:none;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.guide-link:hover{border-color:var(--ink-2);background:var(--line)}
+.guide-link i{font-size:15px}
 .f-check{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:14px;color:var(--ink-2)}
 .f-check input{width:18px;height:18px;accent-color:var(--purple)}
 .drop{border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:var(--card-2)}
@@ -676,9 +679,16 @@ button{font-family:var(--body)}
     </div>
 
     <div class="f">
-      <label for="claimAmount">Amount in USD</label>
-      <input type="number" id="claimAmount" step="0.01" min="0.01" placeholder="499.00" inputmode="decimal">
-      <div class="hint">Enter the exact amount shown in PayPal, before any deduction.</div>
+      <label for="claimAmount">How much arrived in the PayPal account?</label>
+      <input type="number" id="claimAmount" step="0.01" min="0.01" placeholder="37.59" inputmode="decimal">
+      <div class="hint">
+        In your TikTok screenshot, use the number next to
+        <b>&ldquo;Estimated amount you receive&rdquo;</b> &mdash; not the big amount at the top.
+        The big one still has the TikTok fee in it.
+      </div>
+      <button type="button" class="guide-link" id="claimGuide">
+        <i class="ti ti-photo-question"></i> Kaunsa number? Tasveer dekhein
+      </button>
     </div>
 
     <div class="f">
@@ -832,6 +842,11 @@ async function withRetry(fn){
 let ME=null, ACCESS=null;
 let SETTLEMENTS=[], CLAIMS=[], ACCOUNTS=[], METHODS=[], ALERTS=[];
 let claimFile=null;
+
+/* Guide picture for the claim amount. Students kept sending the big TikTok
+   number instead of what actually landed in PayPal, so the two never matched
+   and every claim ended up in review. */
+const CLAIM_GUIDE_IMG = 'https://firebasestorage.googleapis.com/v0/b/umair-tiktok-wala-academy.firebasestorage.app/o/claim-amount-guide%20(1).png?alt=media&token=45343468-8ab6-40c2-844a-281a66ff36c3';
 
 function toast(msg){
   const t=$('toast'); t.textContent=msg; t.classList.add('show');
@@ -1522,6 +1537,12 @@ $('openClaim').onclick  = openClaimSheet;
 $('openClaim2').onclick = openClaimSheet;
 $('claimCancel').onclick = ()=>$('claimSheet').classList.remove('show');
 $('claimSheet').onclick = e=>{ if(e.target.id==='claimSheet') $('claimSheet').classList.remove('show'); };
+
+$('claimGuide').onclick = ()=>{
+  $('lbImg').src = CLAIM_GUIDE_IMG;
+  $('lbImg').alt = 'Which amount to enter';
+  $('lb').classList.add('show');
+};
 
 $('claimDrop').onclick = ()=>$('claimFile').click();
 
