@@ -33,6 +33,12 @@ a{color:inherit;text-decoration:none}
 button{font-family:var(--body)}
 
 /* ---------- SPLASH ---------- */
+.su-free{
+  background:var(--soft-blue);border:1px solid rgba(37,99,235,.18);
+  border-radius:11px;padding:12px 14px;margin-bottom:16px;
+  font-size:12.5px;line-height:1.6;color:var(--ink-2);
+}
+.su-free a{color:var(--blue);text-decoration:underline}
 .splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999}
 .splash-dot{width:46px;height:46px;border-radius:50%;background:var(--grad);animation:pulse 1.1s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(.72);opacity:.5}50%{transform:scale(1);opacity:1}}
@@ -568,12 +574,16 @@ button{font-family:var(--body)}
       </form>
 
       <form id="signupView" style="display:none" autocomplete="on">
-        <h2>Create your account</h2>
-        <p class="af-sub">Use the same number you enrolled with.</p>
+        <h2 id="suHead">Create your account</h2>
+        <p class="af-sub" id="suSub">Use the same number you enrolled with.</p>
+        <div class="su-free" id="suFreeNote" style="display:none">
+          You are creating a <b>free account</b>. It opens the four free courses.
+          Already paid for the Support Program? <a href="learn.html#signup">Use the paid signup instead</a>.
+        </div>
         <div class="field">
           <label for="suNum">WhatsApp number</label>
           <input type="tel" id="suNum" name="username" placeholder="03001234567" autocomplete="username" inputmode="numeric">
-          <div class="hint">The number you paid with</div>
+          <div class="hint" id="suNumHint">The number you paid with</div>
         </div>
         <div class="field">
           <label for="suEmail">Email</label>
@@ -1036,10 +1046,39 @@ window.onYouTubeIframeAPIReady=function(){ YT_READY=true; };
 let PENDING_NUM='';
 
 /* ===== auth screens ===== */
-function showSignup(){ clearNote(); $('loginView').style.display='none'; $('signupView').style.display='block'; }
+/* FREE_MODE — free course ka account.
+   Farq sirf itna: /api/verify se nahi poochte.
+
+   Wajah: verify sirf PAID students ki list dekhta hai. Free wala us
+   mein hota hi nahi, is liye us ko "This number is not in the verified
+   list" milta tha — aur wo aage barh hi nahi sakta tha.
+
+   Free account ka record: batch "Free", verified false, aur chaaron
+   free course. Admin panel mein batch filter se alag nazar aayenge. */
+let FREE_MODE = false;
+
+const FREE_COURSES = ['facebook','tiktok','ai-content','prompt-engineering'];
+
+function paintSignup(){
+  $('suHead').textContent = FREE_MODE ? 'Create your free account' : 'Create your account';
+  $('suSub').textContent  = FREE_MODE
+    ? 'No fee, no card. Just a number and an email.'
+    : 'Use the same number you enrolled with.';
+  $('suNumHint').textContent = FREE_MODE ? 'Any WhatsApp number' : 'The number you paid with';
+  $('signupBtn').textContent = FREE_MODE ? 'Create free account' : 'Verify & create account';
+  $('suFreeNote').style.display = FREE_MODE ? 'block' : 'none';
+}
+
+function showSignup(free){
+  clearNote();
+  FREE_MODE = !!free;
+  paintSignup();
+  $('loginView').style.display='none';
+  $('signupView').style.display='block';
+}
 function showLogin(){ clearNote(); $('signupView').style.display='none'; $('loginView').style.display='block'; }
 
-$('toSignup').onclick = showSignup;
+$('toSignup').onclick = ()=>showSignup(false);
 $('toLogin').onclick  = showLogin;
 
 /* learn.html#signup se seedha signup form khul jata hai.
@@ -1047,11 +1086,14 @@ $('toLogin').onclick  = showLogin;
    hain. Pehle wo sirf login dikhata tha aur student ko wo chhota sa
    "New here?" wala link khud dhoondna paRta tha — bahut se log wahin
    ruk jate the. */
-if (location.hash === '#signup') showSignup();
-window.addEventListener('hashchange', () => {
-  if (location.hash === '#signup') showSignup();
-  else if (location.hash === '#login') showLogin();
-});
+function applyHash(){
+  const h = location.hash;
+  if(h === '#signup-free') showSignup(true);
+  else if(h === '#signup') showSignup(false);
+  else if(h === '#login') showLogin();
+}
+applyHash();
+window.addEventListener('hashchange', applyHash);
 
 /* Number se email dhoondna.
    Wapas: {email:'...', ok:true}  = mil gaya
@@ -1096,11 +1138,14 @@ async function withRetry(fn){
 }
 
 /* Account ke dono record likhna — ek hi jagah, taake kabhi adhoore na rahen. */
-async function writeAccountDocs(uid, num, email, name, batches, enrollments){
+async function writeAccountDocs(uid, num, email, name, batches, enrollments, isFree){
+  /* verified ka matlab: is number ne paisa diya hai aur list mein hai.
+     Free account us list mein nahi hota, is liye false.
+     Admin panel mein dono alag nazar aate hain. */
   await withRetry(()=>setDoc(doc(db,'students',uid),{
     number:num, phone10:num.slice(-10), email:email, name:name||'',
     batches:batches, enrollments:enrollments,
-    verified:true, joined:serverTimestamp(),
+    verified: !isFree, joined:serverTimestamp(),
   },{merge:true}));
   await withRetry(()=>setDoc(doc(db,'numbers',num),{email:email},{merge:true}));
 }
@@ -1113,19 +1158,31 @@ $('signupView').addEventListener('submit', async ev=>{
   if(num.length<11) return say('That number does not look right. Enter the full number.');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return say('That email does not look right.');
   if(pw.length<6) return say('Password must be at least 6 characters.');
-  btn.disabled=true; btn.textContent='Verifying…';
+  btn.disabled=true; btn.textContent=FREE_MODE?'Creating…':'Verifying…';
   try{
-    const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:num})});
-    const v=await r.json();
-    if(v.error) throw new Error(v.error);
-    if(!v.verified){
-      btn.disabled=false; btn.textContent='Verify & create account';
-      return say('This number is not in the verified list.<br><br>If you have enrolled, contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>');
+    let enrollments, batches, whoName='';
+
+    if(FREE_MODE){
+      /* Free account — verify se nahi poochte. Wo sirf paid students ki
+         list dekhta hai, aur free wala us mein hota hi nahi. */
+      batches = ['Free'];
+      enrollments = [{ batch:'Free', courses: FREE_COURSES.slice() }];
+    }else{
+      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:num})});
+      const v=await r.json();
+      if(v.error) throw new Error(v.error);
+      if(!v.verified){
+        btn.disabled=false; btn.textContent='Verify & create account';
+        return say('This number is not in the verified list.<br><br>'
+          + 'If you have not enrolled yet, you can <a href="learn.html#signup-free">create a free account</a> and start with the free courses.<br><br>'
+          + 'Already enrolled? Contact us on WhatsApp: <a href="'+WHATSAPP+'" target="_blank">Send a message</a>');
+      }
+      enrollments=Array.isArray(v.enrollments)?v.enrollments:[];
+      batches=Array.isArray(v.batches)?v.batches:[];
+      if(!batches.length && v.current) batches=[v.current];
+      if(!enrollments.length) enrollments=batches.map(b=>({batch:b,courses:['facebook','tiktok']}));
+      whoName = v.name || '';
     }
-    let enrollments=Array.isArray(v.enrollments)?v.enrollments:[];
-    let batches=Array.isArray(v.batches)?v.batches:[];
-    if(!batches.length && v.current) batches=[v.current];
-    if(!enrollments.length) enrollments=batches.map(b=>({batch:b,courses:['facebook','tiktok']}));
 
     PENDING_NUM=num;
     let cred=null;
@@ -1145,9 +1202,9 @@ $('signupView').addEventListener('submit', async ev=>{
       }
     }
 
-    await writeAccountDocs(cred.user.uid, num, email, v.name||'', batches, enrollments);
+    await writeAccountDocs(cred.user.uid, num, email, whoName, batches, enrollments, FREE_MODE);
   }catch(e){
-    btn.disabled=false; btn.textContent='Verify & create account';
+    btn.disabled=false; btn.textContent=FREE_MODE?'Create free account':'Verify & create account';
     const m=String(e.code||e.message||e);
     if(m.includes('email-already-in-use')) say('An account with this email already exists. Please <b>log in</b>, or use another email.');
     else if(m.includes('weak-password')) say('Password is too weak. Use at least 6 characters.');
