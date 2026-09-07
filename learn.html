@@ -1036,8 +1036,22 @@ window.onYouTubeIframeAPIReady=function(){ YT_READY=true; };
 let PENDING_NUM='';
 
 /* ===== auth screens ===== */
-$('toSignup').onclick=()=>{clearNote();$('loginView').style.display='none';$('signupView').style.display='block';};
-$('toLogin').onclick =()=>{clearNote();$('signupView').style.display='none';$('loginView').style.display='block';};
+function showSignup(){ clearNote(); $('loginView').style.display='none'; $('signupView').style.display='block'; }
+function showLogin(){ clearNote(); $('signupView').style.display='none'; $('loginView').style.display='block'; }
+
+$('toSignup').onclick = showSignup;
+$('toLogin').onclick  = showLogin;
+
+/* learn.html#signup se seedha signup form khul jata hai.
+   Website ke "Create account" wale button aur app ka WebView isi se aate
+   hain. Pehle wo sirf login dikhata tha aur student ko wo chhota sa
+   "New here?" wala link khud dhoondna paRta tha — bahut se log wahin
+   ruk jate the. */
+if (location.hash === '#signup') showSignup();
+window.addEventListener('hashchange', () => {
+  if (location.hash === '#signup') showSignup();
+  else if (location.hash === '#login') showLogin();
+});
 
 /* Number se email dhoondna.
    Wapas: {email:'...', ok:true}  = mil gaya
