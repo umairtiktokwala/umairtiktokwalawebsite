@@ -47,10 +47,10 @@ export default async function handler(req, res) {
   }
 
   if (!title || !body) {
-    return res.status(400).json({ error: "title aur body zaroori hain" });
+    return res.status(400).json({ error: "title and body are required" });
   }
   if (!uid && !batch && !all) {
-    return res.status(400).json({ error: "uid, batch ya all — koi ek zaroori hai" });
+    return res.status(400).json({ error: "one of uid, batch or all is required" });
   }
 
   try {
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
     if (!tokens.length) {
       return res.status(200).json({
         ok: true, sent: 0, failed: 0,
-        note: "Koi phone nahi mila — in students ne abhi app install nahi ki."
+        note: "No phones found — these students have not installed the app yet."
       });
     }
 
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
     console.error("PUSH ERROR:", err?.message || err);
     return res.status(200).json({
       ok: false,
-      error: "Notification nahi ja saki. Dobara koshish karein."
+      error: "Could not send the notification. Please try again."
     });
   }
 }

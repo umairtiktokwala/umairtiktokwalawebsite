@@ -32,10 +32,10 @@ export default async function handler(req, res) {
   const { convoId, waNumber, phoneNumberId, action, by, byName } = req.body || {};
 
   if (!convoId || !waNumber) {
-    return res.status(400).json({ error: "convoId aur waNumber zaroori hain" });
+    return res.status(400).json({ error: "convoId and waNumber are required" });
   }
   if (action !== "block" && action !== "unblock") {
-    return res.status(400).json({ error: "action 'block' ya 'unblock' hona chahiye" });
+    return res.status(400).json({ error: "action must be 'block' or 'unblock'" });
   }
 
   const fromId = phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -66,11 +66,11 @@ export default async function handler(req, res) {
       const code = detail.code || data?.error?.code;
 
       // 131047 = 24-ghante wali shart poori nahi hui
-      let msg = detail.error_message || detail.title || data?.error?.message || "Meta ne mana kar diya";
+      let msg = detail.error_message || detail.title || data?.error?.message || "Meta refused the request";
       if (code === 131047) {
-        msg = "Ye banda pichle 24 ghante mein message nahi kar saka — Meta sirf isi soorat mein block karne deta hai. Jab wo agla message bheje, tab block karein.";
+        msg = "This person has not messaged in the last 24 hours — Meta only allows blocking within that window. Block them when their next message arrives.";
       } else if (code === 139101) {
-        msg = "Blocklist bhar chuki hai (64,000 ki hadd).";
+        msg = "The blocklist is full (64,000 limit).";
       }
 
       console.error("Block failed:", JSON.stringify(data));
@@ -94,6 +94,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("BLOCK ERROR:", err?.message || err);
-    return res.status(200).json({ ok: false, error: "Request nahi ja saki. Dobara koshish karein." });
+    return res.status(200).json({ ok: false, error: "The request failed. Please try again." });
   }
 }

@@ -48,16 +48,16 @@ const CHUNK = 500;
 
 const MESSAGES = [
   {
-    title: "Aap ka course intezar kar raha hai",
-    body: "Pehla lesson abhi shuru karein — dus minute kaafi hain."
+    title: "Your course is waiting",
+    body: "Start the first lesson — ten minutes is enough to begin."
   },
   {
-    title: "Kahan reh gaye?",
-    body: "Aap ka portal khula hai. Ek lesson dekh lein, silsila dobara chal paRega."
+    title: "Still there?",
+    body: "Your portal is open. Watch one lesson and get going again."
   },
   {
-    title: "Aaj ek lesson?",
-    body: "Jo shuru karte hain wo aage nikal jate hain. Portal khol kar dekh lein."
+    title: "One lesson today?",
+    body: "The ones who start are the ones who get ahead. Open your portal."
   }
 ];
 
