@@ -1957,7 +1957,15 @@ function alertHTML(kind, icon, goto, title, sub){
   + '</button>';
 }
 
-function switchSection(s){
+/* Section badalte waqt browser ki history mein ek qadam jorte hain.
+   Do faide:
+     1. App mein phone ka back ek qadam peeche jata hai — pehle wo
+        seedha bahar nikal jata tha
+     2. Website par bhi browser ka back button chalne lagta hai
+
+   push=false tab hota hai jab back dabane par hum khud bula rahe hain. */
+let HISTORY_STARTED = false;
+function switchSection(s, push){
   SECTION=s;
   $('secCourse').style.display = s==='course'?'block':'none';
   $('secTasks').style.display  = s==='tasks'?'block':'none';
@@ -1977,7 +1985,22 @@ function switchSection(s){
   // Prompt book pehli dafa khulne par hi load hota hai — us se pehle nahi.
   // 876 prompts har login par uthana be-faida hai.
   if(s==='prompts') loadPromptBook();
+
+  if(push !== false){
+    try{
+      // Pehli dafa replace — warna pehla back kuch nahi karta
+      // (wo sirf shuruati entry par wapas le jata hai)
+      if(HISTORY_STARTED) history.pushState({sec:s}, '', '#'+s);
+      else { history.replaceState({sec:s}, '', '#'+s); HISTORY_STARTED = true; }
+    }catch(e){}
+  }
 }
+
+/* Back dabaya gaya — jis section par the wahan wapas. */
+window.addEventListener('popstate', e => {
+  const s = (e.state && e.state.sec) || 'course';
+  switchSection(s, false);
+});
 document.querySelectorAll('#sideNav .snav').forEach(b=>{ b.onclick=()=>switchSection(b.dataset.s); });
 document.querySelectorAll('#mnav button').forEach(b=>{ if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s); });
 
