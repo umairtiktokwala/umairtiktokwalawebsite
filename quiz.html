@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Results — Umair TikTok Wala Academy</title>
-<meta name="description" content="Real results from students of the Umair TikTok Wala Academy Support Program.">
+<title>Test Your Knowledge — Umair TikTok Wala Academy</title>
+<meta name="description" content="A free ten-question quiz on Facebook and TikTok monetization. No sign-up needed.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -508,6 +508,32 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 .pb-bar{
   display:flex;gap:9px;flex-wrap:wrap;margin-bottom:30px;
 }
+
+.pb-search-wrap{max-width:560px;margin:0 auto 18px;position:relative}
+.pb-search{
+  width:100%;height:46px;padding:0 44px 0 44px;
+  border:1px solid var(--line,#e4e7ef);border-radius:12px;
+  font-family:inherit;font-size:15px;color:var(--ink,#12141c);
+  background:#fff;outline:none;transition:border-color .15s ease;
+}
+.pb-search:focus{border-color:var(--ink,#12141c)}
+.pb-search::placeholder{color:#9aa0b4}
+.pb-search-ico{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  width:17px;height:17px;opacity:.4;pointer-events:none;
+}
+.pb-search-clear{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  border:none;background:transparent;cursor:pointer;font-size:19px;
+  color:#9aa0b4;line-height:1;padding:4px 6px;display:none;
+}
+.pb-search-clear.show{display:block}
+.pb-search-clear:hover{color:var(--ink,#12141c)}
+.pb-count{
+  text-align:center;font-size:13px;color:#6b7089;margin:-6px 0 16px;
+  min-height:18px;
+}
+.pb-hit{background:#fff3c4;border-radius:2px;padding:0 1px}
 .pb-chip{
   font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
   text-transform:uppercase;padding:9px 16px;border-radius:99px;
@@ -659,7 +685,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <div class="nav-links" id="navLinks">
       <a href="free-courses.html">Free Course</a>
-      <a href="quiz.html">Quiz</a>
+      <a href="quiz.html" class="on">Quiz</a>
       <a href="courses.html">Courses</a>
       <a href="support-program.html">Support Program</a>
       <a href="paypal-service.html">PayPal Service</a>
@@ -673,52 +699,60 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <a href="learn.html" class="nav-login">Student login</a>
     <a href="support-program.html#enroll" class="nav-cta">Enroll now</a>
   </div>
-</nav>
 <section class="page-head">
   <div class="wrap">
-    <div class="page-eyebrow">Results</div>
-    <h1>From students, not marketers.</h1>
-    <p>Real accounts, real payouts, real people. Here is what students have done with the system.</p>
-    <div class="page-btns"><a href="support-program.html#enroll" class="btn-primary">Join the Support Program →</a></div>
+    <div class="page-eyebrow">Free</div>
+    <h1>Test your knowledge.</h1>
+    <p>Ten questions on Facebook or TikTok monetization. No sign-up, no cost — just find out where you stand.</p>
   </div>
-</section><section class="sec sec-alt" id="results">
+</section>
+
+<section class="sec" id="quiz">
   <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="sec-eyebrow">Results</div>
-      <h2>From students, not marketers.</h2>
-      <p class="sec-sub">Real people from the batches. Replace these with your own screenshots and quotes whenever you want.</p>
+
+    <!-- ---------- START ---------- -->
+    <div id="qStart" class="q-card reveal">
+      <h2 class="q-h">Pick a topic</h2>
+      <div class="q-picks" id="qPicks"></div>
+      <p class="q-note">10 questions, mixed difficulty. You can retake it as many times as you like.</p>
     </div>
-    <div class="results">
-      <article class="result reveal">
-        <p class="result-q">"I had been posting for a year with nothing. The problem was never my content — it was my page setup. Fixed it in week one of the batch and got my first payout the same month."</p>
-        <div class="result-who">
-          <div class="result-av">A</div>
-          <div><div class="result-name">Student name</div><div class="result-meta">Facebook track · Batch 4</div></div>
-        </div>
-      </article>
-      <article class="result reveal">
-        <p class="result-q">"The AI module changed everything for me. I don't show my face, I don't film anything, and I'm posting more than I ever did before."</p>
-        <div class="result-who">
-          <div class="result-av">S</div>
-          <div><div class="result-name">Student name</div><div class="result-meta">AI content track · Batch 5</div></div>
-        </div>
-      </article>
-      <article class="result reveal">
-        <p class="result-q">"Other courses stop at 'now you're monetized.' Nobody tells you how to actually get the money to Pakistan. That's the part I needed most."</p>
-        <div class="result-who">
-          <div class="result-av">M</div>
-          <div><div class="result-name">Student name</div><div class="result-meta">TikTok track · Batch 5</div></div>
-        </div>
-      </article>
+
+    <!-- ---------- QUESTION ---------- -->
+    <div id="qPlay" class="q-card" hidden>
+      <div class="q-bar"><div class="q-fill" id="qFill"></div></div>
+      <div class="q-meta"><span id="qNum">Question 1 of 10</span><span id="qLevel"></span></div>
+      <h2 class="q-text" id="qText"></h2>
+      <div class="q-opts" id="qOpts"></div>
+      <div class="q-after" id="qAfter" hidden>
+        <div class="q-verdict" id="qVerdict"></div>
+        <button class="q-next" id="qNext">Next question</button>
+      </div>
     </div>
+
+    <!-- ---------- RESULT ---------- -->
+    <div id="qDone" class="q-card" hidden>
+      <div class="q-score" id="qScore"></div>
+      <div class="q-scoresub" id="qScoreSub"></div>
+      <p class="q-verdict-long" id="qMsg"></p>
+      <div class="q-actions">
+        <a href="support-program.html" class="btn-primary" id="qCta">See the Support Program</a>
+        <button class="btn-ghost" id="qAgain">Try again</button>
+      </div>
+      <div class="q-review" id="qReview"></div>
+    </div>
+
+    <div class="empty" id="qState"><i class="ti ti-loader-2"></i>Loading questions…</div>
+
   </div>
-</section><section class="cta" id="enroll">
+</section>
+
+<section class="cta" id="enroll">
   <div class="wrap cta-in">
-    <h2>The next batch is filling.</h2>
-    <p>Message us and we'll tell you exactly what's included, what it costs, and when it starts.</p>
+    <h2>Want to learn the whole thing properly?</h2>
+    <p>The Support Program takes you from account setup to your first payout, with our team answering your questions along the way.</p>
     <div class="cta-btns">
-      <a href="https://wa.me/923498319331" class="btn-white" target="_blank" rel="noopener">Message on WhatsApp</a>
-      <a href="https://www.youtube.com/@Umairtiktokwala" class="btn-outline" target="_blank" rel="noopener">Watch free lessons first</a>
+      <a href="support-program.html" class="btn-white">See the Support Program</a>
+      <a href="guides.html" class="btn-outline">Read the free guides</a>
     </div>
   </div>
 </section>
@@ -736,6 +770,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
           <li><a href="support-program.html">Support Program</a></li>
           <li><a href="curriculum.html">Curriculum</a></li>
           <li><a href="services.html">Services</a></li>
+          <li><a href="paypal-service.html">PayPal Service</a></li>
           <li><a href="prompt-book.html">Prompt Book</a></li>
           <li><a href="faq.html">FAQ</a></li>
         </ul>
@@ -753,7 +788,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
         <div class="foot-h">Students</div>
         <ul class="foot-links">
           <li><a href="learn.html">Student portal</a></li>
-          <li><a href="results.html">Student results</a></li>
           <li><a href="support-program.html#enroll">Enroll now</a></li>
         </ul>
       </div>
@@ -778,231 +812,262 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   </svg>
   <span class="wa-float-text">Support</span>
 </a>
-
 <style>
-  .wa-float{
-    position:fixed; right:20px; bottom:20px; z-index:9999;
-    display:inline-flex; align-items:center; gap:0;
-    height:56px; padding:0 15px; border-radius:28px;
-    background:#25D366; color:#fff; text-decoration:none;
-    box-shadow:0 6px 20px rgba(37,211,102,.35);
-    transition:gap .22s ease, padding .22s ease, box-shadow .22s ease, transform .22s ease;
-    overflow:hidden;
-  }
-  .wa-float:hover{
-    gap:9px; padding:0 22px 0 17px;
-    box-shadow:0 8px 26px rgba(37,211,102,.45);
-    transform:translateY(-2px);
-  }
-  .wa-float-text{
-    max-width:0; opacity:0; white-space:nowrap;
-    font-size:15px; font-weight:600; font-family:inherit;
-    transition:max-width .22s ease, opacity .18s ease;
-  }
-  .wa-float:hover .wa-float-text{ max-width:110px; opacity:1; }
+/* ---------- QUIZ ---------- */
+.q-card{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:32px;box-shadow:var(--shadow);max-width:660px;margin:0 auto;
+}
+.q-h{font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:20px;letter-spacing:-.02em}
+.q-picks{display:flex;flex-direction:column;gap:11px}
+.q-pick{
+  display:flex;align-items:center;gap:14px;width:100%;padding:18px 20px;
+  border:1.5px solid var(--line);border-radius:14px;background:var(--card);
+  cursor:pointer;font-family:inherit;text-align:left;transition:all .16s;
+}
+.q-pick:hover{border-color:var(--purple);background:var(--soft-purple)}
+.q-pick b{font-family:var(--display);font-size:16px;font-weight:700;display:block}
+.q-pick span{font-size:13px;color:var(--muted)}
+.q-note{margin-top:18px;font-size:13px;color:var(--muted);line-height:1.6}
 
-  .wa-float::after{
-    content:""; position:absolute; inset:0; border-radius:28px;
-    box-shadow:0 0 0 0 rgba(37,211,102,.6);
-    animation:waPulse 2.6s ease-out infinite; pointer-events:none;
-  }
-  @keyframes waPulse{
-    0%   {box-shadow:0 0 0 0 rgba(37,211,102,.5)}
-    70%  {box-shadow:0 0 0 16px rgba(37,211,102,0)}
-    100% {box-shadow:0 0 0 0 rgba(37,211,102,0)}
-  }
+.q-bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.q-fill{height:100%;background:var(--purple);border-radius:99px;transition:width .3s}
+.q-meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:16px}
+.q-text{font-family:var(--display);font-size:20px;font-weight:700;line-height:1.4;margin-bottom:22px;letter-spacing:-.01em}
+.q-opts{display:flex;flex-direction:column;gap:10px}
+.q-opt{
+  width:100%;padding:16px 18px;border:1.5px solid var(--line);border-radius:13px;
+  background:var(--card);cursor:pointer;font-family:inherit;font-size:15px;
+  text-align:left;color:var(--ink);transition:all .14s;
+}
+.q-opt:hover:not(:disabled){border-color:var(--ink-2)}
+.q-opt:disabled{cursor:default}
+.q-opt.right{border-color:#16B364;background:rgba(22,179,100,.08);color:#0F7A45;font-weight:600}
+.q-opt.wrong{border-color:#EF4444;background:rgba(239,68,68,.07);color:#B42318}
 
-  @media (max-width:600px){
-    .wa-float{right:16px; bottom:16px; height:52px; padding:0 14px}
-    .wa-float:hover{gap:0; padding:0 14px}
-    .wa-float-text{display:none}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .wa-float::after{animation:none}
-    .wa-float{transition:none}
-  }
+.q-after{margin-top:20px}
+.q-verdict{font-size:14.5px;font-weight:600;margin-bottom:14px}
+.q-verdict.ok{color:#0F7A45}
+.q-verdict.no{color:#B42318}
+.q-next{
+  width:100%;padding:15px;border:0;border-radius:13px;background:var(--ink);
+  color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;
+}
+.q-next:hover{opacity:.9}
+
+.q-score{font-family:var(--display);font-size:56px;font-weight:800;text-align:center;letter-spacing:-.03em;line-height:1}
+.q-scoresub{text-align:center;font-size:14px;color:var(--muted);margin-top:6px;margin-bottom:20px}
+.q-verdict-long{font-size:15.5px;line-height:1.7;text-align:center;color:var(--ink-2);margin-bottom:24px}
+.q-actions{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+.q-review{margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}
+.q-rev{margin-bottom:16px;font-size:14px;line-height:1.6}
+.q-rev-q{font-weight:600;color:var(--ink);margin-bottom:4px}
+.q-rev-a{color:#0F7A45}
+.q-rev-x{color:#B42318;text-decoration:line-through;margin-right:8px}
+
+@media(max-width:560px){
+  .q-card{padding:22px 18px;border-radius:16px}
+  .q-text{font-size:18px}
+  .q-score{font-size:46px}
+  .q-actions{flex-direction:column}
+  .q-actions .btn-primary,.q-actions .btn-ghost{width:100%;text-align:center}
+}
 </style>
+
 <script>
-
-/* .reveal wale hisse shuru mein opacity:0 hote hain aur
-   IntersectionObserver un ko nazar aane par dikhata hai.
-
-   MASLA: Android app ke WebView mein wo observer theek se nahi chalta —
-   content load ho jata tha magar SAFHA KHALI dikhta tha.
-
-   HAL: do hifazatein
-     1. IntersectionObserver maujood hi na ho to sab foran dikha do
-     2. Do second baad jo hissa ab bhi chhupa ho, usay dikha do
-
-   Aam browser mein animation waise hi chalti hai. */
-function revealAll(){
-  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
-}
-
-if(!('IntersectionObserver' in window)){
-  revealAll();
-}else{
-  const io=new IntersectionObserver((es)=>{
-    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
-  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach((el,i)=>{
-    el.style.transitionDelay=(i%3)*70+'ms';
-    io.observe(el);
-  });
-  setTimeout(revealAll, 2000);
-}
-
 /* ===================================================================
-   PROMPT BOOK — loads from your published Google Sheet
-   -------------------------------------------------------------------
-   TO CONNECT A SHEET:
-   1. In your Sheet:  File > Share > Publish to web
-                      Entire document  +  Comma-separated values (.csv)
-                      > Publish
-   2. Copy the link Google gives you (it ends in  /pub?output=csv )
-   3. Paste it below, replacing the whole SHEET_CSV value.
+   TEST YOUR KNOWLEDGE — Google Sheet se
 
-   Sheet columns, in this exact order:
-        Image URL | Title | Prompt | Category | Tool
-   Row 1 = headings. Add a new row = a new prompt appears on the site.
+   Sheet ke column:
+     A Course    facebook / tiktok
+     B Level     easy / medium / hard
+     C Question
+     D-G Option 1-4
+     H Correct   1, 2, 3 ya 4
+
+   AHEM: ye sheet certificate wale test se BILKUL ALAG hai. Agar
+   certificate ke sawal yahan aa gaye to log jawab yaad kar lenge
+   aur certificate ki koi qeemat nahi rahegi.
    =================================================================== */
-const HAS_PB = !!document.getElementById('pbGrid');
-const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
-const PER_PAGE  = 9;
 
-let ALL = [], filter = 'All', shown = 0;
-const $grid  = document.getElementById('pbGrid');
-const $bar   = document.getElementById('pbBar');
-const $state = document.getElementById('pbState');
-const $more  = document.getElementById('pbMore');
+const Q_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsZZKWOeoVMWhAb2vY2igeupUniuDjIDJtn8pDlC_3ja00l1hLOxZsezqH9Y7g7cYXqUD80ynWfQ7j/pub?output=csv';
+const Q_COUNT = 10;
 
-function parseCSV(text){
-  const rows=[]; let row=[], cell='', q=false;
-  for(let i=0;i<text.length;i++){
+let Q_ALL = [], Q_SET = [], Q_AT = 0, Q_RIGHT = 0, Q_LOG = [];
+
+const $q = id => document.getElementById(id);
+const escQ = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+function parseCSVq(text){
+  const rows=[]; let row=[], cell='', q=false, i=0;
+  while(i<text.length){
     const c=text[i];
     if(q){
       if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
       else cell+=c;
-    } else {
+    }else{
       if(c==='"') q=true;
       else if(c===','){ row.push(cell); cell=''; }
       else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
       else if(c!=='\r') cell+=c;
     }
+    i++;
   }
   if(cell||row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
 
-function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-
-function render(reset){
-  if(reset) shown = 0;
-  const list = ALL.filter(p => filter==='All' || p.cat===filter);
-  if(!list.length){
-    $grid.hidden = true; $more.hidden = true;
-    $state.hidden = false;
-    $state.textContent = 'Nothing here yet.';
-    return;
-  }
-  $state.hidden = true; $grid.hidden = false;
-  shown = Math.min(shown + PER_PAGE, list.length);
-  const page = list.slice(0, shown);
-
-  $grid.innerHTML = page.map((p,i) => `
-    <article class="pb-card">
-      ${p.img ? `<img class="pb-img" src="${esc(p.img)}" alt="${esc(p.title)}" loading="lazy">` : ''}
-      <div class="pb-body">
-        <div class="pb-meta">
-          ${p.cat  ? `<span class="pb-tag">${esc(p.cat)}</span>`        : ''}
-          ${p.tool ? `<span class="pb-tag tool">${esc(p.tool)}</span>`  : ''}
-        </div>
-        ${p.title ? `<h3 class="pb-title">${esc(p.title)}</h3>` : ''}
-        <div class="pb-prompt" id="pr${i}">${esc(p.prompt)}</div>
-        <div class="pb-acts">
-          <button class="pb-btn copy" data-copy="${i}">Copy prompt</button>
-          <button class="pb-btn" data-open="${i}">Read all</button>
-        </div>
-      </div>
-    </article>`).join('');
-
-  $more.hidden = shown >= list.length;
-
-  $grid.querySelectorAll('[data-copy]').forEach(b=>{
-    b.onclick = () => {
-      navigator.clipboard.writeText(page[+b.dataset.copy].prompt);
-      const t = b.textContent;
-      b.textContent = 'Copied'; b.classList.add('done');
-      setTimeout(()=>{ b.textContent=t; b.classList.remove('done'); }, 1400);
-    };
-  });
-  $grid.querySelectorAll('[data-open]').forEach(b=>{
-    b.onclick = () => {
-      const el = document.getElementById('pr'+b.dataset.open);
-      const open = el.classList.toggle('open');
-      b.textContent = open ? 'Show less' : 'Read all';
-    };
-  });
-}
-
-function buildChips(){
-  const cats = ['All', ...new Set(ALL.map(p=>p.cat).filter(Boolean))];
-  $bar.innerHTML = cats.map(c =>
-    `<button class="pb-chip${c==='All'?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`
-  ).join('');
-  $bar.querySelectorAll('.pb-chip').forEach(b=>{
-    b.onclick = () => {
-      $bar.querySelectorAll('.pb-chip').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      filter = b.dataset.cat;
-      render(true);
-    };
-  });
-}
-
-
-/* A Cloudinary URL can contain commas (f_auto,q_auto). If it was pasted into
-   the sheet unquoted, the CSV splits it across cells. Stitch it back. */
-function fixRow(r){
-  r = r.map(c => (c||'').trim());
-  if(r[0] && r[0].indexOf('http') === 0){
-    // pull following fragments back onto the URL until we hit a real next field
-    while(r.length > 5 && r[1] && !/\s/.test(r[1]) && !/^https?:/.test(r[1])
-          && (r[1].indexOf('/') > -1 || /^[a-z]_[a-z0-9]+$/i.test(r[1]))){
-      r[0] = r[0] + ',' + r[1];
-      r.splice(1,1);
-    }
-  }
-  return { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
-}
-
-async function loadPrompts(){
-  if(!$state || !$grid) return;
-  if(!SHEET_CSV || SHEET_CSV.indexOf('http') !== 0){
-    $state.textContent = 'Prompt book not connected yet — add your published Sheet CSV link in index.html.';
-    return;
-  }
+async function loadQuiz(){
   try{
-    const res = await fetch(SHEET_CSV);
+    const res = await fetch(Q_CSV);
     if(!res.ok) throw new Error(res.status);
-    const rows = parseCSV(await res.text()).slice(1);   // drop heading row
-    ALL = rows
-      .map(fixRow)
-      .filter(p => p.prompt)                            // must have a prompt
-      .reverse();                                       // newest first
-    if(!ALL.length){ $state.textContent = 'No prompts in the sheet yet.'; return; }
-    buildChips();
-    render(true);
+    const rows = parseCSVq(await res.text()).slice(1);
+
+    Q_ALL = rows.map(r => ({
+      course: (r[0]||'').trim().toLowerCase(),
+      level:  (r[1]||'').trim().toLowerCase(),
+      q:      (r[2]||'').trim(),
+      opts:   [r[3],r[4],r[5],r[6]].map(x=>(x||'').trim()),
+      right:  parseInt((r[7]||'').trim(),10)
+    })).filter(x => x.q && x.opts[0] && x.opts[1] && x.right >= 1 && x.right <= 4);
+
+    if(!Q_ALL.length){
+      $q('qState').innerHTML = '<i class="ti ti-mood-empty"></i>No questions yet — check back soon.';
+      return;
+    }
+    picks();
+    $q('qState').hidden = true;
+    $q('qStart').hidden = false;
   }catch(e){
-    $state.textContent = "Couldn't load the prompt book. Check that the sheet is still published to the web as CSV.";
+    $q('qState').innerHTML = '<i class="ti ti-alert-triangle"></i>Couldn\'t load the quiz. Check your connection and try again.';
   }
 }
-if($more) $more.onclick = () => render(false);
-if(HAS_PB) loadPrompts();
 
+function picks(){
+  const courses = [...new Set(Q_ALL.map(x=>x.course).filter(Boolean))];
+  const label = c => c === 'facebook' ? 'Facebook' : c === 'tiktok' ? 'TikTok'
+              : c.charAt(0).toUpperCase()+c.slice(1);
+  $q('qPicks').innerHTML = courses.map(c=>{
+    const n = Q_ALL.filter(x=>x.course===c).length;
+    return '<button class="q-pick" data-c="'+escQ(c)+'">'
+      + '<span><b>'+escQ(label(c))+'</b>'
+      + '<span>'+n+' questions in the bank</span></span></button>';
+  }).join('');
+  $q('qPicks').querySelectorAll('.q-pick').forEach(b=>{
+    b.onclick = ()=> start(b.dataset.c);
+  });
+}
 
+/* Har dafa alag sawal — warna dobara dene ka koi faida nahi */
+function shuffle(a){
+  const x = a.slice();
+  for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]]; }
+  return x;
+}
 
+function start(course){
+  const pool = Q_ALL.filter(x => x.course === course);
 
+  /* Mushkil mila kar — 4 asaan, 4 darmiyana, 2 mushkil. Kisi darje ke
+     sawal kam hon to baqi se poora kar lete hain. */
+  const by = l => shuffle(pool.filter(x=>x.level===l));
+  let set = [...by('easy').slice(0,4), ...by('medium').slice(0,4), ...by('hard').slice(0,2)];
+  if(set.length < Q_COUNT){
+    const rest = shuffle(pool.filter(x => !set.includes(x)));
+    set = set.concat(rest.slice(0, Q_COUNT - set.length));
+  }
+  Q_SET = shuffle(set).slice(0, Q_COUNT);
+
+  Q_AT = 0; Q_RIGHT = 0; Q_LOG = [];
+  $q('qStart').hidden = true;
+  $q('qDone').hidden = true;
+  $q('qPlay').hidden = false;
+  paintQ();
+}
+
+function paintQ(){
+  const item = Q_SET[Q_AT];
+  $q('qFill').style.width = ((Q_AT / Q_SET.length) * 100) + '%';
+  $q('qNum').textContent = 'Question ' + (Q_AT+1) + ' of ' + Q_SET.length;
+  $q('qLevel').textContent = item.level ? item.level.charAt(0).toUpperCase()+item.level.slice(1) : '';
+  $q('qText').textContent = item.q;
+  $q('qAfter').hidden = true;
+
+  $q('qOpts').innerHTML = item.opts.map((o,i)=>
+    o ? '<button class="q-opt" data-i="'+(i+1)+'">'+escQ(o)+'</button>' : ''
+  ).join('');
+
+  $q('qOpts').querySelectorAll('.q-opt').forEach(b=>{
+    b.onclick = ()=> answer(parseInt(b.dataset.i,10));
+  });
+}
+
+function answer(pick){
+  const item = Q_SET[Q_AT];
+  const ok = pick === item.right;
+  if(ok) Q_RIGHT++;
+  Q_LOG.push({ q:item.q, picked:item.opts[pick-1], right:item.opts[item.right-1], ok });
+
+  $q('qOpts').querySelectorAll('.q-opt').forEach(b=>{
+    const i = parseInt(b.dataset.i,10);
+    b.disabled = true;
+    if(i === item.right) b.classList.add('right');
+    else if(i === pick) b.classList.add('wrong');
+  });
+
+  const v = $q('qVerdict');
+  v.className = 'q-verdict ' + (ok ? 'ok' : 'no');
+  v.textContent = ok ? 'Correct.' : 'Not quite — the answer is: ' + item.opts[item.right-1];
+
+  $q('qNext').textContent = (Q_AT === Q_SET.length - 1) ? 'See my result' : 'Next question';
+  $q('qAfter').hidden = false;
+}
+
+$q('qNext').onclick = ()=>{
+  Q_AT++;
+  if(Q_AT < Q_SET.length) paintQ();
+  else finish();
+};
+
+function finish(){
+  $q('qPlay').hidden = true;
+  $q('qDone').hidden = false;
+
+  const pct = Math.round(Q_RIGHT / Q_SET.length * 100);
+  $q('qScore').textContent = Q_RIGHT + ' / ' + Q_SET.length;
+  $q('qScoreSub').textContent = pct + '% correct';
+
+  let msg;
+  if(pct >= 80){
+    msg = 'You know this well. The Support Program would take you from knowing it to actually earning from it — setup, tasks reviewed by our team, and payout guidance.';
+  }else if(pct >= 50){
+    msg = 'You have the basics. The gaps that cost people money are usually in payouts and account setup — that is exactly what the Support Program covers.';
+  }else{
+    msg = 'There is a lot here worth learning properly. Start with the free guides, and when you are ready, the Support Program walks you through all of it step by step.';
+  }
+  $q('qMsg').textContent = msg;
+
+  $q('qReview').innerHTML = '<div class="q-rev-q" style="margin-bottom:14px">What you got wrong</div>' +
+    (Q_LOG.filter(x=>!x.ok).length
+      ? Q_LOG.filter(x=>!x.ok).map(x =>
+          '<div class="q-rev"><div class="q-rev-q">'+escQ(x.q)+'</div>'
+          + '<span class="q-rev-x">'+escQ(x.picked||'—')+'</span>'
+          + '<span class="q-rev-a">'+escQ(x.right)+'</span></div>'
+        ).join('')
+      : '<div class="q-rev">Nothing — you got every one right.</div>');
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+$q('qAgain').onclick = ()=>{
+  $q('qDone').hidden = true;
+  $q('qStart').hidden = false;
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+loadQuiz();
 </script>
 <script>
   var t=document.getElementById('navToggle'), l=document.getElementById('navLinks');
