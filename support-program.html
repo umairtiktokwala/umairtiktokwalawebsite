@@ -845,13 +845,33 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 </style>
 <script>
 
-const io=new IntersectionObserver((es)=>{
-  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
-},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal').forEach((el,i)=>{
-  el.style.transitionDelay=(i%3)*70+'ms';
-  io.observe(el);
-});
+/* .reveal wale hisse shuru mein opacity:0 hote hain aur
+   IntersectionObserver un ko nazar aane par dikhata hai.
+
+   MASLA: Android app ke WebView mein wo observer theek se nahi chalta —
+   content load ho jata tha magar SAFHA KHALI dikhta tha.
+
+   HAL: do hifazatein
+     1. IntersectionObserver maujood hi na ho to sab foran dikha do
+     2. Do second baad jo hissa ab bhi chhupa ho, usay dikha do
+
+   Aam browser mein animation waise hi chalti hai. */
+function revealAll(){
+  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
+}
+
+if(!('IntersectionObserver' in window)){
+  revealAll();
+}else{
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(i%3)*70+'ms';
+    io.observe(el);
+  });
+  setTimeout(revealAll, 2000);
+}
 
 /* ===================================================================
    PROMPT BOOK — loads from your published Google Sheet
