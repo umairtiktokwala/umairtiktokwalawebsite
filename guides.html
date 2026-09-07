@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Support Program — Umair TikTok Wala Academy</title>
-<meta name="description" content="Urdu training with daily support, reviewed tasks, free prompt book and lifetime access to the student portal.">
+<title>Guides — Umair TikTok Wala Academy</title>
+<meta name="description" content="Step-by-step guides for Facebook and TikTok monetization — account setup, payouts, tax info, page issues and more.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -508,6 +508,32 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 .pb-bar{
   display:flex;gap:9px;flex-wrap:wrap;margin-bottom:30px;
 }
+
+.pb-search-wrap{max-width:560px;margin:0 auto 18px;position:relative}
+.pb-search{
+  width:100%;height:46px;padding:0 44px 0 44px;
+  border:1px solid var(--line,#e4e7ef);border-radius:12px;
+  font-family:inherit;font-size:15px;color:var(--ink,#12141c);
+  background:#fff;outline:none;transition:border-color .15s ease;
+}
+.pb-search:focus{border-color:var(--ink,#12141c)}
+.pb-search::placeholder{color:#9aa0b4}
+.pb-search-ico{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  width:17px;height:17px;opacity:.4;pointer-events:none;
+}
+.pb-search-clear{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  border:none;background:transparent;cursor:pointer;font-size:19px;
+  color:#9aa0b4;line-height:1;padding:4px 6px;display:none;
+}
+.pb-search-clear.show{display:block}
+.pb-search-clear:hover{color:var(--ink,#12141c)}
+.pb-count{
+  text-align:center;font-size:13px;color:#6b7089;margin:-6px 0 16px;
+  min-height:18px;
+}
+.pb-hit{background:#fff3c4;border-radius:2px;padding:0 1px}
 .pb-chip{
   font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
   text-transform:uppercase;padding:9px 16px;border-radius:99px;
@@ -620,10 +646,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 .page-head h1{font-size:clamp(34px,5.4vw,52px);line-height:1.05;letter-spacing:-.03em;margin-bottom:18px}
 .page-head p{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.6;max-width:60ch}
 .page-head .page-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
-.page-help{margin-top:16px;font-size:13.5px;color:var(--muted)}
-.page-help a{color:inherit;text-decoration:underline;text-underline-offset:2px}
-.page-help a:hover{color:var(--ink)}
-
 @media(max-width:700px){.page-head{padding:96px 0 40px}}
 
 /* ---- home summary cards ---- */
@@ -663,10 +685,10 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <div class="nav-links" id="navLinks">
       <a href="courses.html">Courses</a>
-      <a href="support-program.html" class="on">Support Program</a>
+      <a href="support-program.html">Support Program</a>
       <a href="paypal-service.html">PayPal Service</a>
       <a href="prompt-book.html">Free Prompt</a>
-      <a href="guides.html">Guides</a>
+      <a href="guides.html" class="on">Guides</a>
       <a href="services.html">Services</a>
       <a href="curriculum.html">Curriculum</a>
       <a href="faq.html">FAQ</a>
@@ -678,72 +700,39 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 </nav>
 <section class="page-head">
   <div class="wrap">
-    <div class="page-eyebrow">The flagship</div>
-    <h1>The Support Program.</h1>
-    <p>Daily support, practical tasks reviewed by our team, and a student portal that keeps everything in one place.</p>
-    <!-- Account banana aur login — safhe ke bilkul upar.
-         Pehle sirf "Enroll" ka button tha jo neeche le jata tha, aur
-         jo student pehle se registered hai us ke liye koi raasta hi
-         nahi tha. Ab dono yahan hain. -->
-    <div class="page-btns">
-      <a href="learn.html#signup" class="btn-primary">Create account →</a>
-      <a href="learn.html" class="btn-ghost">Student login</a>
-    </div>
-    <p class="page-help">
-      Having trouble?
-      <a href="https://wa.me/923498319331?text=Assalam%20o%20Alaikum%2C%20mujhe%20Support%20Program%20ke%20baare%20mein%20maloomat%20chahiye." target="_blank" rel="noopener">Message us on WhatsApp</a>
-    </p>
+    <div class="page-eyebrow">Free</div>
+    <h1>Guides.</h1>
+    <p>Short, practical answers to the questions students ask us most — account setup, payouts, tax info, page problems and more. Free for everyone.</p>
   </div>
-</section><section class="sec sec-alt" id="program">
-  <div class="wrap">
-    <div class="flagship reveal">
-      <div class="flagship-in">
-        <div>
-          <div class="flagship-eyebrow">Flagship</div>
-          <h2>The Support Program</h2>
-          <p>This is the one people join. Not a video library you watch once and forget — real people answering your questions until it actually works for you.</p>
-          <a href="support-program.html#enroll" class="btn-white">Enroll in the next batch →</a>
-          <div class="taught-by">
-            <img src="img/logo-mark.png" alt="Umair TikTok Wala Academy">
-            <div>
-              <div class="taught-name">Taught by Muhammad Umair</div>
-              <div class="taught-meta">Monetizing since 2019 · Multan, Pakistan</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <ul class="flag-list">
-            <li><span class="flag-check">✓</span><span><strong>Student portal</strong> — your own login and dashboard. Every lesson in one place, with progress tracked.</span></li>
+</section>
 
-            <li><span class="flag-check">✓</span><span><strong>Practical tasks</strong> — a task after every module, reviewed by Umair's team with feedback.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Personal notebook</strong> — save your notes and questions in the portal and come back to them any time.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Daily support</strong> — 8 AM to 11 PM on WhatsApp. Real people, not a bot.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Payout guidance</strong> — the part most courses skip. Getting money out of the platform and into your hands.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Free Prompt Book</strong> — 800+ ready AI video prompts. Search and copy what you need.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Free Prompt Library</strong> — every prompt from Umair's own videos, in one place.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Earnings tab</strong> — submit what you earned each month; the team verifies it.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Investment tab</strong> — record what you spent, so your profit is always clear.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Lifetime portal access</strong> — your login stays yours.</span></li>
-            <li><span class="flag-check">✓</span><span><strong>Lifetime course access</strong> — content from earlier batches stays open too.</span></li>
-          </ul>
-          <a href="/learn.html" class="portal-link">
-            <span class="portal-ic">→</span>
-            <span><strong>Already enrolled?</strong> Log in to the student portal</span>
-          </a>
-        </div>
-      </div>
+<section class="sec" id="guides">
+  <div class="wrap">
+
+    <div class="g-top reveal">
+      <input type="text" id="gSearch" placeholder="Search — type a word like tax, payout or login…" autocomplete="off">
+      <div class="g-count" id="gCount"></div>
     </div>
+
+    <div class="g-chips reveal" id="gChips"></div>
+
+    <div class="empty" id="gState"><i class="ti ti-loader-2"></i>Loading guides…</div>
+    <div class="g-list" id="gList" hidden></div>
+
   </div>
-</section><section class="cta" id="enroll">
+</section>
+
+<section class="cta" id="enroll">
   <div class="wrap cta-in">
-    <h2>The next batch is filling.</h2>
-    <p>Message us and we'll tell you exactly what's included, what it costs, and when it starts.</p>
+    <h2>Want the full course?</h2>
+    <p>These guides are free. The Support Program takes you from setup to your first payout, with a team answering your questions along the way.</p>
     <div class="cta-btns">
-      <a href="https://wa.me/923498319331" class="btn-white" target="_blank" rel="noopener">Message on WhatsApp</a>
-      <a href="https://www.youtube.com/@Umairtiktokwala" class="btn-outline" target="_blank" rel="noopener">Watch free lessons first</a>
+      <a href="support-program.html" class="btn-white">See the Support Program</a>
+      <a href="learn.html#signup" class="btn-outline">Create account</a>
     </div>
   </div>
 </section>
+
 <footer>
   <div class="wrap">
     <div class="foot-grid">
@@ -802,230 +791,193 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 </a>
 
 <style>
-  .wa-float{
-    position:fixed; right:20px; bottom:20px; z-index:9999;
-    display:inline-flex; align-items:center; gap:0;
-    height:56px; padding:0 15px; border-radius:28px;
-    background:#25D366; color:#fff; text-decoration:none;
-    box-shadow:0 6px 20px rgba(37,211,102,.35);
-    transition:gap .22s ease, padding .22s ease, box-shadow .22s ease, transform .22s ease;
-    overflow:hidden;
-  }
-  .wa-float:hover{
-    gap:9px; padding:0 22px 0 17px;
-    box-shadow:0 8px 26px rgba(37,211,102,.45);
-    transform:translateY(-2px);
-  }
-  .wa-float-text{
-    max-width:0; opacity:0; white-space:nowrap;
-    font-size:15px; font-weight:600; font-family:inherit;
-    transition:max-width .22s ease, opacity .18s ease;
-  }
-  .wa-float:hover .wa-float-text{ max-width:110px; opacity:1; }
+/* ---------- GUIDES ---------- */
+.g-top{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+#gSearch{
+  flex:1;min-width:240px;padding:14px 17px;border:1.5px solid var(--line);
+  border-radius:14px;background:var(--card);font-family:var(--body);
+  font-size:15px;color:var(--ink);outline:none;transition:border-color .16s;
+}
+#gSearch:focus{border-color:var(--purple)}
+#gSearch::placeholder{color:var(--muted-2)}
+.g-count{font-size:13px;color:var(--muted);white-space:nowrap}
 
-  .wa-float::after{
-    content:""; position:absolute; inset:0; border-radius:28px;
-    box-shadow:0 0 0 0 rgba(37,211,102,.6);
-    animation:waPulse 2.6s ease-out infinite; pointer-events:none;
-  }
-  @keyframes waPulse{
-    0%   {box-shadow:0 0 0 0 rgba(37,211,102,.5)}
-    70%  {box-shadow:0 0 0 16px rgba(37,211,102,0)}
-    100% {box-shadow:0 0 0 0 rgba(37,211,102,0)}
-  }
+.g-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:22px;-webkit-overflow-scrolling:touch}
+.g-chips::-webkit-scrollbar{height:5px}
+.g-chips::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.g-chip{
+  flex-shrink:0;padding:8px 16px;border:1.5px solid var(--line);border-radius:99px;
+  background:var(--card);cursor:pointer;font-family:var(--body);font-size:13px;
+  font-weight:600;color:var(--muted);white-space:nowrap;transition:all .16s;
+}
+.g-chip:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.g-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 
-  @media (max-width:600px){
-    .wa-float{right:16px; bottom:16px; height:52px; padding:0 14px}
-    .wa-float:hover{gap:0; padding:0 14px}
-    .wa-float-text{display:none}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .wa-float::after{animation:none}
-    .wa-float{transition:none}
-  }
+.g-list{display:flex;flex-direction:column;gap:12px}
+.g-item{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.g-q{
+  width:100%;display:flex;align-items:center;gap:14px;padding:18px 20px;
+  background:none;border:0;cursor:pointer;text-align:left;font-family:inherit;
+}
+.g-cat{
+  font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;padding:4px 9px;border-radius:6px;flex-shrink:0;
+  background:var(--soft-blue);color:var(--blue);
+}
+.g-cat.tiktok{background:var(--soft-purple);color:var(--purple)}
+.g-cat.general{background:var(--line);color:var(--muted)}
+.g-qt{flex:1;font-family:var(--display);font-size:16px;font-weight:700;line-height:1.35;color:var(--ink)}
+.g-plus{font-size:22px;color:var(--muted);flex-shrink:0;transition:transform .2s}
+.g-item.open .g-plus{transform:rotate(45deg)}
+.g-a{display:none;padding:0 20px 20px;font-size:14.5px;line-height:1.75;color:var(--ink-2);white-space:pre-wrap}
+.g-item.open .g-a{display:block}
+.g-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.g-tag{font-size:11px;color:var(--muted);background:var(--card-2);padding:3px 9px;border-radius:6px}
+
+@media(max-width:560px){
+  #gSearch{font-size:16px}
+  .g-q{padding:15px 16px;gap:10px}
+  .g-qt{font-size:15px}
+  .g-a{padding:0 16px 16px;font-size:14px}
+}
 </style>
+
 <script>
-
-/* .reveal wale hisse shuru mein opacity:0 hote hain aur
-   IntersectionObserver un ko nazar aane par dikhata hai.
-
-   MASLA: Android app ke WebView mein wo observer theek se nahi chalta —
-   content load ho jata tha magar SAFHA KHALI dikhta tha.
-
-   HAL: do hifazatein
-     1. IntersectionObserver maujood hi na ho to sab foran dikha do
-     2. Do second baad jo hissa ab bhi chhupa ho, usay dikha do
-
-   Aam browser mein animation waise hi chalti hai. */
-function revealAll(){
-  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
-}
-
-if(!('IntersectionObserver' in window)){
-  revealAll();
-}else{
-  const io=new IntersectionObserver((es)=>{
-    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
-  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach((el,i)=>{
-    el.style.transitionDelay=(i%3)*70+'ms';
-    io.observe(el);
-  });
-  setTimeout(revealAll, 2000);
-}
-
 /* ===================================================================
-   PROMPT BOOK — loads from your published Google Sheet
-   -------------------------------------------------------------------
-   TO CONNECT A SHEET:
-   1. In your Sheet:  File > Share > Publish to web
-                      Entire document  +  Comma-separated values (.csv)
-                      > Publish
-   2. Copy the link Google gives you (it ends in  /pub?output=csv )
-   3. Paste it below, replacing the whole SHEET_CSV value.
+   GUIDES — Google Sheet se
 
-   Sheet columns, in this exact order:
-        Image URL | Title | Prompt | Category | Tool
-   Row 1 = headings. Add a new row = a new prompt appears on the site.
+   Sheet ke column:
+     A Category   Facebook / TikTok / General
+     B Title      sawal, jaise student poochta hai
+     C Content    jawab
+     D Tags       dhoondne wale lafz, comma se alag
+     E Date
+
+   Nayi guide daalni ho to sheet mein ek row jorein — safha dobara
+   deploy karne ki zaroorat nahi.
    =================================================================== */
-const HAS_PB = !!document.getElementById('pbGrid');
-const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
-const PER_PAGE  = 9;
 
-let ALL = [], filter = 'All', shown = 0;
-const $grid  = document.getElementById('pbGrid');
-const $bar   = document.getElementById('pbBar');
-const $state = document.getElementById('pbState');
-const $more  = document.getElementById('pbMore');
+const G_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0jf3R3UakxcnxA0_fs1cBMgK3AzHVV03MA15k1B7QUcer-3vZJIN2_PEbSKYA7_KfOkv5b0geBf-8/pub?output=csv';
 
-function parseCSV(text){
-  const rows=[]; let row=[], cell='', q=false;
-  for(let i=0;i<text.length;i++){
+let G_ALL = [], G_CAT = 'All', G_Q = '';
+
+const $g = id => document.getElementById(id);
+const escG = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+/* CSV parhna — comma aur quote dono sambhalta hai */
+function parseCSVg(text){
+  const rows=[]; let row=[], cell='', q=false, i=0;
+  while(i<text.length){
     const c=text[i];
     if(q){
       if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
       else cell+=c;
-    } else {
+    }else{
       if(c==='"') q=true;
       else if(c===','){ row.push(cell); cell=''; }
       else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
       else if(c!=='\r') cell+=c;
     }
+    i++;
   }
   if(cell||row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
 
-function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-
-function render(reset){
-  if(reset) shown = 0;
-  const list = ALL.filter(p => filter==='All' || p.cat===filter);
-  if(!list.length){
-    $grid.hidden = true; $more.hidden = true;
-    $state.hidden = false;
-    $state.textContent = 'Nothing here yet.';
-    return;
-  }
-  $state.hidden = true; $grid.hidden = false;
-  shown = Math.min(shown + PER_PAGE, list.length);
-  const page = list.slice(0, shown);
-
-  $grid.innerHTML = page.map((p,i) => `
-    <article class="pb-card">
-      ${p.img ? `<img class="pb-img" src="${esc(p.img)}" alt="${esc(p.title)}" loading="lazy">` : ''}
-      <div class="pb-body">
-        <div class="pb-meta">
-          ${p.cat  ? `<span class="pb-tag">${esc(p.cat)}</span>`        : ''}
-          ${p.tool ? `<span class="pb-tag tool">${esc(p.tool)}</span>`  : ''}
-        </div>
-        ${p.title ? `<h3 class="pb-title">${esc(p.title)}</h3>` : ''}
-        <div class="pb-prompt" id="pr${i}">${esc(p.prompt)}</div>
-        <div class="pb-acts">
-          <button class="pb-btn copy" data-copy="${i}">Copy prompt</button>
-          <button class="pb-btn" data-open="${i}">Read all</button>
-        </div>
-      </div>
-    </article>`).join('');
-
-  $more.hidden = shown >= list.length;
-
-  $grid.querySelectorAll('[data-copy]').forEach(b=>{
-    b.onclick = () => {
-      navigator.clipboard.writeText(page[+b.dataset.copy].prompt);
-      const t = b.textContent;
-      b.textContent = 'Copied'; b.classList.add('done');
-      setTimeout(()=>{ b.textContent=t; b.classList.remove('done'); }, 1400);
-    };
-  });
-  $grid.querySelectorAll('[data-open]').forEach(b=>{
-    b.onclick = () => {
-      const el = document.getElementById('pr'+b.dataset.open);
-      const open = el.classList.toggle('open');
-      b.textContent = open ? 'Show less' : 'Read all';
-    };
-  });
-}
-
-function buildChips(){
-  const cats = ['All', ...new Set(ALL.map(p=>p.cat).filter(Boolean))];
-  $bar.innerHTML = cats.map(c =>
-    `<button class="pb-chip${c==='All'?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`
-  ).join('');
-  $bar.querySelectorAll('.pb-chip').forEach(b=>{
-    b.onclick = () => {
-      $bar.querySelectorAll('.pb-chip').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      filter = b.dataset.cat;
-      render(true);
-    };
-  });
-}
-
-
-/* A Cloudinary URL can contain commas (f_auto,q_auto). If it was pasted into
-   the sheet unquoted, the CSV splits it across cells. Stitch it back. */
-function fixRow(r){
-  r = r.map(c => (c||'').trim());
-  if(r[0] && r[0].indexOf('http') === 0){
-    // pull following fragments back onto the URL until we hit a real next field
-    while(r.length > 5 && r[1] && !/\s/.test(r[1]) && !/^https?:/.test(r[1])
-          && (r[1].indexOf('/') > -1 || /^[a-z]_[a-z0-9]+$/i.test(r[1]))){
-      r[0] = r[0] + ',' + r[1];
-      r.splice(1,1);
-    }
-  }
-  return { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
-}
-
-async function loadPrompts(){
-  if(!$state || !$grid) return;
-  if(!SHEET_CSV || SHEET_CSV.indexOf('http') !== 0){
-    $state.textContent = 'Prompt book not connected yet — add your published Sheet CSV link in index.html.';
-    return;
-  }
+async function loadGuides(){
+  const state = $g('gState');
   try{
-    const res = await fetch(SHEET_CSV);
+    const res = await fetch(G_CSV);
     if(!res.ok) throw new Error(res.status);
-    const rows = parseCSV(await res.text()).slice(1);   // drop heading row
-    ALL = rows
-      .map(fixRow)
-      .filter(p => p.prompt)                            // must have a prompt
-      .reverse();                                       // newest first
-    if(!ALL.length){ $state.textContent = 'No prompts in the sheet yet.'; return; }
-    buildChips();
-    render(true);
+    const rows = parseCSVg(await res.text()).slice(1);
+
+    G_ALL = rows.map(r => ({
+      cat:   (r[0]||'').trim(),
+      title: (r[1]||'').trim(),
+      body:  (r[2]||'').trim(),
+      tags:  (r[3]||'').trim(),
+      date:  (r[4]||'').trim()
+    })).filter(g => g.title && g.body);
+
+    if(!G_ALL.length){
+      state.innerHTML = '<i class="ti ti-mood-empty"></i>No guides yet — check back soon.';
+      return;
+    }
+    chipsG();
+    renderG();
   }catch(e){
-    $state.textContent = "Couldn't load the prompt book. Check that the sheet is still published to the web as CSV.";
+    state.innerHTML = '<i class="ti ti-alert-triangle"></i>Couldn\'t load the guides. Check your connection and try again.';
   }
 }
-if($more) $more.onclick = () => render(false);
-if(HAS_PB) loadPrompts();
 
+function chipsG(){
+  const cats = ['All', ...new Set(G_ALL.map(g=>g.cat).filter(Boolean))];
+  const bar = $g('gChips');
+  bar.innerHTML = cats.map(c =>
+    '<button class="g-chip'+(c==='All'?' on':'')+'" data-c="'+escG(c)+'">'+escG(c)+'</button>'
+  ).join('');
+  bar.querySelectorAll('.g-chip').forEach(b=>{
+    b.onclick = ()=>{
+      bar.querySelectorAll('.g-chip').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      G_CAT = b.dataset.c;
+      renderG();
+    };
+  });
+}
 
+function renderG(){
+  const list = $g('gList'), state = $g('gState'), count = $g('gCount');
+  const q = G_Q.trim().toLowerCase();
 
+  const shown = G_ALL.filter(g=>{
+    if(G_CAT !== 'All' && g.cat !== G_CAT) return false;
+    if(!q) return true;
+    return (g.title+' '+g.body+' '+g.tags+' '+g.cat).toLowerCase().includes(q);
+  });
 
+  count.textContent = q && shown.length
+    ? shown.length + (shown.length===1 ? ' guide found' : ' guides found') : '';
+
+  if(!shown.length){
+    list.hidden = true; state.hidden = false;
+    state.innerHTML = '<i class="ti ti-search-off"></i>' +
+      (q ? 'Nothing matches that. Try a different word.' : 'Nothing in this category yet.');
+    return;
+  }
+
+  state.hidden = true; list.hidden = false;
+  list.innerHTML = shown.map((g,i)=>{
+    const cls = g.cat.toLowerCase()==='tiktok' ? 'tiktok'
+              : g.cat.toLowerCase()==='facebook' ? '' : 'general';
+    const tags = g.tags
+      ? '<div class="g-tags">' + g.tags.split(',').map(t=>t.trim()).filter(Boolean)
+          .map(t=>'<span class="g-tag">'+escG(t)+'</span>').join('') + '</div>'
+      : '';
+    return '<article class="g-item" id="gi'+i+'">'
+      + '<button class="g-q" data-i="'+i+'">'
+      +   (g.cat ? '<span class="g-cat '+cls+'">'+escG(g.cat)+'</span>' : '')
+      +   '<span class="g-qt">'+escG(g.title)+'</span>'
+      +   '<span class="g-plus">+</span>'
+      + '</button>'
+      + '<div class="g-a">'+escG(g.body)+tags+'</div>'
+      + '</article>';
+  }).join('');
+
+  list.querySelectorAll('.g-q').forEach(b=>{
+    b.onclick = ()=> $g('gi'+b.dataset.i).classList.toggle('open');
+  });
+}
+
+$g('gSearch').oninput = e => { G_Q = e.target.value; renderG(); };
+loadGuides();
 </script>
+
 <script>
   var t=document.getElementById('navToggle'), l=document.getElementById('navLinks');
   if(t&&l){ t.onclick=function(){ t.classList.toggle('on'); l.classList.toggle('open'); }; }
