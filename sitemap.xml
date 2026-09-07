@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Google ke liye fehrist — sirf awaam wale safhe.
+  Login wale safhe yahan jaan boojh kar nahi hain (robots.txt dekhein).
+
+  Naya safha banayein to yahan bhi jor dein — misaal ke tor par
+  free-courses.html jab tayar ho jaye.
+-->
+<urlset xmlns="http://www.sitemap.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/</loc>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <!-- Sab se zyada traffic isi par hai -->
+  <url>
+    <loc>https://www.umairtiktokwala.com/prompt-book.html</loc>
+    <priority>0.9</priority>
+    <changefreq>daily</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/support-program.html</loc>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/paypal-service.html</loc>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/courses.html</loc>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/services.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/curriculum.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/results.html</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/faq.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/links.html</loc>
+    <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/privacy.html</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+
+</urlset>
