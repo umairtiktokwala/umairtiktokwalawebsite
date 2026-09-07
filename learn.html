@@ -697,13 +697,13 @@ button{font-family:var(--body)}
              mein kuch badlein to dono jagah khud badal jata hai. -->
         <div id="secPrompts" style="display:none">
           <div class="pbk-top">
-            <input type="text" id="pbkSearch" placeholder="Prompt dhoondein — title, category ya tool se…" autocomplete="off">
+            <input type="text" id="pbkSearch" placeholder="Search prompts — by title, category or tool…" autocomplete="off">
             <div class="pbk-count" id="pbkCount"></div>
           </div>
           <div class="pbk-chips" id="pbkChips"></div>
           <div class="empty" id="pbkState"><i class="ti ti-loader-2"></i>Loading prompts…</div>
           <div class="pbk-grid" id="pbkGrid" hidden></div>
-          <button class="pbk-more" id="pbkMore" hidden>Aur dikhayein</button>
+          <button class="pbk-more" id="pbkMore" hidden>Show more</button>
         </div>
 
         <!-- ===== TASKS SECTION ===== -->
@@ -1943,7 +1943,26 @@ function renderAlerts(){
   box.querySelectorAll('[data-goto]').forEach(b=>{
     b.onclick = ()=>{
       const to=b.dataset.goto;
-      if(to==='course'){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+      /* "Pick up where you left off" — pehle ye sirf upar scroll karta
+         tha. Student pehle se Course wale section par hota hai, is liye
+         kuch hota nazar nahi aata tha aur lagta tha button dab hi nahi
+         raha.
+
+         Ab agla adhoora lesson khud khul jata hai. Tarteeb:
+           1. Jo shuru kiya magar mukammal nahi (pct > 0)
+           2. Wo bhi na ho to pehla jo abhi tak khola hi nahi
+           3. Sab mukammal hain to upar scroll — aur karne ko kuch nahi */
+      if(to==='course'){
+        switchSection('course');
+        const cs=allowedCourses(BATCH);
+        const mine=LESSONS.filter(l=>l.batch===BATCH && (!cs||cs.includes(l.course)));
+        const started = mine.find(l=>{ const p=progFor(l); return p && !p.done && Number(p.pct||0)>0; });
+        const fresh   = mine.find(l=>!progFor(l));
+        const next = started || fresh;
+        if(next) openLesson(next.id);
+        else window.scrollTo({top:0,behavior:'smooth'});
+        return;
+      }
       switchSection(to);
     };
   });
@@ -2024,12 +2043,12 @@ async function loadPromptBook(){
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSV(await res.text()).slice(1);
     PBK_ALL = rows.map(pbkRow).filter(p => p.prompt).reverse();   // naye pehle
-    if(!PBK_ALL.length){ state.innerHTML = '<i class="ti ti-mood-empty"></i>Abhi koi prompt nahi hai.'; return; }
+    if(!PBK_ALL.length){ state.innerHTML = '<i class="ti ti-mood-empty"></i>No prompts yet.'; return; }
     pbkChips();
     pbkRender(true);
   }catch(e){
     PBK_LOADED = false;                    // nakaam hua to dobara koshish ho sake
-    state.innerHTML = '<i class="ti ti-alert-triangle"></i>Prompt book load nahi hua. Net check karein aur dobara koshish karein.';
+    state.innerHTML = '<i class="ti ti-alert-triangle"></i>Couldn't load the prompt book. Check your connection and try again.';
   }
 }
 
@@ -2085,8 +2104,8 @@ function pbkRender(reset){
   if(!list.length){
     grid.hidden = true; more.hidden = true; state.hidden = false;
     state.innerHTML = '<i class="ti ti-search-off"></i>' + (q
-      ? 'Is lafz se koi prompt nahi mila — koi doosra lafz try karein.'
-      : 'Is category mein kuch nahi hai.');
+      ? 'No prompts match that. Try a different word.'
+      : 'Nothing in this category yet.');
     return;
   }
 

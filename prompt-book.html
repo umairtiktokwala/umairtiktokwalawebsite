@@ -717,7 +717,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
         <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path>
       </svg>
       <input class="pb-search" id="pbSearch" type="search" autocomplete="off"
-             placeholder="Prompt dhoondein — title ya lafz likhein…">
+             placeholder="Search prompts — type a title or a word…">
       <button class="pb-search-clear" id="pbClear" aria-label="Clear">&times;</button>
     </div>
     <div class="pb-count" id="pbCount"></div>
@@ -968,7 +968,7 @@ function render(reset){
     $grid.hidden = true; $more.hidden = true;
     $state.hidden = false;
     $state.textContent = q
-      ? 'Is lafz se koi prompt nahi mila — koi doosra lafz try karein.'
+      ? 'No prompts match that. Try a different word.'
       : 'Nothing here yet.';
     return;
   }

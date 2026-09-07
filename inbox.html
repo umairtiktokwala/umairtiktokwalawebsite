@@ -710,7 +710,7 @@
   <div class="tp-back" id="teamPanel">
     <div class="tp-box">
       <div class="tp-head">
-        <span class="tp-title">Team &mdash; abhi kaun kya kar raha hai</span>
+        <span class="tp-title">Team &mdash; who is working on what</span>
         <button class="mini-btn" id="teamClose">Close</button>
       </div>
       <div class="tp-body" id="teamBody"></div>
@@ -750,7 +750,7 @@
         <label class="form-label">Shortcut (bina slash ke, jaise: fees)</label>
         <input type="text" id="srCmd" placeholder="fees">
         <label class="form-label">Reply text</label>
-        <textarea id="srText" placeholder="Support Program ki fees 3000 PKR hai&hellip;"></textarea>
+        <textarea id="srText" placeholder="The Support Program fee is 3000 PKR&hellip;"></textarea>
       </div>
     </div>
     <div class="modal-foot">
@@ -888,7 +888,7 @@ $("loginBtn").onclick = async () => {
   try {
     await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
   } catch (e) {
-    $("loginErr").textContent = "Email ya password ghalat hai";
+    $("loginErr").textContent = "Incorrect email or password";
     btn.disabled = false;
   }
 };
@@ -1129,7 +1129,7 @@ function renderSrList() {
   const box = $("srList");
   if (!box) return;
   if (!savedReplies.length) {
-    box.innerHTML = '<div class="empty" style="padding:14px 0">Abhi koi saved reply nahi.<br>Neeche se add karein.</div>';
+    box.innerHTML = '<div class="empty" style="padding:14px 0">No saved replies yet.<br>Add one below.</div>';
     return;
   }
   box.innerHTML = savedReplies.map(r =>
@@ -1158,7 +1158,7 @@ function renderSrList() {
   });
   box.querySelectorAll("[data-del]").forEach(b => {
     b.onclick = async () => {
-      if (!confirm("Ye saved reply delete kar dein?")) return;
+      if (!confirm("Delete this saved reply?")) return;
       try { await deleteDoc(doc(db, "savedReplies", b.dataset.del)); } catch (e) {}
     };
   });
@@ -1487,7 +1487,7 @@ function renderList() {
 
   if (!shown.length) {
     list.innerHTML = '<div class="empty">' +
-      (convos.length ? "Is filter mein koi chat nahi." : "Abhi koi chat nahi.<br>Jab koi message karega, yahan aa jayegi.") +
+      (convos.length ? "No chats match this filter." : "No chats yet.<br>They will appear here when someone messages.") +
       '</div>';
     return;
   }
@@ -1560,7 +1560,7 @@ function renderList() {
   if (currentFilter === "unread") {
     list.innerHTML +=
       '<div class="empty" style="padding:16px;font-size:12px">' +
-        'Saari unread chats yahan hain (' + shown.length + ')' +
+        'All unread chats are here (' + shown.length + ')' +
       '</div>';
   } else if (!allLoaded && !searchTerm) {
     list.innerHTML +=
@@ -1616,8 +1616,8 @@ async function openConvo(id) {
   const msgr = isMessenger(c);
   const w2 = windowState(c);
   const closedWarn = (msgr && w2.cls === "closed")
-    ? '<div class="win-warn">24 ghante ka window band ho chuka hai. ' +
-      'Messenger ab is chat mein reply nahi jane deta &mdash; student ke naye message ka intezar karein.</div>'
+    ? '<div class="win-warn">The 24-hour window has closed. ' +
+      'Messenger will not deliver a reply in this chat &mdash; wait for the student to message again.</div>'
     : '';
 
   // Overlap warning — ye chat kisi aur ko assigned hai aur wo abhi online hai
@@ -1628,8 +1628,8 @@ async function openConvo(id) {
     if (online) {
       overlapHtml =
         '<div class="ov-warn">Ye chat <b>' + esc(c.assignedTo) + '</b> ke paas hai, ' +
-        'aur wo abhi <b>online</b> hai. Dono ek saath jawab na bhej dein &mdash; ' +
-        'pehle un se poochh lein ya <b>Assign</b> se apne naam kar lein.</div>';
+        'and they are <b>online</b> right now. Avoid replying at the same time &mdash; ' +
+        'check with them first, or use <b>Assign</b> to take it.</div>';
     }
   }
 
@@ -1651,7 +1651,7 @@ async function openConvo(id) {
 
 function composerMarkup(allowFiles) {
   return '<div class="composer" id="composer">' +
-      '<div class="drop-hint" id="dropHint">File yahan chhoR dein</div>' +
+      '<div class="drop-hint" id="dropHint">Drop the file here</div>' +
       '<div class="slash" id="slash"></div>' +
       '<div class="undo-bar" id="undoBar">' +
         '<span>Message bheja ja raha hai&hellip; <span class="undo-count" id="undoCount">8</span></span>' +
@@ -1662,7 +1662,7 @@ function composerMarkup(allowFiles) {
       '<div class="composer-row">' +
         '<button class="attach-btn" id="attachBtn" title="File bhejein"' +
           (allowFiles ? '' : ' style="display:none"') + '>&#128206;</button>' +
-        '<textarea id="draft" placeholder="Message likhein&hellip;  ( / se saved reply )" rows="1"></textarea>' +
+        '<textarea id="draft" placeholder="Write a message&hellip;  ( / for saved replies )" rows="1"></textarea>' +
         '<button class="send-btn" id="sendBtn">&uarr;</button>' +
       '</div>' +
       '<div class="send-err" id="sendErr"></div>' +
@@ -1756,9 +1756,9 @@ function paintChatHead() {
             });
             // Pehle yahan khali catch tha — nakaam hone par kuch nahi dikhta tha
             // aur bande ko lagta tha ke us ne click hi nahi kiya.
-            say(t ? ("Assign kar di — " + t.name) : "Chat ab kisi ke naam nahi hai");
+            say(t ? ("Assigned to " + t.name) : "Chat is no longer assigned");
           } catch (e) {
-            say("Assign nahi hui: " + (e && e.message ? e.message : "koi masla aa gaya"), true);
+            say("Assign nahi hui: " + (e && e.message ? e.message : "something went wrong"), true);
           }
           closeAssignMenu();
         };
@@ -1769,7 +1769,7 @@ function paintChatHead() {
   // Delete poori chat
   const dc = $("delChatBtn");
   if (dc) dc.onclick = async () => {
-    if (!confirm("Poori chat delete kar dein?\n\nSaare messages aur notes mit jayenge. Student ke phone se nahi hatega.")) return;
+    if (!confirm("Delete this whole chat?\n\nAll messages and notes will be gone. It stays on the student's phone.")) return;
     dc.disabled = true;
     dc.textContent = "Delete ho rahi hai...";
     try {
@@ -1797,17 +1797,17 @@ function paintChatHead() {
   if (bb) bb.onclick = async () => {
     const isBlocked = !!c.blocked;
     const ask = isBlocked
-      ? "Is number ko unblock kar dein?\n\nWo dobara message bhej sakega."
-      : "Is number ko block kar dein?\n\n"
-        + "\u2022 Wo aap ko message nahi bhej sakega\n"
-        + "\u2022 Aap bhi us ko message nahi bhej sakenge\n"
-        + "\u2022 Us ko koi itlaa nahi jayegi\n\n"
-        + "Meta sirf un logon ko block karne deta hai jinho ne pichle 24 ghante mein message kiya ho.";
+      ? "Unblock this number?\n\nThey will be able to message you again."
+      : "Block this number?\n\n"
+        + "\u2022 They cannot message you\n"
+        + "\u2022 You cannot message them either\n"
+        + "\u2022 They are not told about it\n\n"
+        + "Meta only allows blocking people who messaged you in the last 24 hours.";
     if (!confirm(ask)) return;
 
     const convoId = activeId;
     bb.disabled = true;
-    bb.textContent = isBlocked ? "Unblock ho raha hai\u2026" : "Block ho raha hai\u2026";
+    bb.textContent = isBlocked ? "Unblocking\u2026" : "Blocking\u2026";
     try {
       const r = await fetch("/api/whatsapp-block", {
         method: "POST",
@@ -1823,14 +1823,14 @@ function paintChatHead() {
       });
       const data = await r.json();
       if (data.ok) {
-        say(isBlocked ? "Unblock ho gaya" : "Block ho gaya");
+        say(isBlocked ? "Unblocked" : "Blocked");
       } else {
-        say(data.error || "Nahi ho saka", true);
+        say(data.error || "Could not do that", true);
         bb.disabled = false;
         bb.textContent = isBlocked ? "Unblock" : "Block";
       }
     } catch (e) {
-      say("Request nahi ja saki: " + (e && e.message ? e.message : "masla"), true);
+      say("Request failed: " + (e && e.message ? e.message : "masla"), true);
       bb.disabled = false;
       bb.textContent = isBlocked ? "Unblock" : "Block";
     }
@@ -1838,7 +1838,7 @@ function paintChatHead() {
 
   const sv = $("surveyBtn");
   if (sv) sv.onclick = async () => {
-    if (!confirm("Student ko survey bhejein? (masla hal hua ya nahi)")) return;
+    if (!confirm("Send the student a survey? (was the issue solved)")) return;
     sv.disabled = true;
     sv.textContent = "Bhej rahe hain...";
     try {
@@ -1849,7 +1849,7 @@ function paintChatHead() {
         body: JSON.stringify({ to: c.waNumber || c.id })
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Survey nahi gaya");
+      if (!r.ok) throw new Error(data.error || "Survey could not be sent");
     } catch (e) {
       alert(e.message);
       sv.disabled = false;
@@ -1982,7 +1982,7 @@ function renderBubble(msgId, m) {
       // Click to load
       inner = '<div class="media-hold" data-load="img" data-id="' + esc(m.mediaId) + '">' +
         '<span class="media-hold-icon">&#128247;</span>' +
-        '<span>Image &mdash; dekhne ke liye click karein</span></div>';
+        '<span>Image &mdash; click to view</span></div>';
     }
   } else if (m.type === "video") {
     if (direct) {
@@ -1990,7 +1990,7 @@ function renderBubble(msgId, m) {
     } else {
       inner = '<div class="media-hold" data-load="video" data-id="' + esc(m.mediaId) + '">' +
         '<span class="media-hold-icon">&#127909;</span>' +
-        '<span>Video &mdash; chalane ke liye click karein</span></div>';
+        '<span>Video &mdash; click to play</span></div>';
     }
   } else if (m.type === "audio") {
     if (direct) {
@@ -1999,7 +1999,7 @@ function renderBubble(msgId, m) {
     } else {
       inner = '<div class="media-hold" data-load="audio" data-id="' + esc(m.mediaId) + '">' +
         '<span class="media-hold-icon">&#127908;</span>' +
-        '<span>Voice note &mdash; sunne ke liye click karein</span></div>';
+        '<span>Voice note &mdash; click to listen</span></div>';
     }
   } else if (m.type === "document") {
     // Document sirf link hai — click par khulta hai, ab bhi koi auto-call nahi.
@@ -2007,7 +2007,7 @@ function renderBubble(msgId, m) {
     inner = '<a class="doc-row" href="' + href + '" target="_blank" rel="noopener">' +
       '<span class="doc-icon">&#128196;</span>' +
       '<span><span class="doc-name">' + esc(nm) + '</span><br>' +
-      '<span class="doc-sub">Kholne ke liye click karein</span></span></a>';
+      '<span class="doc-sub">Click to open</span></span></a>';
   }
 
   const cap = m.text ? '<div class="cap">' + esc(m.text) + '</div>' : "";
@@ -2026,7 +2026,7 @@ function wireBubbles() {
   box.querySelectorAll("[data-del]").forEach(b => {
     b.onclick = async (e) => {
       e.stopPropagation();
-      if (!confirm("Ye message dashboard se hata dein?\n\nStudent ke phone se nahi hatega.")) return;
+      if (!confirm("Remove this message from the dashboard?\n\nIt stays on the student's phone.")) return;
       try {
         await updateDoc(doc(db, "conversations", activeId, "messages", b.dataset.del),
           { deleted: true, deletedBy: me.name, deletedAt: serverTimestamp() });
@@ -2051,7 +2051,7 @@ function wireBubbles() {
         node.alt = "Image";
         node.onclick = () => openLightbox('<img src="' + src + '">');
         node.onerror = () => {
-          el.innerHTML = '<span>Image nahi mili &mdash; 30 din se purani ho sakti hai</span>';
+          el.innerHTML = '<span>Image not found &mdash; it may be older than 30 days</span>';
           el.classList.add("media-fail");
         };
       } else if (kind === "video") {
@@ -2212,8 +2212,8 @@ function stageFile(f) {
   if (f.size > MAX) {
     const mb = (f.size / 1024 / 1024).toFixed(1);
     $("sendErr").textContent =
-      "File 3 MB se bari hai (" + mb + " MB). Chhoti kar ke bhejein — " +
-      "ya student ko link bhej dein.";
+      "File is larger than 3 MB (" + mb + " MB). Chhoti kar ke bhejein — " +
+      "or send the student a link instead.";
     return;
   }
   stagedFile = f;
@@ -2249,7 +2249,7 @@ function clearStagedFile() {
   const box = $("filePreview");
   if (box) { box.classList.remove("show"); box.innerHTML = ""; }
   const ta = $("draft");
-  if (ta) ta.placeholder = "Message likhein\u2026  ( / se saved reply )";
+  if (ta) ta.placeholder = "Write a message\u2026  ( / for saved replies )";
 }
 
 function updateSlash() {
@@ -2359,7 +2359,7 @@ async function readJson(r, fallbackMsg) {
   let data = null;
   try { data = await r.json(); } catch (e) { data = null; }
   if (r.ok) return data || {};
-  if (r.status === 413) throw new Error("File bohot bari hai — 3 MB tak bhej sakte hain");
+  if (r.status === 413) throw new Error("File is too large — 3 MB is the limit");
   if (r.status === 401 || r.status === 403) throw new Error((data && data.error) || "Session khatam — dobara login karein");
   throw new Error((data && data.error) || fallbackMsg || ("Masla aaya (" + r.status + ")"));
 }
@@ -2375,7 +2375,7 @@ async function doSend(payload, bubble) {
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ psid: to, text })
       });
-      await readJson(r, "Message nahi gaya");
+      await readJson(r, "Message not sent");
     } else if (file) {
       const dataUrl = await fileToDataUrl(file);
       const r = await fetch("/api/whatsapp-send-media", {
@@ -2383,14 +2383,14 @@ async function doSend(payload, bubble) {
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ to, dataUrl, filename: file.name, caption: text })
       });
-      await readJson(r, "File nahi gayi");
+      await readJson(r, "File not sent");
     } else {
       const r = await fetch("/api/whatsapp-send", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ to, text })
       });
-      await readJson(r, "Message nahi gaya");
+      await readJson(r, "Message not sent");
     }
 
     if (bubble) bubble.remove();
@@ -2399,7 +2399,7 @@ async function doSend(payload, bubble) {
     if (bubble) {
       bubble.classList.add("failed");
       const meta = bubble.querySelector(".meta");
-      if (meta) meta.textContent = "Nahi gaya — " + e.message;
+      if (meta) meta.textContent = "Not sent — " + e.message;
     }
     if (activeId === convoId) {
       const err = $("sendErr");
@@ -2480,8 +2480,8 @@ function renderInfo() {
      100 dafa khulne par 100 dafa data jata. Team ko zyadatar sirf jawab
      dena hota hai; performance kabhi kabhaar chahiye. */
   const blockedBar = c.blocked
-    ? '<div class="blocked-bar"><b>Ye number block hai.</b> Wo message nahi bhej sakta, aur aap bhi nahi bhej sakte.'
-      + (c.blockedByName ? ' Block kiya: ' + esc(c.blockedByName) + '.' : '')
+    ? '<div class="blocked-bar"><b>This number is blocked.</b> They cannot message you, and you cannot message them.'
+      + (c.blockedByName ? ' Blocked by: ' + esc(c.blockedByName) + '.' : '')
       + '</div>'
     : '';
 
@@ -2508,7 +2508,7 @@ function renderInfo() {
     '<div class="info-title" style="margin-top:22px">Internal notes</div>' +
     '<div class="note-box">' +
       '<div id="noteList"></div>' +
-      '<textarea class="note-input" id="noteInput" placeholder="Team ke liye note (student ko nazar nahi aata)"></textarea>' +
+      '<textarea class="note-input" id="noteInput" placeholder="Note for the team (the student cannot see this)"></textarea>' +
       '<button class="mini-btn" id="noteAdd" style="margin-top:7px;width:100%">Add note</button>' +
     '</div>';
 
@@ -2586,10 +2586,10 @@ const PERF_CACHE = {};
 
 function perfHTML(p) {
   if (p.notFound) {
-    return '<div class="perf-note">Is number ka koi student record nahi mila.</div>';
+    return '<div class="perf-note">No student record found for this number.</div>';
   }
   if (p.error) {
-    return '<div class="perf-note">Record load nahi hua. Dobara koshish karein.</div>' +
+    return '<div class="perf-note">Could not load the record. Please try again.</div>' +
       '<button class="mini-btn" id="perfBtn" style="width:100%;margin-top:7px">Try again</button>';
   }
 
@@ -2603,7 +2603,7 @@ function perfHTML(p) {
 
   if (oldOnly) {
     out += '<div class="perf-note">May-2026 batch &mdash; course website se pehle dekha tha. ' +
-           'Yahan ka record is student ke liye maani nahi rakhta.</div>';
+           'This record does not apply to this student.</div>';
   } else if (p.stats) {
     const st = p.stats;
     out +=
@@ -2618,9 +2618,9 @@ function perfHTML(p) {
       '</div>';
   } else if (p.days > 0) {
     // portal par aaya hua hai, bas naye code se abhi nahi guzra
-    out += '<div class="perf-note">Naya portal abhi tak nahi khola &mdash; lesson ka record nahi bana.</div>';
+    out += '<div class="perf-note">Has not opened the new portal yet &mdash; no lesson record exists.</div>';
   } else {
-    out += '<div class="perf-note">Ye student abhi tak portal par nahi aaya.</div>';
+    out += '<div class="perf-note">This student has not visited the portal yet.</div>';
   }
 
   out +=
@@ -2632,10 +2632,10 @@ function perfHTML(p) {
     '<div class="perf-line"><span>Active days</span><span>' + p.days + '</span></div>';
 
   if (!p.subTotal) {
-    out += '<div class="perf-warn">Is student ne abhi tak koi task submit nahi kiya.</div>';
+    out += '<div class="perf-warn">This student has not submitted any task yet.</div>';
   }
   if (p.oldBatch && !oldOnly) {
-    out += '<div class="perf-warn">Note: ye May-2026 batch mein bhi hai. Us batch ka kuch hissa website se pehle dekha gaya tha.</div>';
+    out += '<div class="perf-warn">Note: also in the May-2026 batch. Part of that batch was watched before this website existed.</div>';
   }
   return out;
 }
@@ -3050,8 +3050,8 @@ async function runStats() {
           statCard(days ? Math.round(closedTotal / days) : 0, "Rozana average") +
         '</div>' +
         '<div style="font-size:11px;color:var(--faint);margin-top:6px">' +
-          'Har dafa jab team ne chat "Close" ki. Ek hi student ki chat kai dafa ' +
-          'close ho sakti hai &mdash; har dafa alag kaam ginta hai.' +
+          'Every time the team closed a chat. One student's chat can be ' +
+          'closed several times &mdash; each one counts separately.' +
         '</div>'
       : '') +
 
@@ -3079,11 +3079,11 @@ async function runStats() {
           statCard(waits.length, "Kitne replies ka hisab") +
         '</div>' +
         '<div style="font-size:11px;color:var(--faint);margin-top:6px">' +
-          'Student ke message se le kar team ke pehle jawab tak ka waqt. ' +
-          'Auto replies shamil nahi. Raat ko aaye messages average ko barha dete hain &mdash; ' +
+          'Time from the student's message to the team's first reply. ' +
+          'Auto replies are excluded. Messages that arrive at night raise the average &mdash; ' +
           'is liye <b>median</b> zyada sacha number hai.' +
         '</div>'
-      : '<div class="empty" style="padding:14px 0">Is arse mein koi reply nahi mila.</div>') +
+      : '<div class="empty" style="padding:14px 0">No replies found in this period.</div>') +
 
     // Rozana graph
     '<div class="info-title" style="margin-top:22px">Rozana messages &mdash; ' + esc(rangeLabel) + '</div>' +
@@ -3161,7 +3161,7 @@ async function runStats() {
         '<tr><td style="color:var(--faint)">Auto replies</td><td>' + autoReplies +
         '</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>' +
         '</tbody></table>'
-      : '<div class="empty" style="padding:14px 0">Is arse mein koi reply nahi.</div>') +
+      : '<div class="empty" style="padding:14px 0">No replies in this period.</div>') +
 
     // Survey
     '<div class="info-title" style="margin-top:24px">Survey</div>' +
@@ -3175,14 +3175,14 @@ async function runStats() {
             : '<span style="color:' + ratingColor(avgBehaviour) + '">' + avgBehaviour.toFixed(1) + '</span>',
             "Behaviour (3 max)") +
         '</div>'
-      : '<div class="empty" style="padding:14px 0">Is arse mein koi survey nahi.</div>') +
+      : '<div class="empty" style="padding:14px 0">No surveys in this period.</div>') +
 
     // Aakhir mein
     (statsError
       ? '<div class="hint" style="margin-top:20px;color:#b91c1c">' +
-        'Messages ka hisab nahi ho saka: ' + esc(statsError) + '<br>' +
-        'Agar is mein "index" ka zikr hai to browser console (F12) kholein &mdash; ' +
-        'wahan ek link hoga, us pe click kar ke index bana dein.</div>'
+        'Could not work out the message counts: ' + esc(statsError) + '<br>' +
+        'If it mentions "index", open the browser console (F12) &mdash; ' +
+        'there will be a link there; click it to create the index.</div>'
       : '') +
 
     '<div class="hint" style="margin-top:20px">' +
@@ -3524,7 +3524,7 @@ function renderTeamPanel() {
           const c = convos.find(x => x.id === r.p.convoId);
           doing = "Abhi: " + esc(c ? displayNameOf(c) : r.p.convoId);
         } else {
-          doing = "Online &mdash; koi chat khuli nahi";
+          doing = "Online &mdash; no open chats";
         }
       } else {
         doing = "Offline";
@@ -3534,7 +3534,7 @@ function renderTeamPanel() {
       if (b.waiting && b.oldest) {
         const mins = Math.round((now - b.oldest) / 60000);
         const col = mins >= 60 ? "#b91c1c" : mins >= 30 ? "#b45309" : "var(--faint)";
-        waitTxt = '<span style="color:' + col + '">Sab se purani: ' +
+        waitTxt = '<span style="color:' + col + '">Oldest: ' +
                   (mins >= 60 ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + "m") +
                   '</span>';
       }
@@ -3561,11 +3561,11 @@ function renderTeamPanel() {
     }).join("") +
 
     '<div class="tp-note">' +
-      '<b>WhatsApp / Messenger</b> = abhi khuli hui chats jo is member ko assigned hain.<br>' +
+      '<b>WhatsApp / Messenger</b> = open chats currently assigned to this member.<br>' +
       '<b>Comments</b> = pichhle 24 ghante mein handle kiye gaye comments.<br>' +
       '<b>Nimtaye</b> = aaj kitni chats "Close" kin.<br>' +
-      '<b>Unread</b> = un mein se jin ka jawab abhi nahi gaya.<br>' +
-      'Online ka matlab: pichhle kuch minute mein dashboard khola hua tha.' +
+      '<b>Unread</b> = those still waiting for a reply.<br>' +
+      'Online means: the dashboard was open in the last few minutes.' +
     '</div>';
 }
 

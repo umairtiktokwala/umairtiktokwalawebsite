@@ -539,7 +539,7 @@ button{font-family:var(--body)}
             </div>
             <label class="ann-push">
               <input type="checkbox" id="annPush" checked>
-              <span>Phone par notification bhi bhejein</span>
+              <span>Also send a phone notification</span>
             </label>
           </div>
 
@@ -550,11 +550,11 @@ button{font-family:var(--body)}
                ek dafa ki cheez hai. Dono ka apna kaam hai. -->
           <h2 class="section-h">Send a notification</h2>
           <div class="ann-form">
-            <input type="text" id="npTitle" class="np-in" placeholder="Title — misaal: Naya lesson aa gaya" maxlength="60">
-            <textarea id="npBody" placeholder="Paigham — chhota rakhein, phone par do line hi nazar aati hain" maxlength="180"></textarea>
+            <input type="text" id="npTitle" class="np-in" placeholder="Title — e.g. New lesson added" maxlength="60">
+            <textarea id="npBody" placeholder="Message — keep it short, phones show about two lines" maxlength="180"></textarea>
             <div class="ann-row">
               <select class="ann-sel" id="npScope">
-                <option value="all">Sab students ko</option>
+                <option value="all">All students</option>
               </select>
               <button class="ann-post" id="npSend"><i class="ti ti-bell"></i> Send notification</button>
             </div>
@@ -681,7 +681,7 @@ let INVESTED=new Set();
 
 /* Student ka progress % — pehle us ke apne record se (courseStats),
    jo learn.html likhta hai. Wahan na mile to us waqt ki loaded value.
-   Dono na hon to null — yani "abhi maloom nahi".
+   Dono na hon to null — yani "not known yet".
    null ko 0% dikhana ghalat hai: May-2026 walon ne course website se
    pehle dekha tha, un ka 0% "nahi dekha" ka matlab nahi rakhta. */
 function stPct(s){
@@ -1027,7 +1027,7 @@ async function push(payload){
     });
     return await r.json();
   }catch(e){
-    return { ok:false, error:'Request nahi ja saki' };
+    return { ok:false, error:'Request failed' };
   }
 }
 
@@ -1050,8 +1050,8 @@ async function decide(id,status,msg,btn){
         uid: s.uid,
         title: status==='approved' ? 'Task approved' : 'Task returned',
         body: status==='approved'
-          ? 'Aap ka task approve ho gaya. Portal mein dekh lein.'
-          : (msg ? msg.slice(0,120) : 'Ustad ne aap ke task par jawab diya hai.'),
+          ? 'Your task has been approved. Open the portal to see it.'
+          : (msg ? msg.slice(0,120) : 'Your teacher has replied to your task.'),
         tab: 'tasks'
       });
     }
@@ -1092,7 +1092,7 @@ function updateStudentBar(shown){
   const btn=$('stLoadProg');
   if(!btn) return;
 
-  /* Jin ka progress abhi maloom nahi — yani na courseStats bana hai
+  /* Jin ka progress not known yet — yani na courseStats bana hai
      (student portal par aaya hi nahi) aur na is session mein load hua.
      Button hamesha dikhta hai jab tak koi baqi ho, sirf sort ke waqt nahi. */
   const missing = STUDENTS.filter(s=>stPct(s)===null).length;
@@ -1530,8 +1530,8 @@ function buildBatchOptions(){
   // notification ka scope
   const np=$('npScope');
   if(np){
-    let h='<option value="all">Sab students ko</option>';
-    sorted.forEach(b=>{ h+=`<option value="${esc(b)}">Sirf ${esc(batchLabel(b))}</option>`; });
+    let h='<option value="all">All students</option>';
+    sorted.forEach(b=>{ h+=`<option value="${esc(b)}">Only ${esc(batchLabel(b))}</option>`; });
     np.innerHTML=h;
   }
 
@@ -1563,7 +1563,7 @@ $('annPost').onclick=async()=>{
       const p = { title:'New announcement', body: txt.slice(0,150), tab:'news' };
       if(scope==='all') p.all = true; else p.batch = scope;
       const r = await push(p);
-      if(r.ok) alert('Announcement post ho gayi. Notification ' + r.sent + ' phone par gayi.');
+      if(r.ok) alert('Announcement posted. Notification sent to ' + r.sent + ' phones reached.');
     }
   }catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-send"></i> Post announcement'; alert('Could not post. Check Firestore rules for the announcements collection.'); }
 };
@@ -1578,15 +1578,15 @@ $('npSend').onclick = async () => {
 
   if(!title || !body){
     note.className = 'np-note bad';
-    note.textContent = 'Title aur paigham dono likhein.';
+    note.textContent = 'Write both a title and a message.';
     return;
   }
 
   const who = scope==='all' ? 'sab students' : batchLabel(scope);
-  if(!confirm('Ye notification ' + who + ' ke phone par jayegi.\n\n' + title + '\n' + body)) return;
+  if(!confirm('Ye notification ' + who + ' will get this on their phone.\n\n' + title + '\n' + body)) return;
 
   const btn = $('npSend');
-  btn.disabled = true; btn.innerHTML = '<i class="ti ti-bell"></i> Ja rahi hai…';
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-bell"></i> Sending…';
   note.className = 'np-note'; note.textContent = '';
 
   const p = { title, body };
@@ -1597,13 +1597,13 @@ $('npSend').onclick = async () => {
 
   if(r.ok){
     note.className = 'np-note ok';
-    note.textContent = r.sent + ' phone par gayi'
-      + (r.failed ? ' \u00b7 ' + r.failed + ' nakaam' : '')
+    note.textContent = r.sent + ' phones reached'
+      + (r.failed ? ' \u00b7 ' + r.failed + ' failed' : '')
       + (r.note ? ' \u00b7 ' + r.note : '');
     $('npTitle').value = ''; $('npBody').value = '';
   }else{
     note.className = 'np-note bad';
-    note.textContent = r.error || 'Nahi ja saki.';
+    note.textContent = r.error || 'Could not send.';
   }
 };
 
