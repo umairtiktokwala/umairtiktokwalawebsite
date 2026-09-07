@@ -1,0 +1,27 @@
+# ============================================================
+#  umairtiktokwala.com
+#
+#  Login wale safhe Google mein nahi hone chahiyen. Un par bina
+#  login ke kuch hai hi nahi, aur Google mein aane se sirf
+#  ghalat-fehmi paida hoti hai — koi banda search se seedha
+#  wahan pahunche to usay khali login form milta hai.
+#
+#  AHEM: ye rasai nahi rokta, sirf Google se chhupata hai. Asal
+#  hifazat Firebase rules se hoti hai, is file se nahi.
+# ============================================================
+
+User-agent: *
+
+# Student aur team ke login wale safhe
+Disallow: /learn.html
+Disallow: /admin.html
+Disallow: /inbox.html
+Disallow: /finance.html
+Disallow: /finance-admin.html
+
+# API — ye safhe hain hi nahi
+Disallow: /api/
+
+Allow: /
+
+Sitemap: https://www.umairtiktokwala.com/sitemap.xml
