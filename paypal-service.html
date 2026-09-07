@@ -625,6 +625,10 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 .page-head h1{font-size:clamp(34px,5.4vw,52px);line-height:1.05;letter-spacing:-.03em;margin-bottom:18px}
 .page-head p{font-size:clamp(16px,2vw,19px);color:var(--muted);line-height:1.6;max-width:60ch}
 .page-head .page-btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.page-help{margin-top:16px;font-size:13.5px;color:var(--muted)}
+.page-help a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.page-help a:hover{color:var(--ink)}
+
 @media(max-width:700px){.page-head{padding:96px 0 40px}}
 
 /* ---- home summary cards ---- */
@@ -672,10 +676,16 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <div class="page-eyebrow">PayPal Service</div>
     <h1>Your TikTok money, handled.</h1>
     <p>We manage the PayPal side of your earnings and send you PKR — straight to your bank, JazzCash or EasyPaisa.</p>
+    <!-- Account banana aur login upar hi. Dashboard signup ke baad khud
+         khul jata hai, is liye "Create account" seedha kaam ka raasta hai. -->
     <div class="page-btns">
-      <a href="https://wa.me/923299655742?text=Assalam%20o%20Alaikum%2C%20mujhe%20PayPal%20Service%20ke%20baare%20mein%20maloomat%20chahiye." target="_blank" rel="noopener" class="btn-primary">Ask on WhatsApp →</a>
-      <a href="finance.html" class="btn-ghost">Already a member? Log in</a>
+      <a href="finance.html#signup" class="btn-primary">Create account →</a>
+      <a href="finance.html" class="btn-ghost">Log in</a>
     </div>
+    <p class="page-help">
+      Koi masla ho to
+      <a href="https://wa.me/923299655742?text=Assalam%20o%20Alaikum%2C%20mujhe%20PayPal%20Service%20ke%20baare%20mein%20maloomat%20chahiye." target="_blank" rel="noopener">WhatsApp par message karein</a>
+    </p>
   </div>
 </section>
 
@@ -683,39 +693,45 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-eyebrow">What you get</div>
-      <h2>One account, managed properly.</h2>
-      <p class="sec-sub">Getting Creator Rewards money out of TikTok and into a Pakistani bank is where most creators lose weeks. We take that whole side off your hands — and you can see every rupee of it in your own dashboard.</p>
+      <h2>Your money, in your own dashboard.</h2>
+      <p class="sec-sub">TikTok se paisa nikaal kar Pakistani bank tak laana — yahi wo hissa hai jahan zyadatar creators hafte zaya karte hain. Wo poora kaam hum sambhalte hain, aur har rupya aap ke apne dashboard mein nazar aata hai.</p>
     </div>
 
     <div class="svc-grid">
       <article class="svc reveal">
-        <div class="svc-top"><span class="svc-dot"></span><h3>Your account, managed by our team</h3></div>
-        <p>We handle the full setup for your TikTok earnings — the PayPal side, the withdrawals, the settings that quietly hold payments back. Nothing for you to work out on your own.</p>
-        <div class="svc-note">Set up once · Handled every month</div>
+        <div class="svc-top"><span class="svc-dot"></span><h3>Sign up, and you're in</h3></div>
+        <p>Dashboard khud khul jata hai — aam tor par paanch minute mein. Kisi ko chalu karne ki zaroorat nahi, na intezar, na message.</p>
+        <div class="svc-note">Sign up · You are in</div>
       </article>
 
       <article class="svc reveal">
-        <div class="svc-top"><span class="svc-dot"></span><h3>Fast PKR transfers</h3></div>
-        <p>No long waiting. Once a payment is confirmed, your PKR moves — not held for weeks while you chase someone for an answer.</p>
-        <div class="svc-note">Confirmed · Sent</div>
+        <div class="svc-top"><span class="svc-dot"></span><h3>Claim it yourself, any time</h3></div>
+        <p>Payment aap ke PayPal mein aa gayi aur record mein nahi? Account chunein, raqam likhein, screenshot lagayein. Kisi se poochne ki zaroorat nahi.</p>
+        <div class="svc-note">Your claim · Any time</div>
       </article>
 
       <article class="svc reveal">
-        <div class="svc-top"><span class="svc-dot"></span><h3>Payments you can count on</h3></div>
-        <p>Every payment honoured, with a receipt for each transfer. No unnecessary delays and nothing left unexplained.</p>
-        <div class="svc-note">Receipt for every payout</div>
+        <div class="svc-top"><span class="svc-dot"></span><h3>Claims verify themselves</h3></div>
+        <p>Aap ka claim hamare record se khud milaya jata hai, har chand minute mein. Mil jaye to verify ho kar earnings mein aa jata hai — na qatar, na follow-up.</p>
+        <div class="svc-note">Submitted · Verified</div>
       </article>
 
       <article class="svc reveal">
-        <div class="svc-top"><span class="svc-dot"></span><h3>A complete record of every payment</h3></div>
-        <p>Your own dashboard shows how much came in, when it arrived, what has been paid and what is still pending. Open it any time — nothing hidden behind a WhatsApp message.</p>
-        <div class="svc-note">Your dashboard · Always open</div>
+        <div class="svc-top"><span class="svc-dot"></span><h3>Every rupee shown openly</h3></div>
+        <p>Kitna aaya, kitna kata, kaunsa rate laga, aur kitne PKR bante hain — poora hisaab saamne. Aap khud gin sakte hain.</p>
+        <div class="svc-note">Nothing hidden</div>
       </article>
 
       <article class="svc reveal">
-        <div class="svc-top"><span class="svc-dot"></span><h3>Straight to your bank or wallet</h3></div>
-        <p>Payouts in PKR to your bank account, JazzCash or EasyPaisa. You choose where it goes, and you can change it whenever you need to.</p>
-        <div class="svc-note">Your account · Your choice</div>
+        <div class="svc-top"><span class="svc-dot"></span><h3>One payout, one receipt</h3></div>
+        <p>Kai PayPal accounts ki earning ek hi transfer mein aati hai, ek receipt ke saath — bikhre huay transfers nahi jinhein alag alag yaad rakhna paRe.</p>
+        <div class="svc-note">Many accounts · One payout</div>
+      </article>
+
+      <article class="svc reveal">
+        <div class="svc-top"><span class="svc-dot"></span><h3>Your bank, your control</h3></div>
+        <p>Bank, JazzCash ya EasyPaisa — aap khud daalte hain aur jab chahein badal lete hain. Web par bhi, Android app par bhi.</p>
+        <div class="svc-note">Web · Android</div>
       </article>
     </div>
 
