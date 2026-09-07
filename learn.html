@@ -942,6 +942,15 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstati
 /* ===== CONFIG ===== */
 const LESSONS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=0&single=true&output=csv';
 const TASKS_CSV   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdgfOYYwlB_8cUFPz29vLJy9b9JohAiMyRov6Ie2yTWnL6l0ZRvzJ6yq-Ooi5JHgHasjeF368FOfOE/pub?gid=161942160&single=true&output=csv';
+
+/* Free course ki apni alag sheet hai.
+   Dono ek saath uthate hain aur mila dete hain — paid students ko sirf
+   apni batch dikhti hai, free walon ko sirf "Free". Batch ka filter
+   pehle se lagta hai, is liye milane se kuch leak nahi hota.
+
+   Alag sheet is liye ke free ka data paid se juda rahe — ek mein kuch
+   galat ho to doosra mehfooz. */
+const FREE_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpwbqMG1xNsJtj64WSWZIOt8pCwGL_5oRFJn6OYOJv67yfdDxgE0wmmvpJBc4N0--tBAZJyllyI9gr/pub?output=csv';
 const ANN_CSV     = 'PASTE_ANNOUNCEMENTS_CSV_URL_HERE';
 const WHATSAPP    = 'https://wa.me/923498319331';
 const MIN_WATCH   = 20;   // seconds a video must be open before "complete" unlocks
@@ -1510,35 +1519,55 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)bank();});
 window.addEventListener('pagehide',bank);
 
 /* ===== content ===== */
+/* Ek sheet ke rows ko lessons mein badalna.
+   Dono sheet (paid aur free) ek jaisi shakl rakhti hain, is liye ek hi
+   function dono ke liye. */
+function rowsToLessons(rows, idPrefix){
+  const seen={};
+  return rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
+    .map((r,i)=>{
+      const url=(r[4]||'').trim();
+      const vid=ytId(url);
+      let id;
+      if(vid){
+        // ek hi video do jagah lagi ho to dusri ko alag ID milti hai
+        seen[vid]=(seen[vid]||0)+1;
+        id='yt_'+vid+(seen[vid]>1?'_'+seen[vid]:'');
+      }else{
+        id=idPrefix+(i+1);   // URL nahi hai — purana tareeqa hi rehne do
+      }
+      return {batch:cleanBatch(r[0]),course:(r[1]||'').trim().toLowerCase(),module:(r[2]||'').trim()||'Lessons',
+        title:(r[3]||'').trim(),url,order:parseInt(r[5])||(i+1),id,legacyId:idPrefix+(i+1)};
+    });
+}
+
 async function loadContent(){
+  const all=[];
+
   if(LESSONS_CSV && LESSONS_CSV.indexOf('http')===0){
     try{
       const rows=parseCSV(await(await fetch(LESSONS_CSV)).text()).slice(1);
-      /* Lesson ki ID ab YouTube video se banti hai, sheet ke row number se nahi.
-         Pehle 'L1','L2'… hoti thi — us ka matlab tha ke sheet mein ek row
-         beech mein daalte hi neeche ke sab lessons ki ID khisak jati thi aur
-         har student ka progress ghalat lesson par chala jata tha.
-         Ab video wahi rahegi to ID bhi wahi rahegi.
+      /* Lesson ki ID YouTube video se banti hai, sheet ke row number se
+         nahi. Pehle 'L1','L2'… hoti thi — us ka matlab tha ke sheet mein
+         ek row beech mein daalte hi neeche ke sab lessons ki ID khisak
+         jati thi aur har student ka progress ghalat lesson par chala
+         jata tha. Ab video wahi rahegi to ID bhi wahi rahegi.
          legacyId purani ID hai — purana progress isi se milta hai. */
-      const seen={};
-      LESSONS=rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
-        .map((r,i)=>{
-          const url=(r[4]||'').trim();
-          const vid=ytId(url);
-          let id;
-          if(vid){
-            // ek hi video do jagah lagi ho to dusri ko alag ID milti hai
-            seen[vid]=(seen[vid]||0)+1;
-            id='yt_'+vid+(seen[vid]>1?'_'+seen[vid]:'');
-          }else{
-            id='L'+(i+1);   // URL nahi hai — purana tareeqa hi rehne do
-          }
-          return {batch:cleanBatch(r[0]),course:(r[1]||'').trim().toLowerCase(),module:(r[2]||'').trim()||'Lessons',
-            title:(r[3]||'').trim(),url,order:parseInt(r[5])||(i+1),id,legacyId:'L'+(i+1)};
-        })
-        .sort((a,b)=>a.order-b.order);
-    }catch(e){ LESSONS=[]; }
+      all.push(...rowsToLessons(rows,'L'));
+    }catch(e){}
   }
+
+  /* Free course — apni alag sheet se.
+     Prefix 'F' is liye ke agar kisi lesson par URL na ho to us ki ID
+     paid wale 'L1' se na takra jaye. */
+  if(FREE_CSV && FREE_CSV.indexOf('http')===0){
+    try{
+      const rows=parseCSV(await(await fetch(FREE_CSV)).text()).slice(1);
+      all.push(...rowsToLessons(rows,'F'));
+    }catch(e){}
+  }
+
+  LESSONS = all.sort((a,b)=>a.order-b.order);
   if(TASKS_CSV && TASKS_CSV.indexOf('http')===0){
     try{
       const rows=parseCSV(await(await fetch(TASKS_CSV)).text()).slice(1);
@@ -2295,7 +2324,10 @@ function render(){
   $('progN').innerHTML=pct+'<span>%</span>';
   $('progFill').style.width=pct+'%';
   $('progDone').textContent=done+' of '+mine.length+' lessons';
-  $('progLeft').textContent=mine.length-done>0?(mine.length-done)+' to go':'All complete!';
+  /* Lessons hain hi nahi to "All complete!" ghalat lagta hai —
+     student ne kuch dekha hi nahi hota. */
+  $('progLeft').textContent = mine.length===0 ? 'Coming soon'
+    : (mine.length-done>0 ? (mine.length-done)+' to go' : 'All complete!');
 
   // modules for selected course
   const shown=inBatch.filter(l=>l.course===TAB);
