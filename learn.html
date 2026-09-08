@@ -32,6 +32,58 @@ a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
 button{font-family:var(--body)}
 
+
+/* ---------- CERTIFICATE TEST ---------- */
+.ct-card{max-width:640px}
+.ct-h{font-family:var(--display);font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.ct-p{font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:18px}
+.ct-rules{margin:0 0 20px;padding-left:18px;font-size:13.5px;line-height:2;color:var(--ink-2)}
+.ct-go{width:100%;text-align:center}
+
+.ct-checks{display:flex;flex-direction:column;gap:9px}
+.ct-check{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:12px}
+.ct-check.ok{border-color:rgba(22,179,100,.35);background:rgba(22,179,100,.06)}
+.ct-tick{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:12px;background:var(--line);color:var(--muted)}
+.ct-check.ok .ct-tick{background:#16B364;color:#fff}
+.ct-ctext{flex:1}
+.ct-clabel{font-size:14px;font-weight:600;color:var(--ink)}
+.ct-cnow{font-size:12px;color:var(--muted);margin-top:2px}
+
+.ct-bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.ct-fill{height:100%;background:var(--purple);border-radius:99px;transition:width .3s}
+.ct-meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.ct-q{font-family:var(--display);font-size:18px;font-weight:700;line-height:1.45;margin-bottom:18px}
+.ct-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
+.ct-opt{width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;
+  background:var(--card);cursor:pointer;font-family:inherit;font-size:14.5px;
+  text-align:left;color:var(--ink);transition:all .14s}
+.ct-opt:hover{border-color:var(--ink-2)}
+.ct-opt.on{border-color:var(--purple);background:var(--soft-purple);font-weight:600}
+.ct-nav{display:flex;gap:10px}
+.ct-nav button{flex:1}
+
+.ct-score{font-family:var(--display);font-size:48px;font-weight:800;text-align:center;line-height:1;letter-spacing:-.03em}
+.ct-scoresub{text-align:center;font-size:13.5px;color:var(--muted);margin-top:6px;margin-bottom:18px}
+.ct-certno{font-family:var(--mono);font-size:20px;font-weight:700;text-align:center;
+  letter-spacing:.06em;color:var(--purple);margin-top:14px}
+.ct-certsub{text-align:center;font-size:12px;color:var(--muted);margin-top:5px}
+.ct-won{border-color:rgba(22,179,100,.35);background:rgba(22,179,100,.05)}
+.ct-badge{display:block;width:fit-content;margin:0 auto 14px;padding:5px 14px;border-radius:99px;
+  background:#16B364;color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em}
+
+.ct-review{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.ct-rev{margin-bottom:15px;font-size:13.5px;line-height:1.6}
+.ct-rev-q{font-weight:600;color:var(--ink);margin-bottom:4px}
+.ct-rev-x{color:#B42318;text-decoration:line-through;margin-right:8px}
+.ct-rev-a{color:#0F7A45}
+
+@media(max-width:560px){
+  .ct-q{font-size:16.5px}
+  .ct-score{font-size:40px}
+}
+
 /* ---------- SPLASH ---------- */
 .su-free{
   background:var(--soft-blue);border:1px solid rgba(37,99,235,.18);
@@ -135,8 +187,12 @@ button{font-family:var(--body)}
 @media(max-width:860px){
   .shell{grid-template-columns:1fr}
   .side{display:none}
-  .mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--card);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));justify-content:space-around}
-  .mnav button,.mnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;border-radius:10px;text-decoration:none}
+  /* Ab is mein nau cheezein hain — Certificate bhi. Sab ek saath
+     samatin to thus jati thin, is liye ye patti ab dayen-baayen
+     scroll hoti hai. Pehli paanch nazar aati hain, baqi khiska kar. */
+  .mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--card);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom));overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mnav::-webkit-scrollbar{display:none}
+  .mnav button,.mnav a{flex:0 0 auto;min-width:66px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;border-radius:10px;text-decoration:none}
   .mnav button i,.mnav a i{font-size:21px}
   .mnav button.on{color:var(--purple)}
   .content{padding-bottom:90px}
@@ -626,6 +682,7 @@ button{font-family:var(--body)}
              badalne ki zaroorat nahi. -->
         <a class="snav snav-link" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i> Prompt Library</a>
         <button class="snav" data-s="prompts"><i class="ti ti-book"></i> Prompt Book</button>
+        <button class="snav" data-s="cert"><i class="ti ti-certificate"></i> Certificate</button>
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
       </nav>
       <div class="side-foot">
@@ -833,6 +890,90 @@ button{font-family:var(--body)}
         </div>
 
         <!-- ===== PROFILE SECTION ===== -->
+
+        <!-- ============================================================
+             CERTIFICATE TEST
+             Sawal server se aate hain (api/cert-start), jawab wapas
+             server par jaate hain (api/cert-submit). Sahi jawab kabhi
+             browser tak nahi aate.
+             ============================================================ -->
+        <div id="secCert" style="display:none">
+
+          <div class="empty" id="ctLoad"><i class="ti ti-loader-2"></i>Checking your progress…</div>
+
+          <!-- shartein poori nahi -->
+          <div id="ctGate" hidden>
+            <div class="card ct-card">
+              <h3 class="ct-h">Almost there</h3>
+              <p class="ct-p">The certificate test opens once all six are done. Here is where you stand right now.</p>
+              <div class="ct-checks" id="ctChecks"></div>
+            </div>
+          </div>
+
+          <!-- test dene ko taiyar -->
+          <div id="ctReady" hidden>
+            <div class="card ct-card">
+              <h3 class="ct-h">You are eligible</h3>
+              <p class="ct-p" id="ctReadyP"></p>
+              <ul class="ct-rules">
+                <li>30 questions, picked fresh each time</li>
+                <li>You need 70% to pass — that is 21 correct</li>
+                <li>Answer every question, then submit once</li>
+                <li>Do not close this page in the middle</li>
+              </ul>
+              <button class="btn-primary ct-go" id="ctStart">Start the test</button>
+            </div>
+          </div>
+
+          <!-- test chal raha hai -->
+          <div id="ctPlay" hidden>
+            <div class="card ct-card">
+              <div class="ct-bar"><div class="ct-fill" id="ctFill"></div></div>
+              <div class="ct-meta"><span id="ctNum"></span><span id="ctLeft"></span></div>
+              <h3 class="ct-q" id="ctQ"></h3>
+              <div class="ct-opts" id="ctOpts"></div>
+              <div class="ct-nav">
+                <button class="btn-ghost" id="ctPrev">Back</button>
+                <button class="btn-primary" id="ctNext">Next</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- nateeja -->
+          <div id="ctResult" hidden>
+            <div class="card ct-card">
+              <div class="ct-score" id="ctScore"></div>
+              <div class="ct-scoresub" id="ctScoreSub"></div>
+              <p class="ct-p" id="ctMsg"></p>
+              <div id="ctCertBox" hidden>
+                <div class="ct-certno" id="ctCertNo"></div>
+                <div class="ct-certsub">Keep this number. It is your certificate reference.</div>
+              </div>
+              <button class="btn-ghost ct-go" id="ctAgain" hidden>Try again</button>
+              <div class="ct-review" id="ctReview"></div>
+            </div>
+          </div>
+
+          <!-- 3 koshish khatam -->
+          <div id="ctLocked" hidden>
+            <div class="card ct-card">
+              <h3 class="ct-h">All three attempts used</h3>
+              <p class="ct-p" id="ctLockedP"></p>
+            </div>
+          </div>
+
+          <!-- certificate mil chuka -->
+          <div id="ctDone" hidden>
+            <div class="card ct-card ct-won">
+              <div class="ct-badge">Certified</div>
+              <div class="ct-score" id="ctDoneScore"></div>
+              <div class="ct-certno" id="ctDoneNo"></div>
+              <div class="ct-certsub" id="ctDoneDate"></div>
+            </div>
+          </div>
+
+        </div>
+
         <div id="secProfile" style="display:none">
           <div class="pf-card">
             <div class="pf-top">
@@ -898,6 +1039,7 @@ button{font-family:var(--body)}
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
     <a href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Library</a>
     <button data-s="prompts"><i class="ti ti-book"></i>Prompts</button>
+    <button data-s="cert"><i class="ti ti-certificate"></i>Certificate</button>
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
     <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923498319331','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
@@ -992,6 +1134,13 @@ function ytId(url){
   const m=String(url||'').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
   return m?m[1]:'';
 }
+/* Google ka published CSV browser aur CDN dono cache kar lete hain, is
+   liye sheet mein kuch badalne ke baad bhi purana data aata rehta hai —
+   kabhi kabhi ghanton tak. Har load par ek naya number laga dete hain. */
+function freshCsv(url){
+  return url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cb=' + Date.now();
+}
+
 function parseCSV(text){
   const rows=[]; let row=[],cell='',q=false;
   for(let i=0;i<text.length;i++){
@@ -1546,7 +1695,7 @@ async function loadContent(){
 
   if(LESSONS_CSV && LESSONS_CSV.indexOf('http')===0){
     try{
-      const rows=parseCSV(await(await fetch(LESSONS_CSV)).text()).slice(1);
+      const rows=parseCSV(await(await fetch(freshCsv(LESSONS_CSV))).text()).slice(1);
       /* Lesson ki ID YouTube video se banti hai, sheet ke row number se
          nahi. Pehle 'L1','L2'… hoti thi — us ka matlab tha ke sheet mein
          ek row beech mein daalte hi neeche ke sab lessons ki ID khisak
@@ -1562,7 +1711,7 @@ async function loadContent(){
      paid wale 'L1' se na takra jaye. */
   if(FREE_CSV && FREE_CSV.indexOf('http')===0){
     try{
-      const rows=parseCSV(await(await fetch(FREE_CSV)).text()).slice(1);
+      const rows=parseCSV(await(await fetch(freshCsv(FREE_CSV))).text()).slice(1);
       all.push(...rowsToLessons(rows,'F'));
     }catch(e){}
   }
@@ -1570,7 +1719,7 @@ async function loadContent(){
   LESSONS = all.sort((a,b)=>a.order-b.order);
   if(TASKS_CSV && TASKS_CSV.indexOf('http')===0){
     try{
-      const rows=parseCSV(await(await fetch(TASKS_CSV)).text()).slice(1);
+      const rows=parseCSV(await(await fetch(freshCsv(TASKS_CSV))).text()).slice(1);
       TASKS=rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
         .map(r=>({batch:cleanBatch(r[0]),course:(r[1]||'').trim().toLowerCase(),module:(r[2]||'').trim(),
           task:(r[3]||'').trim(),submit:(r[4]||'').trim()}));
@@ -2079,7 +2228,8 @@ function switchSection(s, push){
   $('secInvest').style.display = s==='invest'?'block':'none';
   $('secProfile').style.display = s==='profile'?'block':'none';
   $('secPrompts').style.display = s==='prompts'?'block':'none';
-  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo'],prompts:['Prompt Book','Search, copy and use — 800+ AI video prompts']};
+  $('secCert').style.display = s==='cert'?'block':'none';
+  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo'],prompts:['Prompt Book','Search, copy and use — 800+ AI video prompts'],cert:['Certificate','Finish the course, pass the test, get certified']};
   $('pageTitle').textContent=t[s][0]; $('pageSub').textContent=t[s][1];
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
     if(b.dataset.s)b.classList.toggle('on',b.dataset.s===s);
@@ -2090,6 +2240,9 @@ function switchSection(s, push){
   // Prompt book pehli dafa khulne par hi load hota hai — us se pehle nahi.
   // 876 prompts har login par uthana be-faida hai.
   if(s==='prompts') loadPromptBook();
+  /* Certificate ka safha har dafa taza — shartein badalti rehti hain
+     (ghante, din, task approve hona) */
+  if(s==='cert') loadCert();
 
   if(push !== false){
     try{
@@ -2125,7 +2278,7 @@ async function loadPromptBook(){
   PBK_LOADED = true;                       // dobara koshish na ho
   const state = $('pbkState');
   try{
-    const res = await fetch(PBK_CSV);
+    const res = await fetch(freshCsv(PBK_CSV), { cache: 'no-store' });
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSV(await res.text()).slice(1);
     PBK_ALL = rows.map(pbkRow).filter(p => p.prompt).reverse();   // naye pehle
@@ -2241,6 +2394,183 @@ function pbkRender(reset){
     };
   });
 }
+
+
+/* ===================================================================
+   CERTIFICATE TEST
+
+   Sawal aur jaanch dono SERVER par hote hain:
+     /api/cert-start   — shartein dekhta hai, 30 sawal bhejta hai
+     /api/cert-submit  — jawab leta hai, score banata hai
+
+   Sahi jawab kabhi browser tak nahi aate. Sheet ka link bhi sirf
+   server ke code mein hai. Is liye koi apna score nahi badal sakta.
+   =================================================================== */
+
+let CT = { attemptId: null, qs: [], at: 0, picks: [] };
+
+/* Har request ke saath ID token — server usi se pehchanta hai ke kaun
+   hai. Bina is ke koi doosre student ke naam par test shuru kar sakta. */
+async function ctFetch(path, body){
+  const user = auth.currentUser;
+  if(!user) throw new Error('not signed in');
+  const token = await user.getIdToken();
+  const r = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+    body: JSON.stringify(body || {})
+  });
+  const j = await r.json();
+  if(j.error) throw new Error(j.error);
+  return j;
+}
+
+function ctShow(which){
+  ['ctLoad','ctGate','ctReady','ctPlay','ctResult','ctLocked','ctDone']
+    .forEach(id => { const el = $(id); if(el) el.hidden = (id !== which); });
+}
+
+async function loadCert(){
+  ctShow('ctLoad');
+  try{
+    const d = await ctFetch('/api/cert-start');
+
+    if(d.state === 'certified'){
+      $('ctDoneScore').textContent = d.score + ' / ' + d.total;
+      $('ctDoneNo').textContent = d.certNo || '';
+      $('ctDoneDate').textContent = d.issuedAt
+        ? 'Issued ' + new Date(d.issuedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
+        : '';
+      ctShow('ctDone');
+      return;
+    }
+
+    if(d.state === 'not_eligible'){
+      $('ctChecks').innerHTML = d.checks.map(c =>
+        '<div class="ct-check '+(c.ok?'ok':'')+'">'
+        + '<span class="ct-tick">'+(c.ok?'✓':'')+'</span>'
+        + '<span class="ct-ctext"><span class="ct-clabel">'+esc(c.label)+'</span>'
+        + '<span class="ct-cnow">'+esc(c.now)+' of '+esc(c.need)+'</span></span>'
+        + '</div>'
+      ).join('');
+      ctShow('ctGate');
+      return;
+    }
+
+    if(d.state === 'locked'){
+      const when = new Date(d.opensAt);
+      $('ctLockedP').textContent =
+        'Your best score was ' + d.best + ' out of 30. The test opens again on '
+        + when.toLocaleDateString('en-GB',{day:'numeric',month:'long'})
+        + '. Use these days to go back through the lessons.';
+      ctShow('ctLocked');
+      return;
+    }
+
+    /* ready ya in_progress — dono mein sawal saath aate hain */
+    CT.attemptId = d.attemptId;
+    CT.qs = d.questions || [];
+    CT.picks = new Array(CT.qs.length).fill(0);
+    CT.at = 0;
+
+    if(d.state === 'in_progress'){
+      /* Adhoora test — seedha wahin se shuru, naye sawal nahi milte */
+      ctShow('ctPlay');
+      ctPaint();
+      return;
+    }
+
+    $('ctReadyP').textContent =
+      'This is attempt ' + d.attemptNo + ' of ' + d.maxAttempts + '.';
+    ctShow('ctReady');
+
+  }catch(e){
+    $('ctLoad').innerHTML = '<i class="ti ti-alert-triangle"></i>'
+      + esc(e.message || 'Could not load the test. Please try again.');
+    ctShow('ctLoad');
+  }
+}
+
+function ctPaint(){
+  const q = CT.qs[CT.at];
+  if(!q) return;
+  $('ctFill').style.width = ((CT.at / CT.qs.length) * 100) + '%';
+  $('ctNum').textContent = 'Question ' + (CT.at+1) + ' of ' + CT.qs.length;
+  const left = CT.picks.filter(p => !p).length;
+  $('ctLeft').textContent = left ? left + ' still to answer' : 'all answered';
+  $('ctQ').textContent = q.q;
+
+  $('ctOpts').innerHTML = (q.opts||[]).map((o,i) =>
+    '<button class="ct-opt'+(CT.picks[CT.at]===i+1?' on':'')+'" data-i="'+(i+1)+'">'
+    + esc(o) + '</button>'
+  ).join('');
+
+  $('ctOpts').querySelectorAll('.ct-opt').forEach(b=>{
+    b.onclick = ()=>{
+      CT.picks[CT.at] = parseInt(b.dataset.i,10);
+      ctPaint();
+    };
+  });
+
+  $('ctPrev').disabled = CT.at === 0;
+  $('ctNext').textContent = (CT.at === CT.qs.length-1) ? 'Submit test' : 'Next';
+}
+
+async function ctSubmit(){
+  const left = CT.picks.filter(p => !p).length;
+  if(left && !confirm(left + ' question(s) have no answer. Submit anyway?')) return;
+
+  const btn = $('ctNext');
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try{
+    const d = await ctFetch('/api/cert-submit', {
+      attemptId: CT.attemptId, answers: CT.picks
+    });
+
+    $('ctScore').textContent = d.score + ' / ' + d.total;
+    $('ctScoreSub').textContent = d.pct + '% — pass mark is 70%';
+
+    if(d.state === 'passed'){
+      $('ctMsg').textContent = 'You passed. Your certificate has been issued.';
+      $('ctCertNo').textContent = d.certNo;
+      $('ctCertBox').hidden = false;
+      $('ctAgain').hidden = true;
+    }else{
+      const leftTries = 3 - (d.attemptsUsed || 0);
+      $('ctMsg').textContent = leftTries > 0
+        ? 'Not this time. You have ' + leftTries + ' attempt(s) left. Go back through the lessons before trying again.'
+        : 'That was your third attempt. The test opens again in 7 days.';
+      $('ctCertBox').hidden = true;
+      $('ctAgain').hidden = leftTries <= 0;
+    }
+
+    const wrong = d.wrong || [];
+    $('ctReview').innerHTML = wrong.length
+      ? '<div class="ct-rev-q" style="margin-bottom:14px">What you got wrong</div>'
+        + wrong.map(w =>
+            '<div class="ct-rev"><div class="ct-rev-q">'+esc(w.q)+'</div>'
+            + '<span class="ct-rev-x">'+esc(w.picked||'not answered')+'</span>'
+            + '<span class="ct-rev-a">'+esc(w.right)+'</span></div>'
+          ).join('')
+      : '<div class="ct-rev">Nothing — every answer was right.</div>';
+
+    ctShow('ctResult');
+    window.scrollTo({top:0,behavior:'smooth'});
+
+  }catch(e){
+    alert(e.message || 'Could not save your answers. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Submit test';
+  }
+}
+
+$('ctStart').onclick = ()=>{ ctShow('ctPlay'); ctPaint(); };
+$('ctPrev').onclick  = ()=>{ if(CT.at > 0){ CT.at--; ctPaint(); } };
+$('ctNext').onclick  = ()=>{
+  if(CT.at < CT.qs.length-1){ CT.at++; ctPaint(); }
+  else ctSubmit();
+};
+$('ctAgain').onclick = ()=> loadCert();
 
 $('pbkSearch').oninput = e => { PBK_Q = e.target.value; pbkRender(true); };
 $('pbkMore').onclick   = () => pbkRender(false);
