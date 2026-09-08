@@ -609,7 +609,12 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 
 
 /* ---------- MOTION ---------- */
-.reveal{opacity:0;transform:translateY(22px)}
+/* IS SAFHE PAR .reveal NAZAR-ANDAZ.
+   Wajah: is file ka apna script hai, us mein IntersectionObserver
+   nahi. Bina us ke .reveal wala hissa opacity:0 par hi reh jata
+   hai — yani HAMESHA GHAYAB. Guides ka search box aur chips isi
+   wajah se kisi ko nazar nahi aaye the. */
+.reveal{opacity:1;transform:none}
 .reveal.in{
   opacity:1;transform:none;
   transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);
@@ -677,27 +682,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   gtag('js', new Date());
   gtag('config', 'G-ZBJ7FW689J');
 </script>
-<!-- ============================================================
-     APP KE ANDAR
-     App is safhe ko ?app=1 ke saath kholti hai. Us soorat mein website
-     ka apna menu aur footer chhupa dete hain — app ki apni list pehle
-     se hai, aur das cheezon wala menu app ke andar tang lagta hai.
-     Browser mein kuch nahi badalta.
-     ============================================================ -->
-<style>
-  html.in-app nav,
-  html.in-app footer,
-  html.in-app .wa-float { display: none !important; }
-  html.in-app .page-head { padding-top: 28px !important; }
-  html.in-app body { padding-bottom: 20px; }
-</style>
-<script>
-  try{
-    if(new URLSearchParams(location.search).get('app') === '1'){
-      document.documentElement.classList.add('in-app');
-    }
-  }catch(e){}
-</script>
 </head>
 <body>
 <nav>
@@ -732,12 +716,12 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 <section class="sec" id="guides">
   <div class="wrap">
 
-    <div class="g-top reveal">
+    <div class="g-top">
       <input type="text" id="gSearch" placeholder="Search — type a word like tax, payout or login…" autocomplete="off">
       <div class="g-count" id="gCount"></div>
     </div>
 
-    <div class="g-chips reveal" id="gChips"></div>
+    <div class="g-chips" id="gChips"></div>
 
     <div class="empty" id="gState"><i class="ti ti-loader-2"></i>Loading guides…</div>
     <div class="g-list" id="gList" hidden></div>
@@ -852,7 +836,9 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 }
 .g-cat.tiktok{background:var(--soft-purple);color:var(--purple)}
 .g-cat.general{background:var(--line);color:var(--muted)}
+.g-cat.content{background:rgba(22,179,100,.12);color:#0F7A45}
 .g-qt{flex:1;font-family:var(--display);font-size:16px;font-weight:700;line-height:1.35;color:var(--ink)}
+.g-sub{display:block;font-family:var(--body);font-size:11.5px;font-weight:500;color:var(--muted);margin-top:3px}
 .g-plus{font-size:22px;color:var(--muted);flex-shrink:0;transition:transform .2s}
 .g-item.open .g-plus{transform:rotate(45deg)}
 .g-a{display:none;padding:0 20px 20px;font-size:14.5px;line-height:1.75;color:var(--ink-2);white-space:pre-wrap}
@@ -919,13 +905,24 @@ async function loadGuides(){
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSVg(await res.text()).slice(1);
 
-    G_ALL = rows.map(r => ({
-      cat:   (r[0]||'').trim(),
-      title: (r[1]||'').trim(),
-      body:  (r[2]||'').trim(),
-      tags:  (r[3]||'').trim(),
-      date:  (r[4]||'').trim()
-    })).filter(g => g.title && g.body);
+    /* Sheet mein Category tafseeli hai — "Facebook - Payout Setup".
+       Chip ke liye sirf pehla hissa chahiye ("Facebook"), warna 75
+       alag chips ban jate hain aur qatar be-kaar ho jati hai.
+
+       Poora naam `sub` mein rakh lete hain — card par chhota sa
+       nazar aata hai, aur search mein bhi kaam aata hai. */
+    G_ALL = rows.map(r => {
+      const full = (r[0]||'').trim();
+      const dash = full.indexOf(' - ');
+      return {
+        cat:   dash > 0 ? full.slice(0, dash).trim() : full,
+        sub:   dash > 0 ? full.slice(dash + 3).trim() : '',
+        title: (r[1]||'').trim(),
+        body:  (r[2]||'').trim(),
+        tags:  (r[3]||'').trim(),
+        date:  (r[4]||'').trim()
+      };
+    }).filter(g => g.title && g.body);
 
     if(!G_ALL.length){
       state.innerHTML = '<i class="ti ti-mood-empty"></i>No guides yet — check back soon.';
@@ -961,7 +958,7 @@ function renderG(){
   const shown = G_ALL.filter(g=>{
     if(G_CAT !== 'All' && g.cat !== G_CAT) return false;
     if(!q) return true;
-    return (g.title+' '+g.body+' '+g.tags+' '+g.cat).toLowerCase().includes(q);
+    return (g.title+' '+g.body+' '+g.tags+' '+g.cat+' '+g.sub).toLowerCase().includes(q);
   });
 
   count.textContent = q && shown.length
@@ -976,8 +973,10 @@ function renderG(){
 
   state.hidden = true; list.hidden = false;
   list.innerHTML = shown.map((g,i)=>{
-    const cls = g.cat.toLowerCase()==='tiktok' ? 'tiktok'
-              : g.cat.toLowerCase()==='facebook' ? '' : 'general';
+    const c = g.cat.toLowerCase();
+    const cls = c==='tiktok' ? 'tiktok'
+              : c==='facebook' ? ''
+              : c.indexOf('content')===0 ? 'content' : 'general';
     const tags = g.tags
       ? '<div class="g-tags">' + g.tags.split(',').map(t=>t.trim()).filter(Boolean)
           .map(t=>'<span class="g-tag">'+escG(t)+'</span>').join('') + '</div>'
@@ -985,7 +984,9 @@ function renderG(){
     return '<article class="g-item" id="gi'+i+'">'
       + '<button class="g-q" data-i="'+i+'">'
       +   (g.cat ? '<span class="g-cat '+cls+'">'+escG(g.cat)+'</span>' : '')
-      +   '<span class="g-qt">'+escG(g.title)+'</span>'
+      +   '<span class="g-qt">'+escG(g.title)
+      +     (g.sub ? '<span class="g-sub">'+escG(g.sub)+'</span>' : '')
+      +   '</span>'
       +   '<span class="g-plus">+</span>'
       + '</button>'
       + '<div class="g-a">'+escG(g.body)+tags+'</div>'
