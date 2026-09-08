@@ -962,7 +962,10 @@ function render(){
    Attempts mein `answers` bhi hote hain magar hum unhein kabhi nahi
    dikhate — agar screen par aa jayen to koi bhi dekh sakta hai. */
 
-function fmtDate(ts){
+/* Naam certDate hai, fmtDate nahi — kyunke fmtDate is file mein
+   pehle se maujood hai (line ~702) aur do dafa likhne se poora
+   script ruk jata hai. */
+function certDate(ts){
   if(!ts) return '—';
   const d = ts.toDate ? ts.toDate() : new Date(ts.seconds*1000);
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
@@ -1004,7 +1007,7 @@ function renderCerts(){
       </div>
       <div class="cert-side">
         <div class="cert-no">${esc(c.certNo||'')}</div>
-        <div class="cert-meta">${c.score}/${c.total} · ${c.pct}% · ${fmtDate(c.issuedAt)}</div>
+        <div class="cert-meta">${c.score}/${c.total} · ${c.pct}% · ${certDate(c.issuedAt)}</div>
       </div>
     </div>`).join('');
 
@@ -1021,7 +1024,7 @@ function renderCerts(){
       <span class="att-meta">${esc(a.number||'')}</span>
       <span class="att-meta">Attempt ${a.attemptNo||1}</span>
       <span class="att-score ${cls}">${a.score}/${a.total} · ${word}</span>
-      <span class="att-meta">${fmtDate(a.submittedAt)}</span>
+      <span class="att-meta">${certDate(a.submittedAt)}</span>
     </div>`;
   }).join('');
 }
