@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificate — Umair TikTok Wala Academy</title>
+<meta name="description" content="Check whether a Umair TikTok Wala Academy certificate is genuine. Enter the certificate number to verify it.">
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ink:#0B0D14;
+  --ink-2:#161A26;
+  --paper:#FAFAF8;
+  --muted:#6B7183;
+  --line:#E2E2DE;
+  --blue:#2B4EFF;
+  --purple:#8B31E8;
+  --red:#F0333E;
+  --grad:linear-gradient(103deg,var(--blue) 0%,var(--purple) 52%,var(--red) 100%);
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--body);background:var(--paper);color:var(--ink);
+  -webkit-font-smoothing:antialiased;padding:28px 16px 60px;
+}
+
+/* ---------- DHOONDNE KA KHANA ---------- */
+.find{max-width:520px;margin:0 auto 34px;text-align:center}
+.find h1{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.find p{font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:20px}
+.find-row{display:flex;gap:9px}
+.find input{
+  flex:1;padding:14px 16px;border:1.5px solid var(--line);border-radius:13px;
+  background:#fff;font-family:var(--mono);font-size:15px;color:var(--ink);
+  outline:none;text-transform:uppercase;transition:border-color .16s;
+}
+.find input:focus{border-color:var(--purple)}
+.find input::placeholder{color:#B9BDC9;text-transform:none;font-family:var(--body)}
+.find button{
+  padding:14px 22px;border:0;border-radius:13px;background:var(--ink);color:#fff;
+  font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;
+}
+.find button:hover{opacity:.9}
+.find button:disabled{opacity:.5;cursor:default}
+
+.msg{margin-top:18px;font-size:14px;line-height:1.7}
+.msg.bad{color:#B42318}
+
+/* ---------- CERTIFICATE ---------- */
+.cert-wrap{max-width:560px;margin:0 auto}
+
+.cert{
+  position:relative;background:#fff;border:1px solid var(--line);
+  border-radius:22px;padding:52px 44px 40px;overflow:hidden;
+  box-shadow:0 18px 60px rgba(11,13,20,.10);
+}
+/* upar patli gradient ki lakeer — bhari huyi sunehri border nahi */
+.cert::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:7px;background:var(--grad);
+}
+
+.c-logo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:6px}
+.c-logo img{width:30px;height:30px;object-fit:contain}
+.c-brand{font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:-.01em}
+.c-tag{
+  text-align:center;font-family:var(--mono);font-size:9.5px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:36px;
+}
+
+.c-kind{
+  text-align:center;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--purple);margin-bottom:22px;
+}
+.c-pre{text-align:center;font-size:13px;color:var(--muted);margin-bottom:10px}
+.c-name{
+  font-family:var(--display);font-size:34px;font-weight:800;text-align:center;
+  letter-spacing:-.03em;line-height:1.15;margin-bottom:8px;
+}
+.c-rule{width:56px;height:3px;background:var(--grad);border-radius:99px;margin:0 auto 22px}
+
+.c-body{
+  text-align:center;font-size:14.5px;line-height:1.85;color:var(--ink-2);
+  max-width:400px;margin:0 auto 34px;
+}
+.c-body b{font-weight:600}
+
+.c-facts{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:34px;
+}
+.c-fact{background:#fff;padding:15px 16px;text-align:center}
+.c-flabel{
+  font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:5px;
+}
+.c-fval{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.01em}
+
+.c-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:22px}
+.c-sign{flex:1}
+.c-signline{width:150px;height:1px;background:var(--ink);opacity:.28;margin-bottom:8px}
+.c-signname{font-family:var(--display);font-size:14.5px;font-weight:700}
+.c-signrole{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+.c-qr{text-align:center;flex-shrink:0}
+.c-qr canvas,.c-qr img{width:78px;height:78px;display:block;border-radius:7px}
+.c-qrtext{font-size:9px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+.c-no{
+  margin-top:30px;padding-top:18px;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.c-nolabel{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.c-noval{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.06em;color:var(--purple)}
+.c-verify{font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5}
+
+/* ---------- NEECHE KE BUTTON ---------- */
+.acts{display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.acts button,.acts a{
+  padding:12px 22px;border-radius:12px;font-family:inherit;font-size:14px;
+  font-weight:600;cursor:pointer;text-decoration:none;border:1.5px solid var(--line);
+  background:#fff;color:var(--ink);
+}
+.acts .prime{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+@media(max-width:520px){
+  .cert{padding:38px 24px 30px;border-radius:18px}
+  .c-name{font-size:26px}
+  .c-facts{grid-template-columns:1fr}
+  .c-foot{flex-direction:column-reverse;align-items:center;gap:26px;text-align:center}
+  .c-signline{margin-left:auto;margin-right:auto}
+  .c-no{justify-content:center;text-align:center}
+  .c-verify{text-align:center}
+}
+
+/* ---------- CHHAPNE KE LIYE ----------
+   Sirf certificate chhapta hai. Dhoondne ka khana aur button gayab.
+   Rang zabardasti chhapwate hain warna browser gradient hata deta hai. */
+@media print{
+  body{background:#fff;padding:0}
+  .find,.acts,.msg{display:none !important}
+  .cert{border:0;border-radius:0;box-shadow:none;padding:56px 48px;
+        -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cert::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cert-wrap{max-width:none}
+  @page{size:A4 portrait;margin:14mm}
+}
+</style>
+</head>
+<body>
+
+<!-- ---------- DHOONDNE KA KHANA ---------- -->
+<div class="find" id="find">
+  <h1>Check a certificate</h1>
+  <p>Enter the certificate number to see whether it is genuine and who it belongs to.</p>
+  <div class="find-row">
+    <input type="text" id="no" placeholder="UTW-2026-XXXXX" autocomplete="off" spellcheck="false">
+    <button id="go">Check</button>
+  </div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<!-- ---------- CERTIFICATE ---------- -->
+<div class="cert-wrap" id="wrap" hidden>
+  <div class="cert" id="cert">
+
+    <div class="c-logo">
+      <img src="img/logo-mark.png" alt="" onerror="this.style.display='none'">
+      <span class="c-brand">Umair TikTok Wala Academy</span>
+    </div>
+    <div class="c-tag">Create &middot; Grow &middot; Monetize</div>
+
+    <div class="c-kind">Certificate of Completion</div>
+    <div class="c-pre">This is to certify that</div>
+    <div class="c-name" id="cName"></div>
+    <div class="c-rule"></div>
+
+    <p class="c-body">
+      has completed the full Facebook and TikTok monetization course at
+      Umair TikTok Wala Academy, and passed the written assessment with a
+      score of <b id="cScore"></b>.
+    </p>
+
+    <div class="c-facts">
+      <div class="c-fact">
+        <div class="c-flabel">Batch</div>
+        <div class="c-fval" id="cBatch">—</div>
+      </div>
+      <div class="c-fact">
+        <div class="c-flabel">Issued</div>
+        <div class="c-fval" id="cDate">—</div>
+      </div>
+    </div>
+
+    <div class="c-foot">
+      <div class="c-sign">
+        <div class="c-signline"></div>
+        <div class="c-signname">Muhammad Umair</div>
+        <div class="c-signrole">Founder, Umair TikTok Wala Academy</div>
+      </div>
+      <div class="c-qr" id="qrBox" hidden>
+        <canvas id="qr"></canvas>
+        <div class="c-qrtext">Scan to<br>verify</div>
+      </div>
+    </div>
+
+    <div class="c-no">
+      <div>
+        <div class="c-nolabel">Certificate number</div>
+        <div class="c-noval" id="cNo"></div>
+      </div>
+      <div class="c-verify">
+        Verify at<br>umairtiktokwala.com/certificate.html
+      </div>
+    </div>
+
+  </div>
+
+  <div class="acts">
+    <button class="prime" id="print">Download / print</button>
+    <button id="another">Check another</button>
+    <a href="index.html">Go to website</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+/* ===================================================================
+   CERTIFICATE — DIKHANA AUR TASDEEQ
+
+   Ye safha do kaam karta hai:
+     1. Certificate ka design — student yahin se PDF bana leta hai
+     2. Tasdeeq — koi bhi number daal kar dekh sakta hai ke asli hai
+
+   Data /api/cert-verify se aata hai. Firestore se seedha nahi, kyunke
+   rules mein certificates sirf us ke maalik aur admin parh sakte hain
+   — aur ye theek hai. API sirf wo cheezein bhejti hai jo certificate
+   par waise bhi chhapi hoti hain; koi niji tafseel nahi.
+   =================================================================== */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+const SITE = 'https://www.umairtiktokwala.com';
+
+/* Batch ka naam saaf karna — "july-2026" -> "July 2026" */
+function batchLabel(b){
+  if(!b) return '—';
+  return String(b).replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  try{
+    return new Date(iso).toLocaleDateString('en-GB',
+      { day:'numeric', month:'long', year:'numeric' });
+  }catch(e){ return '—'; }
+}
+
+function say(text, bad){
+  const m = $('msg');
+  m.className = 'msg' + (bad ? ' bad' : '');
+  m.innerHTML = text;
+}
+
+async function check(no){
+  no = String(no || '').trim().toUpperCase();
+  if(!no) return say('Enter a certificate number.', true);
+
+  const btn = $('go');
+  btn.disabled = true; btn.textContent = 'Checking…';
+  say('');
+
+  try{
+    const r = await fetch('/api/cert-verify?no=' + encodeURIComponent(no));
+    const d = await r.json();
+    if(d.error) throw new Error(d.error);
+
+    if(!d.found){
+      $('wrap').hidden = true;
+      say('No certificate found with that number. Check the spelling and try again.', true);
+      return;
+    }
+
+    $('cName').textContent  = d.name || '—';
+    $('cScore').textContent = d.score + ' out of ' + d.total + ' (' + d.pct + '%)';
+    $('cBatch').textContent = batchLabel(d.batch);
+    $('cDate').textContent  = fmtDate(d.issuedAt);
+    $('cNo').textContent    = d.certNo;
+
+    /* QR — is safhe ka apna link, taake scan karte hi tasdeeq khul jaye.
+       Library na chale to QR ka khana chhupa dete hain; baqi certificate
+       waise hi theek rehta hai. */
+    try{
+      if(window.QRCode && QRCode.toCanvas){
+        await QRCode.toCanvas($('qr'),
+          SITE + '/certificate.html?no=' + encodeURIComponent(d.certNo),
+          { width: 156, margin: 0, color: { dark:'#0B0D14', light:'#FFFFFF' } });
+        $('qrBox').hidden = false;
+      }
+    }catch(e){ $('qrBox').hidden = true; }
+
+    $('wrap').hidden = false;
+    /* URL mein number daal dete hain taake safha share ho sake */
+    try{ history.replaceState({}, '', 'certificate.html?no=' + encodeURIComponent(d.certNo)); }catch(e){}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  }catch(e){
+    say(esc(e.message || 'Could not check this number. Please try again.'), true);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Check';
+  }
+}
+
+$('go').onclick = () => check($('no').value);
+$('no').addEventListener('keydown', e => { if(e.key === 'Enter') check($('no').value); });
+$('print').onclick = () => window.print();
+$('another').onclick = () => {
+  $('wrap').hidden = true;
+  $('no').value = '';
+  say('');
+  try{ history.replaceState({}, '', 'certificate.html'); }catch(e){}
+  $('no').focus();
+};
+
+/* Link mein number ho to seedha khol dete hain */
+const fromUrl = new URLSearchParams(location.search).get('no');
+if(fromUrl){ $('no').value = fromUrl.toUpperCase(); check(fromUrl); }
+</script>
+
+</body>
+</html>
