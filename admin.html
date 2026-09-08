@@ -139,6 +139,34 @@ button{font-family:var(--body)}
 .stf-chip .n{font-size:11.5px;opacity:.7;font-weight:700}
 .stf-sel{padding:9px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
 
+
+/* ---------- CERTIFICATES ---------- */
+.cert-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;padding:15px 18px}
+.cert-nm{font-family:var(--display);font-size:15.5px;font-weight:700;color:var(--ink)}
+.cert-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.cert-side{text-align:right;flex-shrink:0}
+.cert-no{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.05em;color:var(--purple)}
+
+.att-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line);font-size:13px;flex-wrap:wrap}
+.att-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.att-dot.ok{background:#16B364}
+.att-dot.no{background:#EF4444}
+.att-nm{font-weight:600;color:var(--ink);min-width:130px}
+.att-meta{font-size:12px;color:var(--muted)}
+.att-score{margin-left:auto;font-weight:600;font-size:12.5px}
+.att-score.ok{color:#0F7A45}
+.att-score.no{color:#B42318}
+
+.cert-tag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:6px;
+  font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;background:rgba(22,179,100,.14);color:#0F7A45;vertical-align:middle}
+
+@media(max-width:640px){
+  .cert-row{flex-direction:column;align-items:flex-start;gap:8px}
+  .cert-side{text-align:left}
+  .att-score{margin-left:0}
+}
+
 /* ---------- NOTIFICATION PANEL ---------- */
 .ann-push{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:13px;color:var(--muted);cursor:pointer}
 .ann-push input{width:16px;height:16px;accent-color:var(--purple);cursor:pointer}
@@ -425,6 +453,7 @@ button{font-family:var(--body)}
         <button class="snav on" data-s="review"><i class="ti ti-inbox"></i> Review <span class="badge" id="bReview" style="display:none">0</span></button>
         <button class="snav" data-s="earnings"><i class="ti ti-chart-line"></i> Earnings <span class="badge" id="bEarn" style="display:none">0</span></button>
         <button class="snav" data-s="students"><i class="ti ti-users"></i> Students</button>
+        <button class="snav" data-s="certs"><i class="ti ti-certificate"></i> Certificates</button>
         <button class="snav" data-s="announce"><i class="ti ti-speakerphone"></i> Announcements</button>
       </nav>
       <button class="side-out" id="outBtn"><i class="ti ti-logout"></i> Log out</button>
@@ -528,6 +557,28 @@ button{font-family:var(--body)}
         </div>
 
         <!-- ===== ANNOUNCEMENTS ===== -->
+
+        <!-- ============================================================
+             CERTIFICATES
+             Sirf parhne ke liye. Certificate sirf server banata hai
+             (api/cert-submit.js) aur uske baad koi badal nahi sakta —
+             admin bhi nahi. Ye rules mein bhi band hai.
+             ============================================================ -->
+        <div id="secCerts" style="display:none">
+          <div class="act" id="certAct"></div>
+
+          <div class="row-b">
+            <input type="text" id="certSearch" class="inp" placeholder="Search by name, number or certificate no…">
+          </div>
+
+          <div class="empty" id="certEmpty" style="display:none"><i class="ti ti-certificate"></i>No certificates issued yet.</div>
+          <div id="certList"></div>
+
+          <h3 class="sec-h" style="margin-top:32px">Recent attempts</h3>
+          <div class="empty" id="attEmpty" style="display:none"><i class="ti ti-history"></i>No attempts yet.</div>
+          <div id="attList"></div>
+        </div>
+
         <div id="secAnnounce" style="display:none">
           <div class="ann-form">
             <textarea id="annText" placeholder="Write an announcement for your students…"></textarea>
@@ -573,6 +624,7 @@ button{font-family:var(--body)}
     <button class="on" data-s="review"><i class="ti ti-inbox"></i>Review<span class="badge" id="bReviewM" style="display:none">0</span></button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings<span class="badge" id="bEarnM" style="display:none">0</span></button>
     <button data-s="students"><i class="ti ti-users"></i>Students</button>
+    <button data-s="certs"><i class="ti ti-certificate"></i>Certs</button>
     <button data-s="announce"><i class="ti ti-speakerphone"></i>Announce</button>
   </nav>
 </div>
@@ -670,6 +722,7 @@ function ytId(url){
 }
 
 let SUBS=[], EARNINGS=[], STUDENTS=[], ANN=[], LESSONS=[], VIEW='review', FILTER='pending', EARN_FILTER='pending', EARN_SEARCH='', EARN_PLATFORM='all', EARN_MONTH='all', SEARCH='';
+let CERTS={}, ATTEMPTS=[], CERT_SEARCH='';
 let ST_FILTER='all', ST_SORT='name', ST_PROG_ALL=false, ST_BATCH='all', ST_PCT='all';
 /* Jo abhi login hai — har review aur message par is ka naam mehfooz hota hai.
    Pehle sirf waqt likha jata tha, banda nahi. 10 bandon ki team mein
@@ -773,14 +826,29 @@ async function loadAll(){
      Ab sab ek saath jati hain. Wahi chhe queries, koi extra kharcha
      nahi — sirf tarteeb badli hai.
      allSettled is liye ke ek nakaam ho to baqi chalti rahen. */
-  const [rSubs, rEarn, rStud, rAnn, rInv, rCsv] = await Promise.allSettled([
+  const [rSubs, rEarn, rStud, rAnn, rInv, rCsv, rCert, rAtt] = await Promise.allSettled([
     getDocs(collection(db,'submissions')),
     getDocs(collection(db,'earningSubmissions')),
     getDocs(collection(db,'students')),
     getDocs(collection(db,'announcements')),
     getDocs(collection(db,'investments')),
-    fetch(LESSONS_CSV).then(r=>r.text())
+    fetch(LESSONS_CSV + (LESSONS_CSV.indexOf('?')>=0?'&':'?') + '_cb=' + Date.now(),
+          { cache:'no-store' }).then(r=>r.text()),
+    getDocs(collection(db,'certificates')),
+    getDocs(collection(db,'certificateAttempts'))
   ]);
+
+  /* Certificates aur attempts.
+     CERTS uid se lag jate hain taake Students wale tab mein bhi
+     "Certified" ka nishan lag sake. */
+  CERTS = {}; ATTEMPTS = [];
+  if(rCert.status==='fulfilled'){
+    rCert.value.forEach(d=>{ CERTS[d.id] = { id:d.id, ...d.data() }; });
+  }
+  if(rAtt.status==='fulfilled'){
+    rAtt.value.forEach(d=>ATTEMPTS.push({ id:d.id, ...d.data() }));
+    ATTEMPTS.sort((a,b)=>(b.startedAt?.seconds||0)-(a.startedAt?.seconds||0));
+  }
 
   if(rSubs.status==='fulfilled'){
     rSubs.value.forEach(d=>SUBS.push({id:d.id,...d.data()}));
@@ -836,7 +904,8 @@ function switchSection(s){
   $('secEarnings').style.display=s==='earnings'?'block':'none';
   $('secStudents').style.display=s==='students'?'block':'none';
   $('secAnnounce').style.display=s==='announce'?'block':'none';
-  const t={review:['Review','Tasks waiting for your feedback'],earnings:['Earning Submissions','Approve, reject or request correction'],students:['Students','Everyone enrolled — search, track, manage'],announce:['Announcements','Post messages to your students']};
+  $('secCerts').style.display=s==='certs'?'block':'none';
+  const t={review:['Review','Tasks waiting for your feedback'],earnings:['Earning Submissions','Approve, reject or request correction'],students:['Students','Everyone enrolled — search, track, manage'],announce:['Announcements','Post messages to your students'],certs:['Certificates','Who passed the test, and who is still trying']};
   $('pageTitle').textContent=t[s][0]; $('pageSub').textContent=t[s][1];
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{ if(b.dataset.s) b.classList.toggle('on',b.dataset.s===s); });
   render();
@@ -845,6 +914,7 @@ document.querySelectorAll('#sideNav .snav').forEach(b=>{ b.onclick=()=>switchSec
 document.querySelectorAll('#mnav button').forEach(b=>{ if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s); });
 $('earnPills').querySelectorAll('.pill').forEach(b=>{ b.onclick=()=>{ $('earnPills').querySelectorAll('.pill').forEach(x=>x.classList.remove('on')); b.classList.add('on'); EARN_FILTER=b.dataset.ef; renderEarningSubs(); }; });
 $('earnSearch').oninput=()=>{EARN_SEARCH=$('earnSearch').value.trim().toLowerCase();renderEarningSubs();};
+$('certSearch').oninput=()=>{CERT_SEARCH=$('certSearch').value.trim().toLowerCase();renderCerts();};
 $('earnPlatform').onchange=()=>{EARN_PLATFORM=$('earnPlatform').value;renderEarningSubs();};
 $('earnMonth').onchange=()=>{EARN_MONTH=$('earnMonth').value;renderEarningSubs();};
 $('reviewPills').querySelectorAll('.pill').forEach(b=>{ b.onclick=()=>{ $('reviewPills').querySelectorAll('.pill').forEach(x=>x.classList.remove('on')); b.classList.add('on'); FILTER=b.dataset.f; render(); }; });
@@ -879,8 +949,82 @@ function render(){
   else if(VIEW==='earnings') renderEarningSubs();
   else if(VIEW==='students') renderStudents();
   else if(VIEW==='announce') renderAnnouncements();
+  else if(VIEW==='certs') renderCerts();
 }
 
+
+
+/* ===== CERTIFICATES =====
+   Sirf dikhane ke liye. Certificate sirf server banata hai
+   (api/cert-submit.js) aur uske baad koi badal nahi sakta — admin bhi
+   nahi. Rules mein `allow write: if false` hai.
+
+   Attempts mein `answers` bhi hote hain magar hum unhein kabhi nahi
+   dikhate — agar screen par aa jayen to koi bhi dekh sakta hai. */
+
+function fmtDate(ts){
+  if(!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts.seconds*1000);
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function renderCerts(){
+  const list = Object.values(CERTS)
+    .sort((a,b)=>(b.issuedAt?.seconds||0)-(a.issuedAt?.seconds||0));
+
+  /* upar ki ginti */
+  const done = ATTEMPTS.filter(a=>a.submittedAt);
+  const passed = done.filter(a=>a.passed).length;
+  const failed = done.length - passed;
+  const rate = done.length ? Math.round(passed/done.length*100) : 0;
+
+  $('certAct').innerHTML =
+    `<div class="act-c p"><b>${list.length}</b><span>Certificates issued</span></div>`+
+    `<div class="act-c t"><b>${passed}</b><span>Attempts passed</span></div>`+
+    `<div class="act-c n"><b>${failed}</b><span>Attempts failed</span></div>`+
+    `<div class="act-c m"><b>${rate}%</b><span>Pass rate</span></div>`;
+
+  const q = CERT_SEARCH;
+  const shown = q
+    ? list.filter(c => (
+        (c.name||'') + ' ' + (c.number||'') + ' ' + (c.certNo||'')
+      ).toLowerCase().includes(q))
+    : list;
+
+  $('certEmpty').style.display = shown.length ? 'none' : 'block';
+  $('certEmpty').innerHTML = q
+    ? '<i class="ti ti-search-off"></i>Nothing matches that.'
+    : '<i class="ti ti-certificate"></i>No certificates issued yet.';
+
+  $('certList').innerHTML = shown.map(c => `
+    <div class="card cert-row">
+      <div class="cert-main">
+        <div class="cert-nm">${esc(c.name||'No name')}</div>
+        <div class="cert-meta">${esc(c.number||'')} · ${esc(batchLabel(c.batch||''))}</div>
+      </div>
+      <div class="cert-side">
+        <div class="cert-no">${esc(c.certNo||'')}</div>
+        <div class="cert-meta">${c.score}/${c.total} · ${c.pct}% · ${fmtDate(c.issuedAt)}</div>
+      </div>
+    </div>`).join('');
+
+  /* pichli koshishein — sirf 40, warna safha bhaari ho jata hai */
+  const att = ATTEMPTS.filter(a=>a.submittedAt).slice(0,40);
+  $('attEmpty').style.display = att.length ? 'none' : 'block';
+  $('attList').innerHTML = att.map(a => {
+    const cls = a.passed ? 'ok' : 'no';
+    const word = a.passed ? 'Passed' : 'Failed';
+    return `
+    <div class="att-row">
+      <span class="att-dot ${cls}"></span>
+      <span class="att-nm">${esc(a.studentName||'—')}</span>
+      <span class="att-meta">${esc(a.number||'')}</span>
+      <span class="att-meta">Attempt ${a.attemptNo||1}</span>
+      <span class="att-score ${cls}">${a.score}/${a.total} · ${word}</span>
+      <span class="att-meta">${fmtDate(a.submittedAt)}</span>
+    </div>`;
+  }).join('');
+}
 
 /* ===== EARNING SUBMISSIONS ===== */
 function earnStatusLabel(s){return s==='approved'?'Approved':s==='rejected'?'Rejected':s==='correction'?'Correction required':'Pending';}
@@ -1160,6 +1304,16 @@ function hasEarning(uid){
   return EARNINGS.some(e => e.studentUid === uid && e.status === 'approved');
 }
 
+/* Free student kaun hai.
+   Do shart — dono zaroori:
+     batch mein "Free" ho, AUR verified false ho.
+
+   Dono is liye ke kisi purane paid student ka verified kisi wajah se
+   false reh gaya ho to wo galti se "Free" na dikhe. */
+function isFree(s){
+  return (s.batches||[]).includes('Free') && s.verified !== true;
+}
+
 function renderStudents(){
   const wrap=$('stList');
   if(!STUDENTS.length){ wrap.innerHTML='<div class="empty"><i class="ti ti-users"></i>No students yet.</div>'; return; }
@@ -1217,7 +1371,7 @@ function renderStudents(){
     const lbl = p===null ? '<span class="st-pct na">—</span>' : `<span class="st-pct">${p}%</span>`;
     return `<div class="st ${s.suspended?'off':''}" data-open="${esc(s.uid)}">
       <div class="s-av">${esc(init)}</div>
-      <div class="st-who"><div class="st-nm">${esc(s.name||'No name')}</div><div class="st-meta">${esc(s.number||'')}</div></div>
+      <div class="st-who"><div class="st-nm">${esc(s.name||'No name')}${isFree(s)?'<span class="free-tag">Free</span>':''}${CERTS[s.id]?'<span class="cert-tag">Certified</span>':''}</div><div class="st-meta">${esc(s.number||'')}</div></div>
       <div class="st-badges">${badges||'<span class="cbadge">—</span>'}</div>
       <div class="st-prog"><div class="st-bar"><div class="st-fill" style="width:${bar}%"></div></div>${lbl}</div>
       <button class="sus ${s.suspended?'on':''}" data-sus="${esc(s.uid)}" data-now="${s.suspended?1:0}">${s.suspended?'Suspended':'Suspend'}</button>
@@ -1252,8 +1406,9 @@ function paintActivity(list){
   const d7=dayKey(new Date(Date.now()-7*864e5));
   const d30=dayKey(new Date(Date.now()-30*864e5));
 
-  let t=0,w=0,m=0,n=0;
+  let t=0,w=0,m=0,n=0,paid=0,free=0;
   list.forEach(s=>{
+    if(isFree(s)) free++; else paid++;
     const ls=s.lastSeen||'';
     if(!ls){ n++; return; }
     if(ls===today) t++;
@@ -1261,11 +1416,15 @@ function paintActivity(list){
     if(ls>=d30) m++;
   });
 
+  /* Paid aur Free ki ginti alag. Free walon ki tadaad tezi se barhegi,
+     is liye ek nazar mein farq nazar aana chahiye. */
   box.innerHTML=
-    `<div class="act-c t"><b>${t}</b><span>Aaj portal khola</span></div>`+
-    `<div class="act-c w"><b>${w}</b><span>Pichle 7 din</span></div>`+
-    `<div class="act-c m"><b>${m}</b><span>Pichle 30 din</span></div>`+
-    `<div class="act-c n"><b>${n}</b><span>Kabhi nahi khola</span></div>`;
+    `<div class="act-c p"><b>${paid}</b><span>Paid students</span></div>`+
+    `<div class="act-c f"><b>${free}</b><span>Free students</span></div>`+
+    `<div class="act-c t"><b>${t}</b><span>Opened today</span></div>`+
+    `<div class="act-c w"><b>${w}</b><span>Last 7 days</span></div>`+
+    `<div class="act-c m"><b>${m}</b><span>Last 30 days</span></div>`+
+    `<div class="act-c n"><b>${n}</b><span>Never opened</span></div>`;
 }
 
 /* % ke filter pills — har ek par us ki ginti */
