@@ -18,6 +18,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    /* AHEM: getDb() PEHLE. Wahi Firebase app ko initialize karta hai.
+       Agar getAuth() us se pehle chale to app maujood hi nahi hoti aur
+       verifyIdToken nakaam ho jata hai — har bande ko "Session expired"
+       milta hai chahe wo abhi abhi login hua ho. */
+    const db = getDb();
+
     const header = req.headers.authorization || "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : "";
     if (!token) return res.status(401).json({ error: "Not signed in" });
@@ -26,6 +32,7 @@ export default async function handler(req, res) {
     try {
       uid = (await getAuth().verifyIdToken(token)).uid;
     } catch (e) {
+      console.error("TOKEN FAIL:", e?.message || e);
       return res.status(401).json({ error: "Session expired. Please log in again." });
     }
 
@@ -34,7 +41,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "attemptId and answers are required" });
     }
 
-    const db = getDb();
     const ref = db.collection("certificateAttempts").doc(String(attemptId));
     const snap = await ref.get();
 

@@ -76,6 +76,12 @@ export default async function handler(req, res) {
     /* ---- Kaun hai? ----
        ID token se pehchante hain. Bina is ke koi bhi kisi doosre
        student ke naam par test shuru kar sakta tha. */
+    /* AHEM: getDb() PEHLE. Wahi Firebase app ko initialize karta hai.
+       Agar getAuth() us se pehle chale to app maujood hi nahi hoti aur
+       verifyIdToken nakaam ho jata hai — har bande ko "Session expired"
+       milta hai chahe wo abhi abhi login hua ho. */
+    const db = getDb();
+
     const header = req.headers.authorization || "";
     const token = header.startsWith("Bearer ") ? header.slice(7) : "";
     if (!token) return res.status(401).json({ error: "Not signed in" });
@@ -84,10 +90,9 @@ export default async function handler(req, res) {
     try {
       uid = (await getAuth().verifyIdToken(token)).uid;
     } catch (e) {
+      console.error("TOKEN FAIL:", e?.message || e);
       return res.status(401).json({ error: "Session expired. Please log in again." });
     }
-
-    const db = getDb();
 
     /* ---- Certificate pehle se mil chuka? ---- */
     const done = await db.collection("certificates").doc(uid).get();
@@ -95,7 +100,8 @@ export default async function handler(req, res) {
       const d = done.data();
       return res.status(200).json({
         state: "certified",
-        score: d.score, total: d.total,
+        certNo: d.certNo || "",
+        score: d.score, total: d.total, pct: d.pct,
         issuedAt: d.issuedAt ? d.issuedAt.toDate().toISOString() : null
       });
     }
