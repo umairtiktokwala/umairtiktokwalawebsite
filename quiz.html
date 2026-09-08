@@ -25,6 +25,10 @@
   --body:'Inter',system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,monospace;
   --wrap:1140px;
+  /* quiz card ke liye — pehle ye define hi nahi thay */
+  --card:#FFFFFF;
+  --shadow:0 18px 44px rgba(11,13,20,.07);
+  --soft-purple:rgba(139,49,232,.06);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -720,6 +724,8 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <a href="learn.html" class="nav-login">Student login</a>
     <a href="support-program.html#enroll" class="nav-cta">Enroll now</a>
   </div>
+</nav>
+
 <section class="page-head">
   <div class="wrap">
     <div class="page-eyebrow">Free</div>
@@ -813,7 +819,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
         </ul>
       </div>
     </div>
-    <div class="foot-bottom">
+    <div class="foot-bot">
       <span>© 2026 Umair TikTok Wala Academy. All rights reserved.</span>
       <span>UMAIR TIKTOK WALA &middot; Registered with FBR, Pakistan</span>
     </div>
@@ -835,6 +841,11 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 </a>
 <style>
 /* ---------- QUIZ ---------- */
+.empty{
+  padding:60px 20px;text-align:center;color:var(--muted);font-size:15px;
+  border:1px dashed var(--line);border-radius:16px;
+  max-width:660px;margin:0 auto;
+}
 .q-card{
   background:var(--card);border:1px solid var(--line);border-radius:20px;
   padding:32px;box-shadow:var(--shadow);max-width:660px;margin:0 auto;
@@ -942,7 +953,10 @@ function parseCSVq(text){
 
 async function loadQuiz(){
   try{
-    const res = await fetch(Q_CSV);
+    /* Google ka published CSV browser aur CDN dono cache kar lete hain,
+       is liye sheet mein naye sawal daalne ke baad bhi purane hi aate rehte
+       hain. Har load par nayi query bhejte hain taake hamesha taaza data mile. */
+    const res = await fetch(Q_CSV + '&_cb=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSVq(await res.text()).slice(1);
 
@@ -966,12 +980,25 @@ async function loadQuiz(){
   }
 }
 
+/* Sheet mein course teen ho sakte hain: facebook, tiktok, general.
+
+   "general" wo sawal hain jo dono par lagte hain — VPN, content, RPM,
+   payout waghera. Wo DONO topic mein shamil hote hain.
+
+   Wajah: agar general ko alag topic bana dete to TikTok ke sirf 13
+   sawal bachte, aur har dafa wahi 10 aate. Ab dono ke paas 100 se
+   zyada hain, is liye har baar alag sawal milte hain. */
+function poolFor(course){
+  return Q_ALL.filter(x => x.course === course || x.course === 'general');
+}
+
 function picks(){
-  const courses = [...new Set(Q_ALL.map(x=>x.course).filter(Boolean))];
+  // sirf asal topic — "general" apna alag button nahi banata
+  const courses = [...new Set(Q_ALL.map(x=>x.course).filter(c=>c && c!=='general'))];
   const label = c => c === 'facebook' ? 'Facebook' : c === 'tiktok' ? 'TikTok'
               : c.charAt(0).toUpperCase()+c.slice(1);
   $q('qPicks').innerHTML = courses.map(c=>{
-    const n = Q_ALL.filter(x=>x.course===c).length;
+    const n = poolFor(c).length;
     return '<button class="q-pick" data-c="'+escQ(c)+'">'
       + '<span><b>'+escQ(label(c))+'</b>'
       + '<span>'+n+' questions in the bank</span></span></button>';
@@ -989,7 +1016,7 @@ function shuffle(a){
 }
 
 function start(course){
-  const pool = Q_ALL.filter(x => x.course === course);
+  const pool = poolFor(course);
 
   /* Mushkil mila kar — 4 asaan, 4 darmiyana, 2 mushkil. Kisi darje ke
      sawal kam hon to baqi se poora kar lete hain. */
