@@ -25,10 +25,6 @@
   --body:'Inter',system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,monospace;
   --wrap:1140px;
-  /* quiz card ke liye — pehle ye define hi nahi thay */
-  --card:#FFFFFF;
-  --shadow:0 18px 44px rgba(11,13,20,.07);
-  --soft-purple:rgba(139,49,232,.06);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -613,7 +609,12 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 
 
 /* ---------- MOTION ---------- */
-.reveal{opacity:0;transform:translateY(22px)}
+/* IS SAFHE PAR .reveal NAZAR-ANDAZ.
+   Wajah: is file ka apna script hai, us mein IntersectionObserver
+   nahi. Bina us ke .reveal wala hissa opacity:0 par hi reh jata
+   hai — yani HAMESHA GHAYAB. Guides ka search box aur chips isi
+   wajah se kisi ko nazar nahi aaye the. */
+.reveal{opacity:1;transform:none}
 .reveal.in{
   opacity:1;transform:none;
   transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);
@@ -681,27 +682,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   gtag('js', new Date());
   gtag('config', 'G-ZBJ7FW689J');
 </script>
-<!-- ============================================================
-     APP KE ANDAR
-     App is safhe ko ?app=1 ke saath kholti hai. Us soorat mein website
-     ka apna menu aur footer chhupa dete hain — app ki apni list pehle
-     se hai, aur das cheezon wala menu app ke andar tang lagta hai.
-     Browser mein kuch nahi badalta.
-     ============================================================ -->
-<style>
-  html.in-app nav,
-  html.in-app footer,
-  html.in-app .wa-float { display: none !important; }
-  html.in-app .page-head { padding-top: 28px !important; }
-  html.in-app body { padding-bottom: 20px; }
-</style>
-<script>
-  try{
-    if(new URLSearchParams(location.search).get('app') === '1'){
-      document.documentElement.classList.add('in-app');
-    }
-  }catch(e){}
-</script>
 </head>
 <body>
 <nav>
@@ -716,6 +696,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
       <a href="paypal-service.html">PayPal Service</a>
       <a href="prompt-book.html">Free Prompt</a>
       <a href="guides.html">Guides</a>
+      <a href="certified.html">Certified</a>
       <a href="services.html">Services</a>
       <a href="curriculum.html">Curriculum</a>
       <a href="faq.html">FAQ</a>
@@ -724,8 +705,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <a href="learn.html" class="nav-login">Student login</a>
     <a href="support-program.html#enroll" class="nav-cta">Enroll now</a>
   </div>
-</nav>
-
 <section class="page-head">
   <div class="wrap">
     <div class="page-eyebrow">Free</div>
@@ -734,21 +713,14 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   </div>
 </section>
 
-<section class="sec quiz-sec" id="quiz">
+<section class="sec" id="quiz">
   <div class="wrap">
 
     <!-- ---------- START ---------- -->
-    <div id="qStart" class="q-card" hidden>
-      <div class="q-step">
-        <div class="q-step-label">Step 1 — Choose your platform</div>
-        <div class="q-picks" id="qPicks"></div>
-      </div>
-      <div class="q-step">
-        <div class="q-step-label">Step 2 — Choose difficulty</div>
-        <div class="q-levels" id="qLevels"></div>
-      </div>
-      <button class="q-start-btn" id="qStartBtn" disabled>Choose a platform to begin</button>
-      <p class="q-note">10 questions, picked at random each time. Retake it as often as you like.</p>
+    <div id="qStart" class="q-card">
+      <h2 class="q-h">Pick a topic</h2>
+      <div class="q-picks" id="qPicks"></div>
+      <p class="q-note">10 questions, mixed difficulty. You can retake it as many times as you like.</p>
     </div>
 
     <!-- ---------- QUESTION ---------- -->
@@ -826,7 +798,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
         </ul>
       </div>
     </div>
-    <div class="foot-bot">
+    <div class="foot-bottom">
       <span>© 2026 Umair TikTok Wala Academy. All rights reserved.</span>
       <span>UMAIR TIKTOK WALA &middot; Registered with FBR, Pakistan</span>
     </div>
@@ -846,110 +818,23 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   </svg>
   <span class="wa-float-text">Support</span>
 </a>
-
-<style>
-  .wa-float{
-    position:fixed; right:20px; bottom:20px; z-index:9999;
-    display:inline-flex; align-items:center; gap:0;
-    height:56px; padding:0 15px; border-radius:28px;
-    background:#25D366; color:#fff; text-decoration:none;
-    box-shadow:0 6px 20px rgba(37,211,102,.35);
-    transition:gap .22s ease, padding .22s ease, box-shadow .22s ease, transform .22s ease;
-    overflow:hidden;
-  }
-  .wa-float:hover{
-    gap:9px; padding:0 22px 0 17px;
-    box-shadow:0 8px 26px rgba(37,211,102,.45);
-    transform:translateY(-2px);
-  }
-  .wa-float-text{
-    max-width:0; opacity:0; white-space:nowrap;
-    font-size:15px; font-weight:600; font-family:inherit;
-    transition:max-width .22s ease, opacity .18s ease;
-  }
-  .wa-float:hover .wa-float-text{ max-width:110px; opacity:1; }
-
-  .wa-float::after{
-    content:""; position:absolute; inset:0; border-radius:28px;
-    box-shadow:0 0 0 0 rgba(37,211,102,.6);
-    animation:waPulse 2.6s ease-out infinite; pointer-events:none;
-  }
-  @keyframes waPulse{
-    0%   {box-shadow:0 0 0 0 rgba(37,211,102,.5)}
-    70%  {box-shadow:0 0 0 16px rgba(37,211,102,0)}
-    100% {box-shadow:0 0 0 0 rgba(37,211,102,0)}
-  }
-
-  @media (max-width:600px){
-    .wa-float{right:16px; bottom:16px; height:52px; padding:0 14px}
-    .wa-float:hover{gap:0; padding:0 14px}
-    .wa-float-text{display:none}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .wa-float::after{animation:none}
-    .wa-float{transition:none}
-  }
-</style>
 <style>
 /* ---------- QUIZ ---------- */
-.empty{
-  padding:60px 20px;text-align:center;color:var(--muted);font-size:15px;
-  border:1px dashed var(--line);border-radius:16px;
-  max-width:660px;margin:0 auto;
-}
 .q-card{
   background:var(--card);border:1px solid var(--line);border-radius:20px;
   padding:32px;box-shadow:var(--shadow);max-width:660px;margin:0 auto;
 }
 .q-h{font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:20px;letter-spacing:-.02em}
-
-/* card page ke shuru mein hi nazar aana chahiye — 100px ka gap hata diya */
-.quiz-sec{padding:40px 0 84px}
-
-.q-step{margin-bottom:24px}
-.q-step-label{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--muted);margin-bottom:12px;
-}
-
-/* Step 1 — platform */
-.q-picks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.q-picks{display:flex;flex-direction:column;gap:11px}
 .q-pick{
-  display:block;width:100%;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;width:100%;padding:18px 20px;
   border:1.5px solid var(--line);border-radius:14px;background:var(--card);
   cursor:pointer;font-family:inherit;text-align:left;transition:all .16s;
 }
 .q-pick:hover{border-color:var(--purple);background:var(--soft-purple)}
-.q-pick.on{border-color:var(--purple);background:var(--soft-purple);box-shadow:0 0 0 3px rgba(139,49,232,.10)}
-.q-pick b{font-family:var(--display);font-size:16.5px;font-weight:700;display:block;color:var(--ink)}
-.q-pick span{font-size:12.5px;color:var(--muted)}
-
-/* Step 2 — difficulty */
-.q-levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.q-lvl{
-  padding:13px 6px;border:1.5px solid var(--line);border-radius:12px;
-  background:var(--card);cursor:pointer;font-family:inherit;
-  font-size:14px;font-weight:600;color:var(--ink-2);
-  transition:all .16s;text-align:center;line-height:1.25;
-}
-.q-lvl small{display:block;font-weight:500;font-size:11px;color:var(--muted);margin-top:3px}
-.q-lvl:hover:not(:disabled){border-color:var(--ink-2)}
-.q-lvl.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.q-lvl.on small{color:rgba(255,255,255,.65)}
-.q-lvl:disabled{opacity:.38;cursor:not-allowed}
-
-/* Start */
-.q-start-btn{
-  width:100%;padding:16px;border:0;border-radius:13px;
-  background:var(--grad);color:#fff;font-family:inherit;
-  font-size:15.5px;font-weight:600;cursor:pointer;
-  box-shadow:0 6px 22px rgba(139,49,232,.26);transition:transform .18s,opacity .18s;
-}
-.q-start-btn:hover:not(:disabled){transform:translateY(-2px)}
-.q-start-btn:disabled{
-  background:var(--paper-2);color:var(--muted);box-shadow:none;cursor:default;
-}
-.q-note{margin-top:16px;font-size:13px;color:var(--muted);line-height:1.6;text-align:center}
+.q-pick b{font-family:var(--display);font-size:16px;font-weight:700;display:block}
+.q-pick span{font-size:13px;color:var(--muted)}
+.q-note{margin-top:18px;font-size:13px;color:var(--muted);line-height:1.6}
 
 .q-bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:16px}
 .q-fill{height:100%;background:var(--purple);border-radius:99px;transition:width .3s}
@@ -987,8 +872,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 .q-rev-x{color:#B42318;text-decoration:line-through;margin-right:8px}
 
 @media(max-width:560px){
-  .quiz-sec{padding:26px 0 60px}
-  .q-levels{grid-template-columns:1fr 1fr}
   .q-card{padding:22px 18px;border-radius:16px}
   .q-text{font-size:18px}
   .q-score{font-size:46px}
@@ -1044,10 +927,7 @@ function parseCSVq(text){
 
 async function loadQuiz(){
   try{
-    /* Google ka published CSV browser aur CDN dono cache kar lete hain,
-       is liye sheet mein naye sawal daalne ke baad bhi purane hi aate rehte
-       hain. Har load par nayi query bhejte hain taake hamesha taaza data mile. */
-    const res = await fetch(Q_CSV + '&_cb=' + Date.now(), { cache: 'no-store' });
+    const res = await fetch(Q_CSV);
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSVq(await res.text()).slice(1);
 
@@ -1083,75 +963,21 @@ function poolFor(course){
   return Q_ALL.filter(x => x.course === course || x.course === 'general');
 }
 
-/* Chuni hui platform aur darja. Darja shuru mein "mixed" — yani wahi
-   purana behaviour (4 asaan + 4 darmiyana + 2 mushkil). */
-let Q_COURSE = null, Q_LEVEL = 'mixed';
-
-const Q_LEVELS = [
-  { k:'mixed',  t:'Mixed'  },
-  { k:'easy',   t:'Easy'   },
-  { k:'medium', t:'Medium' },
-  { k:'hard',   t:'Hard'   }
-];
-
-/* Kisi platform + darje ke liye kitne sawal maujood hain */
-function levelPool(course, level){
-  const pool = poolFor(course);
-  return level === 'mixed' ? pool : pool.filter(x => x.level === level);
-}
-
 function picks(){
   // sirf asal topic — "general" apna alag button nahi banata
   const courses = [...new Set(Q_ALL.map(x=>x.course).filter(c=>c && c!=='general'))];
   const label = c => c === 'facebook' ? 'Facebook' : c === 'tiktok' ? 'TikTok'
               : c.charAt(0).toUpperCase()+c.slice(1);
-
-  $q('qPicks').innerHTML = courses.map(c=>
-    '<button class="q-pick" data-c="'+escQ(c)+'">'
-    + '<b>'+escQ(label(c))+'</b>'
-    + '<span>'+poolFor(c).length+' questions</span></button>'
-  ).join('');
-
-  $q('qPicks').querySelectorAll('.q-pick').forEach(b=>{
-    b.onclick = ()=>{ Q_COURSE = b.dataset.c; paintStart(); };
-  });
-
-  paintStart();
-}
-
-/* Dono steps aur Start button ko mojooda selection ke mutabiq dobara likhna */
-function paintStart(){
-  $q('qPicks').querySelectorAll('.q-pick').forEach(b=>{
-    b.classList.toggle('on', b.dataset.c === Q_COURSE);
-  });
-
-  $q('qLevels').innerHTML = Q_LEVELS.map(l=>{
-    // platform chunne se pehle counts nahi dikhate — abhi maloom hi nahi
-    const n = Q_COURSE ? levelPool(Q_COURSE, l.k).length : null;
-    const off = Q_COURSE && n === 0;
-    return '<button class="q-lvl'+(l.k===Q_LEVEL?' on':'')+'" data-l="'+l.k+'"'
-      + (off?' disabled':'') + '>' + escQ(l.t)
-      + (n === null ? '' : '<small>'+n+'</small>') + '</button>';
+  $q('qPicks').innerHTML = courses.map(c=>{
+    const n = poolFor(c).length;
+    return '<button class="q-pick" data-c="'+escQ(c)+'">'
+      + '<span><b>'+escQ(label(c))+'</b>'
+      + '<span>'+n+' questions in the bank</span></span></button>';
   }).join('');
-
-  $q('qLevels').querySelectorAll('.q-lvl').forEach(b=>{
-    b.onclick = ()=>{ Q_LEVEL = b.dataset.l; paintStart(); };
+  $q('qPicks').querySelectorAll('.q-pick').forEach(b=>{
+    b.onclick = ()=> start(b.dataset.c);
   });
-
-  const btn = $q('qStartBtn');
-  if(!Q_COURSE){
-    btn.disabled = true;
-    btn.textContent = 'Choose a platform to begin';
-  }else{
-    const have = levelPool(Q_COURSE, Q_LEVEL).length;
-    btn.disabled = false;
-    btn.textContent = have >= Q_COUNT
-      ? 'Start the quiz — ' + Q_COUNT + ' questions'
-      : 'Start the quiz — ' + have + ' at this level, rest mixed in';
-  }
 }
-
-$q('qStartBtn').onclick = ()=> start();
 
 /* Har dafa alag sawal — warna dobara dene ka koi faida nahi */
 function shuffle(a){
@@ -1160,22 +986,13 @@ function shuffle(a){
   return x;
 }
 
-function start(){
-  if(!Q_COURSE) return;
-  const pool = poolFor(Q_COURSE);
+function start(course){
+  const pool = poolFor(course);
 
-  let set;
-  if(Q_LEVEL === 'mixed'){
-    /* Mushkil mila kar — 4 asaan, 4 darmiyana, 2 mushkil. */
-    const by = l => shuffle(pool.filter(x=>x.level===l));
-    set = [...by('easy').slice(0,4), ...by('medium').slice(0,4), ...by('hard').slice(0,2)];
-  }else{
-    /* Sirf chune hue darje ke sawal */
-    set = shuffle(pool.filter(x=>x.level===Q_LEVEL)).slice(0, Q_COUNT);
-  }
-
-  /* Us darje ke sawal 10 se kam hon to baqi pool se poora kar lete hain —
-     warna quiz adhoora reh jata. */
+  /* Mushkil mila kar — 4 asaan, 4 darmiyana, 2 mushkil. Kisi darje ke
+     sawal kam hon to baqi se poora kar lete hain. */
+  const by = l => shuffle(pool.filter(x=>x.level===l));
+  let set = [...by('easy').slice(0,4), ...by('medium').slice(0,4), ...by('hard').slice(0,2)];
   if(set.length < Q_COUNT){
     const rest = shuffle(pool.filter(x => !set.includes(x)));
     set = set.concat(rest.slice(0, Q_COUNT - set.length));
@@ -1271,36 +1088,6 @@ $q('qAgain').onclick = ()=>{
 
 loadQuiz();
 </script>
-<script>
-/* .reveal wale hisse shuru mein opacity:0 hote hain aur
-   IntersectionObserver un ko nazar aane par dikhata hai.
-
-   MASLA: Android app ke WebView mein wo observer theek se nahi chalta —
-   content load ho jata tha magar SAFHA KHALI dikhta tha.
-
-   HAL: do hifazatein
-     1. IntersectionObserver maujood hi na ho to sab foran dikha do
-     2. Do second baad jo hissa ab bhi chhupa ho, usay dikha do
-
-   Aam browser mein animation waise hi chalti hai. */
-function revealAll(){
-  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
-}
-
-if(!('IntersectionObserver' in window)){
-  revealAll();
-}else{
-  const io=new IntersectionObserver((es)=>{
-    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
-  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal').forEach((el,i)=>{
-    el.style.transitionDelay=(i%3)*70+'ms';
-    io.observe(el);
-  });
-  setTimeout(revealAll, 2000);
-}
-</script>
-
 <script>
   var t=document.getElementById('navToggle'), l=document.getElementById('navLinks');
   if(t&&l){ t.onclick=function(){ t.classList.toggle('on'); l.classList.toggle('open'); }; }

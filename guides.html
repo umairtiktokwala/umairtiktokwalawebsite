@@ -696,6 +696,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
       <a href="paypal-service.html">PayPal Service</a>
       <a href="prompt-book.html">Free Prompt</a>
       <a href="guides.html" class="on">Guides</a>
+      <a href="certified.html">Certified</a>
       <a href="services.html">Services</a>
       <a href="curriculum.html">Curriculum</a>
       <a href="faq.html">FAQ</a>
@@ -901,7 +902,13 @@ function parseCSVg(text){
 async function loadGuides(){
   const state = $g('gState');
   try{
-    const res = await fetch(G_CSV);
+    /* Google ka published CSV browser aur CDN dono cache kar lete hain,
+       is liye sheet mein kuch badalne ke baad bhi purana data aata rehta
+       hai — kabhi kabhi ghanton tak.
+    
+       Har load par ek naya number lagate hain (_cb), is liye har dafa taza
+       data milta hai. */
+    const res = await fetch(G_CSV + '&_cb=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSVg(await res.text()).slice(1);
 

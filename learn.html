@@ -43,6 +43,9 @@ button{font-family:var(--body)}
 .ct-checks{display:flex;flex-direction:column;gap:9px}
 .ct-check{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:12px}
 .ct-check.ok{border-color:rgba(22,179,100,.35);background:rgba(22,179,100,.06)}
+/* Aakhri qadam — test khud. Baqi shartein us tak pahunchne ke liye hain. */
+.ct-check.last{border-style:dashed;border-color:var(--purple);background:var(--soft-purple)}
+.ct-check.last.ok{border-style:solid}
 .ct-tick{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
   justify-content:center;font-size:12px;background:var(--line);color:var(--muted)}
 .ct-check.ok .ct-tick{background:#16B364;color:#fff}
@@ -72,6 +75,17 @@ button{font-family:var(--body)}
 .ct-badge{display:block;width:fit-content;margin:0 auto 14px;padding:5px 14px;border-radius:99px;
   background:#16B364;color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;
   text-transform:uppercase;letter-spacing:.1em}
+
+.ct-viewlink{display:block;text-align:center;margin-top:14px;font-size:13.5px;
+  font-weight:600;color:var(--purple);text-decoration:none}
+.ct-viewlink:hover{text-decoration:underline}
+
+.ct-feature{margin-top:24px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--card-2)}
+.ct-fh{font-family:var(--display);font-size:15.5px;font-weight:700;margin-bottom:6px}
+.ct-fp{font-size:13px;line-height:1.7;color:var(--muted);margin-bottom:14px}
+.ct-fbtns{display:flex;gap:9px}
+.ct-fbtns button{flex:1}
+.ct-fdone{font-size:13.5px;line-height:1.6;color:var(--ink-2)}
 
 .ct-review{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
 .ct-rev{margin-bottom:15px;font-size:13.5px;line-height:1.6}
@@ -915,6 +929,7 @@ button{font-family:var(--body)}
             <div class="card ct-card">
               <h3 class="ct-h">You are eligible</h3>
               <p class="ct-p" id="ctReadyP"></p>
+              <div class="ct-checks" id="ctChecks2" style="margin-bottom:22px"></div>
               <ul class="ct-rules">
                 <li>30 questions, picked fresh each time</li>
                 <li>You need 70% to pass — that is 21 correct</li>
@@ -948,6 +963,20 @@ button{font-family:var(--body)}
               <div id="ctCertBox" hidden>
                 <div class="ct-certno" id="ctCertNo"></div>
                 <div class="ct-certsub">Keep this number. It is your certificate reference.</div>
+                <a class="ct-viewlink" id="ctView" target="_blank" rel="noopener">View and print your certificate →</a>
+              </div>
+
+              <!-- Ijazat — har koi apna naam public nahi karna chahta -->
+              <div class="ct-feature" id="ctFeature" hidden>
+                <div class="ct-fh">Can we feature you?</div>
+                <p class="ct-fp">We would like to share your name on our website and social media
+                  as a certified student. Your phone number, earnings and any other detail are
+                  never shared. You can change this later from this page.</p>
+                <div class="ct-fbtns">
+                  <button class="btn-primary" id="ctYes">Yes, feature me</button>
+                  <button class="btn-ghost" id="ctNo">No thanks</button>
+                </div>
+                <div class="ct-fdone" id="ctFDone" hidden></div>
               </div>
               <button class="btn-ghost ct-go" id="ctAgain" hidden>Try again</button>
               <div class="ct-review" id="ctReview"></div>
@@ -959,6 +988,7 @@ button{font-family:var(--body)}
             <div class="card ct-card">
               <h3 class="ct-h">All three attempts used</h3>
               <p class="ct-p" id="ctLockedP"></p>
+              <div class="ct-checks" id="ctChecks3"></div>
             </div>
           </div>
 
@@ -969,6 +999,18 @@ button{font-family:var(--body)}
               <div class="ct-score" id="ctDoneScore"></div>
               <div class="ct-certno" id="ctDoneNo"></div>
               <div class="ct-certsub" id="ctDoneDate"></div>
+              <a class="ct-viewlink" id="ctDoneView" target="_blank" rel="noopener">View and print your certificate →</a>
+
+              <div class="ct-feature" id="ctFeature2" hidden>
+                <div class="ct-fh">Can we feature you?</div>
+                <p class="ct-fp">We would like to share your name on our website and social media
+                  as a certified student. Your phone number and earnings are never shared.</p>
+                <div class="ct-fbtns">
+                  <button class="btn-primary" id="ctYes2">Yes, feature me</button>
+                  <button class="btn-ghost" id="ctNo2">No thanks</button>
+                </div>
+                <div class="ct-fdone" id="ctFDone2" hidden></div>
+              </div>
             </div>
           </div>
 
@@ -2441,26 +2483,23 @@ async function loadCert(){
       $('ctDoneDate').textContent = d.issuedAt
         ? 'Issued ' + new Date(d.issuedAt).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
         : '';
+      $('ctDoneView').href = 'certificate.html?no=' + encodeURIComponent(d.certNo||'');
+      ctFeatureBox('2', d.featured);
       ctShow('ctDone');
       return;
     }
 
-    if(d.state === 'not_eligible'){
-      $('ctChecks').innerHTML = d.checks.map(c =>
-        '<div class="ct-check '+(c.ok?'ok':'')+'">'
-        + '<span class="ct-tick">'+(c.ok?'✓':'')+'</span>'
-        + '<span class="ct-ctext"><span class="ct-clabel">'+esc(c.label)+'</span>'
-        + '<span class="ct-cnow">'+esc(c.now)+' of '+esc(c.need)+'</span></span>'
-        + '</div>'
-      ).join('');
-      ctShow('ctGate');
-      return;
-    }
+    /* Fehrist har halat mein banti hai — student ko poora raasta
+       nazar aana chahiye, chahe wo kahin bhi khara ho. Aakhri qadam
+       khud test hai. */
+    ctChecks(d.checks);
+
+    if(d.state === 'not_eligible'){ ctShow('ctGate'); return; }
 
     if(d.state === 'locked'){
       const when = new Date(d.opensAt);
       $('ctLockedP').textContent =
-        'Your best score was ' + d.best + ' out of 30. The test opens again on '
+        'Your best score was ' + (d.best||0) + ' out of 30. The test opens again on '
         + when.toLocaleDateString('en-GB',{day:'numeric',month:'long'})
         + '. Use these days to go back through the lessons.';
       ctShow('ctLocked');
@@ -2489,6 +2528,20 @@ async function loadCert(){
       + esc(e.message || 'Could not load the test. Please try again.');
     ctShow('ctLoad');
   }
+}
+
+function ctChecks(list){
+  if(!Array.isArray(list)) return;
+  const html = list.map(c =>
+    '<div class="ct-check '+(c.ok?'ok':'')+(c.key==='test'?' last':'')+'">'
+    + '<span class="ct-tick">'+(c.ok?'✓':'')+'</span>'
+    + '<span class="ct-ctext"><span class="ct-clabel">'+esc(c.label)+'</span>'
+    + '<span class="ct-cnow">'+esc(c.now)+' of '+esc(c.need)+'</span></span>'
+    + '</div>'
+  ).join('');
+  ['ctChecks','ctChecks2','ctChecks3'].forEach(id=>{
+    const el = $(id); if(el) el.innerHTML = html;
+  });
 }
 
 function ctPaint(){
@@ -2533,8 +2586,10 @@ async function ctSubmit(){
     if(d.state === 'passed'){
       $('ctMsg').textContent = 'You passed. Your certificate has been issued.';
       $('ctCertNo').textContent = d.certNo;
+      $('ctView').href = 'certificate.html?no=' + encodeURIComponent(d.certNo||'');
       $('ctCertBox').hidden = false;
       $('ctAgain').hidden = true;
+      ctFeatureBox('', null);   // abhi poocha nahi — sawal dikhao
     }else{
       const leftTries = 3 - (d.attemptsUsed || 0);
       $('ctMsg').textContent = leftTries > 0
@@ -2563,6 +2618,47 @@ async function ctSubmit(){
     btn.textContent = 'Submit test';
   }
 }
+
+/* Ijazat ka khana.
+   suffix '' nateeje wale card ke liye, '2' certified wale card ke liye.
+   featured: null = abhi poocha nahi · true = haan · false = nahi */
+function ctFeatureBox(sfx, featured){
+  const box  = $('ctFeature'+sfx);
+  const done = $('ctFDone'+sfx);
+  const btns = box ? box.querySelector('.ct-fbtns') : null;
+  if(!box) return;
+
+  box.hidden = false;
+  if(featured === true || featured === false){
+    if(btns) btns.style.display = 'none';
+    done.hidden = false;
+    done.textContent = featured
+      ? 'You are on our certified students page. Tell us any time if you change your mind.'
+      : 'Your name stays private. Tell us any time if you change your mind.';
+  }else{
+    if(btns) btns.style.display = 'flex';
+    done.hidden = true;
+  }
+}
+
+async function ctSetFeature(sfx, yes){
+  const box = $('ctFeature'+sfx);
+  const btns = box ? box.querySelector('.ct-fbtns') : null;
+  if(btns) btns.style.opacity = '.5';
+  try{
+    await ctFetch('/api/cert-feature', { featured: yes });
+    ctFeatureBox(sfx, yes);
+  }catch(e){
+    alert(e.message || 'Could not save your choice. Please try again.');
+  }finally{
+    if(btns) btns.style.opacity = '1';
+  }
+}
+
+$('ctYes').onclick  = ()=> ctSetFeature('', true);
+$('ctNo').onclick   = ()=> ctSetFeature('', false);
+$('ctYes2').onclick = ()=> ctSetFeature('2', true);
+$('ctNo2').onclick  = ()=> ctSetFeature('2', false);
 
 $('ctStart').onclick = ()=>{ ctShow('ctPlay'); ctPaint(); };
 $('ctPrev').onclick  = ()=>{ if(CT.at > 0){ CT.at--; ctPaint(); } };

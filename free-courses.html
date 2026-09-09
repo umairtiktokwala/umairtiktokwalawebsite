@@ -677,27 +677,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   gtag('js', new Date());
   gtag('config', 'G-ZBJ7FW689J');
 </script>
-<!-- ============================================================
-     APP KE ANDAR
-     App is safhe ko ?app=1 ke saath kholti hai. Us soorat mein website
-     ka apna menu aur footer chhupa dete hain — app ki apni list pehle
-     se hai, aur das cheezon wala menu app ke andar tang lagta hai.
-     Browser mein kuch nahi badalta.
-     ============================================================ -->
-<style>
-  html.in-app nav,
-  html.in-app footer,
-  html.in-app .wa-float { display: none !important; }
-  html.in-app .page-head { padding-top: 28px !important; }
-  html.in-app body { padding-bottom: 20px; }
-</style>
-<script>
-  try{
-    if(new URLSearchParams(location.search).get('app') === '1'){
-      document.documentElement.classList.add('in-app');
-    }
-  }catch(e){}
-</script>
 </head>
 <body>
 <nav>
@@ -712,6 +691,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
       <a href="paypal-service.html">PayPal Service</a>
       <a href="prompt-book.html">Free Prompt</a>
       <a href="guides.html">Guides</a>
+      <a href="certified.html">Certified</a>
       <a href="services.html">Services</a>
       <a href="curriculum.html">Curriculum</a>
       <a href="faq.html">FAQ</a>
@@ -899,7 +879,13 @@ function parseCSVf(text){
 async function loadFree(){
   const state = $f('fState');
   try{
-    const res = await fetch(F_CSV);
+    /* Google ka published CSV browser aur CDN dono cache kar lete hain,
+       is liye sheet mein kuch badalne ke baad bhi purana data aata rehta
+       hai — kabhi kabhi ghanton tak.
+    
+       Har load par ek naya number lagate hain (_cb), is liye har dafa taza
+       data milta hai. */
+    const res = await fetch(F_CSV + '&_cb=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) throw new Error(res.status);
     const rows = parseCSVf(await res.text()).slice(1);
 
