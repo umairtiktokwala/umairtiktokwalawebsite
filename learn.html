@@ -76,6 +76,14 @@ button{font-family:var(--body)}
   background:#16B364;color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;
   text-transform:uppercase;letter-spacing:.1em}
 
+.lib-lock{font-size:13px;margin-left:6px;opacity:.55;vertical-align:middle}
+.lib-wall{position:fixed;inset:0;z-index:200;background:rgba(11,13,20,.55);
+  display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.lib-wall .card{max-width:440px;width:100%}
+.lib-ic{width:46px;height:46px;border-radius:13px;background:var(--soft-purple);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.lib-ic i{font-size:22px;color:var(--purple)}
+
 .ct-viewlink{display:block;text-align:center;margin-top:14px;font-size:13.5px;
   font-weight:600;color:var(--purple);text-decoration:none}
 .ct-viewlink:hover{text-decoration:underline}
@@ -694,7 +702,7 @@ button{font-family:var(--body)}
              menu aur "Sign in" ka button na aaye — phone par saaf dikhe.
              Doc mein jo likha jaye wo foran nazar aata hai; site par kuch
              badalne ki zaroorat nahi. -->
-        <a class="snav snav-link" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i> Prompt Library</a>
+        <a class="snav snav-link" id="libLink" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i> Prompt Library<i class="ti ti-lock lib-lock" id="libLock" hidden></i></a>
         <button class="snav" data-s="prompts"><i class="ti ti-book"></i> Prompt Book</button>
         <button class="snav" data-s="cert"><i class="ti ti-certificate"></i> Certificate</button>
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
@@ -911,6 +919,23 @@ button{font-family:var(--body)}
              server par jaate hain (api/cert-submit). Sahi jawab kabhi
              browser tak nahi aate.
              ============================================================ -->
+        <!-- Prompt Library free students ke liye nahi.
+             Chhupaya nahi, band kiya hai — free student ko dikhna
+             chahiye ke Support Program mein kya milta hai. -->
+        <div class="lib-wall" id="libWall" hidden>
+          <div class="card ct-card">
+            <div class="lib-ic"><i class="ti ti-lock"></i></div>
+            <h3 class="ct-h">Prompt Library is for Support Program students</h3>
+            <p class="ct-p">These are the exact prompts from Umair's own videos — the ones
+              behind the results you see. They come with the Support Program, along with
+              reviewed tasks and daily support.</p>
+            <p class="ct-p" style="margin-bottom:20px">You still have the <b>Prompt Book</b> —
+              800+ ready AI video prompts, free, in the sidebar.</p>
+            <a href="support-program.html" class="btn-primary ct-go" target="_blank" rel="noopener">See the Support Program</a>
+            <button class="btn-ghost ct-go" id="libClose" style="margin-top:9px">Close</button>
+          </div>
+        </div>
+
         <div id="secCert" style="display:none">
 
           <div class="empty" id="ctLoad"><i class="ti ti-loader-2"></i>Checking your progress…</div>
@@ -1079,7 +1104,7 @@ button{font-family:var(--body)}
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
-    <a href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Library</a>
+    <a id="libLinkM" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Library</a>
     <button data-s="prompts"><i class="ti ti-book"></i>Prompts</button>
     <button data-s="cert"><i class="ti ti-certificate"></i>Certificate</button>
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
@@ -1557,6 +1582,7 @@ onAuthStateChanged(auth, async user=>{
     loadAnnouncements()
   ]);
   BATCH=ME.batches[ME.batches.length-1]||null;
+  setLibLock();   // free student ke liye Prompt Library band
   render();
   pushCourseStats().catch(()=>{});
 });
@@ -2529,6 +2555,42 @@ async function loadCert(){
     ctShow('ctLoad');
   }
 }
+
+/* ---------- PROMPT LIBRARY ----------
+   Free student ke liye nahi. Link chhupaya nahi — band kiya hai,
+   taake usay dikhe ke Support Program mein kya milta hai.
+
+   Ye sirf dikhawa hai, asal hifazat nahi: link safhe ke code mein
+   likha hai aur Google Doc "anyone with the link" par hai. Agar link
+   waqai chhupana ho to us ko API se lana paRega. */
+function isPaidStudent(){
+  const bs = (ME && ME.batches) || [];
+  return bs.some(b => String(b).toLowerCase() !== 'free');
+}
+
+function setLibLock(){
+  const paid = isPaidStudent();
+  const lock = $('libLock');
+  if(lock) lock.hidden = paid;
+
+  ['libLink','libLinkM'].forEach(id=>{
+    const el = $(id); if(!el) return;
+    if(paid){
+      el.onclick = null;
+      el.href = LIB_URL;
+      el.target = '_blank';
+    }else{
+      el.href = '#';
+      el.removeAttribute('target');
+      el.onclick = (e)=>{ e.preventDefault(); $('libWall').hidden = false; };
+    }
+  });
+}
+
+const LIB_URL = 'https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview';
+
+$('libClose').onclick = ()=>{ $('libWall').hidden = true; };
+$('libWall').onclick = (e)=>{ if(e.target === $('libWall')) $('libWall').hidden = true; };
 
 function ctChecks(list){
   if(!Array.isArray(list)) return;

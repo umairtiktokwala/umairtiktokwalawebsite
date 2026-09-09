@@ -622,12 +622,50 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 
 
 /* ---- mobile nav ---- */
+/* ---------- TEEN NUQTON WALI LIST ----------
+   Menu mein gyarah cheezein thusi hui thin. Ab saamne sirf teen hain
+   — Free Course, PayPal Service, Free Prompt — aur baqi is list mein.
+   Nayi cheez aaye to sirf nav-drop mein jorni hai. */
+.nav-more{position:relative;flex-shrink:0}
+.nav-dots{
+  display:flex;flex-direction:column;gap:3.5px;align-items:center;justify-content:center;
+  width:38px;height:38px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--card);cursor:pointer;transition:border-color .16s;
+}
+.nav-dots:hover{border-color:var(--ink-2)}
+.nav-dots span{display:block;width:4px;height:4px;border-radius:50%;background:var(--ink)}
+.nav-more.open .nav-dots{border-color:var(--purple)}
+
+.nav-drop{
+  position:absolute;top:calc(100% + 9px);right:0;min-width:210px;
+  background:var(--card);border:1px solid var(--line);border-radius:15px;
+  padding:7px;box-shadow:0 16px 44px rgba(11,13,20,.13);
+  display:none;flex-direction:column;z-index:120;
+}
+.nav-more.open .nav-drop{display:flex}
+.nav-drop a{
+  padding:11px 14px;border-radius:10px;font-size:14.5px;font-weight:500;
+  color:var(--ink-2);white-space:nowrap;transition:background .14s,color .14s;
+}
+.nav-drop a:hover{background:var(--card-2);color:var(--ink)}
+.nav-drop a.on{color:var(--purple);font-weight:600}
+
+@media(max-width:980px){
+  /* Phone par ye list hamburger ke andar chali jati hai — do menu
+     ek saath achhe nahi lagte. */
+  .nav-more{display:none}
+}
+
 .nav-toggle{display:none;background:none;border:0;cursor:pointer;flex-direction:column;gap:5px;padding:8px}
 .nav-toggle span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:.25s}
 .nav-toggle.on span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .nav-toggle.on span:nth-child(2){opacity:0}
 .nav-toggle.on span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .nav-login-m{display:none}
+/* Phone par teen nuqton wali list chhup jati hai, is liye baqi safhe
+   hamburger ke andar hote hain. Laptop par ye chhupe rehte hain
+   kyunke wahan wo list maujood hai. */
+.nav-only-m{display:none}
 .nav-links a.on{color:var(--ink);font-weight:600}
 @media(max-width:980px){
   .nav-toggle{display:flex}
@@ -636,6 +674,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   .nav-links.open{display:flex}
   .nav-links a{padding:13px 22px;font-size:15px}
   .nav-login{display:none}
+  .nav-only-m{display:block}
   .nav-login-m{display:block;border-top:1px solid var(--line);margin-top:6px;font-weight:600}
 }
 
@@ -685,20 +724,38 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <div class="nav-links" id="navLinks">
       <a href="free-courses.html">Free Course</a>
-      <a href="quiz.html">Quiz</a>
-      <a href="courses.html">Courses</a>
-      <a href="support-program.html">Support Program</a>
       <a href="paypal-service.html">PayPal Service</a>
       <a href="prompt-book.html" class="on">Free Prompt</a>
-      <a href="guides.html">Guides</a>
-      <a href="certified.html">Certified</a>
-      <a href="services.html">Services</a>
-      <a href="curriculum.html">Curriculum</a>
-      <a href="faq.html">FAQ</a>
+      <a href="courses.html" class="nav-only-m">Courses</a>
+      <a href="support-program.html" class="nav-only-m">Support Program</a>
+      <a href="guides.html" class="nav-only-m">Guides</a>
+      <a href="quiz.html" class="nav-only-m">Quiz</a>
+      <a href="certified.html" class="nav-only-m">Certified</a>
+      <a href="services.html" class="nav-only-m">Services</a>
+      <a href="curriculum.html" class="nav-only-m">Curriculum</a>
+      <a href="faq.html" class="nav-only-m">FAQ</a>
       <a href="learn.html" class="nav-login-m">Student login</a>
     </div>
     <a href="learn.html" class="nav-login">Student login</a>
-    <a href="support-program.html#enroll" class="nav-cta">Enroll now</a>
+
+    <!-- Baqi safhe is list ke andar. Menu mein gyarah cheezein thusi
+         hui thin; ab saamne sirf teen hain aur baqi yahan.
+         Nayi cheez aaye to sirf yahan jorni hai. -->
+    <div class="nav-more">
+      <button class="nav-dots" id="navDots" aria-label="More pages">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-drop" id="navDrop">
+        <a href="courses.html">Courses</a>
+        <a href="support-program.html">Support Program</a>
+        <a href="guides.html">Guides</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="certified.html">Certified</a>
+        <a href="services.html">Services</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="faq.html">FAQ</a>
+      </div>
+    </div>
   </div>
 </nav>
 <section class="page-head">
@@ -774,7 +831,8 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
         <div class="foot-h">Students</div>
         <ul class="foot-links">
           <li><a href="learn.html">Student portal</a></li>
-          <li><a href="support-program.html#enroll">Enroll now</a></li>
+          <li><a href="free-courses.html">Free courses</a></li>
+          <li><a href="certified.html">Certified students</a></li>
         </ul>
       </div>
     </div>
@@ -1084,6 +1142,13 @@ if(HAS_PB) loadPrompts();
 <script>
   var t=document.getElementById('navToggle'), l=document.getElementById('navLinks');
   if(t&&l){ t.onclick=function(){ t.classList.toggle('on'); l.classList.toggle('open'); }; }
+
+  var dots=document.getElementById('navDots'), more=dots?dots.parentElement:null;
+  if(dots&&more){
+    dots.onclick=function(e){ e.stopPropagation(); more.classList.toggle('open'); };
+    document.addEventListener('click',function(){ more.classList.remove('open'); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') more.classList.remove('open'); });
+  }
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/service-worker.js").catch(function(){});});}
