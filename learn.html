@@ -833,10 +833,9 @@ button{font-family:var(--body)}
              ============================================================ -->
         <div id="secLib" style="display:none">
           <div class="pbk-top">
-            <input type="text" id="plSearch" placeholder="Search — by title, category or any word…" autocomplete="off">
+            <input type="text" id="plSearch" placeholder="Search — by title or any word inside the prompt…" autocomplete="off">
             <div class="pbk-count" id="plCount"></div>
           </div>
-          <div class="pbk-chips" id="plChips"></div>
           <div class="empty" id="plState"><i class="ti ti-loader-2"></i>Loading prompts…</div>
           <div class="pl-list" id="plList" hidden></div>
         </div>
@@ -2590,17 +2589,22 @@ async function loadCert(){
    PROMPT LIBRARY — sheet se
 
    Sheet ke column:
-     A Title · B Category · C Prompt · D Voiceover · E Audio
-     F Notes · G Date
+     A Title    prompt ka naam
+     B Prompt   poora matn — scene, voiceover, audio, sab isi mein
+
+   Umair ki prompts aath scene ki hoti hain aur har scene mein image
+   prompt, video prompt, voiceover aur audio saath hote hain. Un ko
+   alag khanon mein torne ka koi faida nahi tha, is liye poora matn
+   ek hi khane mein rehta hai.
 
    Pehle ye Google Doc par thi. Masla ye tha ke doc ke naye tab
-   /preview mein nazar nahi aate — nayi prompt daalne par portal mein
-   kuch nahi badalta tha. Ab sheet se aati hai, jaise Prompt Book.
+   /preview mein nazar hi nahi aate — nayi prompt daalne par portal
+   mein kuch nahi badalta tha. Ab sheet se aati hai.
    =================================================================== */
 
 const PL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRXeB3xobYOPh23f2_z0fS_sOR82-OHOa2vsbjeb0tL-XQKgwVAhCKt3543HtwxLgMWOI_UYcwiCx-6/pub?output=csv';
 
-let PL_ALL = [], PL_CAT = 'All', PL_Q = '', PL_LOADED = false;
+let PL_ALL = [], PL_Q = '', PL_LOADED = false;
 
 async function loadLibrary(){
   if(PL_LOADED) return;
@@ -2612,12 +2616,7 @@ async function loadLibrary(){
 
     PL_ALL = rows.map(r => ({
       title: (r[0]||'').trim(),
-      cat:   (r[1]||'').trim(),
-      prompt:(r[2]||'').trim(),
-      vo:    (r[3]||'').trim(),
-      audio: (r[4]||'').trim(),
-      notes: (r[5]||'').trim(),
-      date:  (r[6]||'').trim()
+      prompt:(r[1]||'').trim()
     })).filter(p => p.title && p.prompt);
 
     if(!PL_ALL.length){
@@ -2625,27 +2624,10 @@ async function loadLibrary(){
       return;
     }
     PL_LOADED = true;
-    plChips();
     plRender();
   }catch(e){
     state.innerHTML = '<i class="ti ti-alert-triangle"></i>Could not load the library. Check your connection and try again.';
   }
-}
-
-function plChips(){
-  const cats = ['All', ...new Set(PL_ALL.map(p => p.cat).filter(Boolean))];
-  const bar = $('plChips');
-  bar.innerHTML = cats.map(c =>
-    '<button class="pbk-chip'+(c==='All'?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'
-  ).join('');
-  bar.querySelectorAll('.pbk-chip').forEach(b=>{
-    b.onclick = ()=>{
-      bar.querySelectorAll('.pbk-chip').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      PL_CAT = b.dataset.c;
-      plRender();
-    };
-  });
 }
 
 function plRender(){
@@ -2653,46 +2635,33 @@ function plRender(){
   const q = PL_Q.trim().toLowerCase();
 
   const shown = PL_ALL.filter(p=>{
-    if(PL_CAT !== 'All' && p.cat !== PL_CAT) return false;
     if(!q) return true;
-    return (p.title+' '+p.cat+' '+p.prompt+' '+p.vo+' '+p.notes).toLowerCase().includes(q);
+    return (p.title+' '+p.prompt).toLowerCase().includes(q);
   });
 
-  count.textContent = q && shown.length
-    ? shown.length + (shown.length===1 ? ' prompt found' : ' prompts found') : '';
+  count.textContent = shown.length
+    + (shown.length===1 ? ' prompt' : ' prompts');
 
   if(!shown.length){
     list.hidden = true; state.hidden = false;
-    state.innerHTML = '<i class="ti ti-search-off"></i>'
-      + (q ? 'No prompts match that. Try a different word.' : 'Nothing in this category yet.');
+    state.innerHTML = '<i class="ti ti-search-off"></i>No prompts match that. Try a different word.';
     return;
   }
 
   state.hidden = true; list.hidden = false;
-  list.innerHTML = shown.map((p,i)=>{
-    const block = (label, text, key) => text
-      ? '<div class="pl-block"><div class="pl-label">'+label+'</div>'
-        + '<div class="pl-text" id="pl'+key+i+'">'+esc(text)+'</div></div>'
-      : '';
-    return '<article class="pl-card" id="plc'+i+'">'
-      + '<button class="pl-head" data-i="'+i+'">'
-      +   (p.cat ? '<span class="pl-cat">'+esc(p.cat)+'</span>' : '')
-      +   '<span class="pl-t">'+esc(p.title)
-      +     (p.date ? '<span class="pl-date">'+esc(p.date)+'</span>' : '')
-      +   '</span>'
-      +   '<span class="pl-plus">+</span>'
-      + '</button>'
-      + '<div class="pl-body">'
-      +   block('Prompt',    p.prompt, 'P')
-      +   block('Voiceover', p.vo,     'V')
-      +   block('Audio',     p.audio,  'A')
-      +   block('Notes',     p.notes,  'N')
-      +   '<div class="pl-acts">'
-      +     '<button class="pl-btn copy" data-copy="P'+i+'">Copy prompt</button>'
-      +     (p.vo ? '<button class="pl-btn" data-copy="V'+i+'">Copy voiceover</button>' : '')
-      +   '</div>'
-      + '</div></article>';
-  }).join('');
+  list.innerHTML = shown.map((p,i)=>
+    '<article class="pl-card" id="plc'+i+'">'
+    + '<button class="pl-head" data-i="'+i+'">'
+    +   '<span class="pl-t">'+esc(p.title)+'</span>'
+    +   '<span class="pl-plus">+</span>'
+    + '</button>'
+    + '<div class="pl-body">'
+    +   '<div class="pl-text" id="plP'+i+'">'+esc(p.prompt)+'</div>'
+    +   '<div class="pl-acts">'
+    +     '<button class="pl-btn copy" data-copy="P'+i+'">Copy the whole prompt</button>'
+    +   '</div>'
+    + '</div></article>'
+  ).join('');
 
   list.querySelectorAll('.pl-head').forEach(b=>{
     b.onclick = ()=> $('plc'+b.dataset.i).classList.toggle('open');
