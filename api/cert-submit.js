@@ -105,7 +105,17 @@ export default async function handler(req, res) {
         batch: (d.batches || [])[0] || "",
         score, total, pct,
         attemptId: String(attemptId),
-        issuedAt: FieldValue.serverTimestamp()
+        issuedAt: FieldValue.serverTimestamp(),
+
+        /* featured: kya is student ka naam public safhe par aa sakta hai.
+             null  = abhi poocha nahi
+             true  = haan
+             false = nahi
+
+           Shuru mein null rakhte hain — student khud faisla karta hai
+           (api/cert-feature.js). Har koi apna naam public nahi karna
+           chahta; kuch log apni pehchan chhupa kar kaam karte hain. */
+        featured: null
       }, { merge: false });
 
       /* Student ko portal mein itlaa */

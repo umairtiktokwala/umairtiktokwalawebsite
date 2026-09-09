@@ -102,6 +102,9 @@ export default async function handler(req, res) {
         state: "certified",
         certNo: d.certNo || "",
         score: d.score, total: d.total, pct: d.pct,
+        /* null = ijazat abhi poochi nahi. Portal us soorat mein sawal
+           dikhata hai; true/false par sirf faisla dikhata hai. */
+        featured: (d.featured === true || d.featured === false) ? d.featured : null,
         issuedAt: d.issuedAt ? d.issuedAt.toDate().toISOString() : null
       });
     }
@@ -180,9 +183,6 @@ export default async function handler(req, res) {
     });
 
     const eligible = checks.every(c => c.ok);
-    if (!eligible) {
-      return res.status(200).json({ state: "not_eligible", checks });
-    }
 
     /* ---- Koshishein ---- */
     const attSnap = await db.collection("certificateAttempts")
@@ -192,8 +192,26 @@ export default async function handler(req, res) {
     attSnap.forEach(d => attempts.push({ id: d.id, ...d.data() }));
     attempts.sort((a, b) => (b.startedAt?.toMillis?.() || 0) - (a.startedAt?.toMillis?.() || 0));
 
-    const finished = attempts.filter(a => a.submittedAt);
+    const finished = attempts.filter(a => a.submittedAt && !a.retired);
     const open = attempts.find(a => !a.submittedAt);
+
+    /* 7. Test khud — aakhri qadam.
+       Student ko poora raasta ek jagah nazar aana chahiye, warna wo
+       chhe shartein poori kar ke bhi na jane ke aage kya hai. */
+    const best = finished.length ? Math.max(...finished.map(a => Number(a.score || 0))) : 0;
+    checks.push({
+      key: "test", ok: false,
+      label: "Pass the certificate test",
+      now: !eligible ? "locked"
+         : finished.length ? "best " + best + "/" + QUESTIONS + ", "
+                           + Math.max(0, MAX_ATTEMPTS - finished.length) + " attempt(s) left"
+         : "not started",
+      need: Math.ceil(QUESTIONS * PASS_PCT / 100) + "/" + QUESTIONS
+    });
+
+    if (!eligible) {
+      return res.status(200).json({ state: "not_eligible", checks });
+    }
 
     /* Adhoora test — wahi wapas de dete hain, naye sawal nahi.
        Warna student refresh kar ke aasan sawal dhoond leta. */
@@ -204,7 +222,8 @@ export default async function handler(req, res) {
         questions: open.questions,
         attemptNo: finished.length + 1,
         maxAttempts: MAX_ATTEMPTS,
-        passPct: PASS_PCT
+        passPct: PASS_PCT,
+        checks
       });
     }
 
@@ -217,7 +236,8 @@ export default async function handler(req, res) {
           attempts: finished.length,
           maxAttempts: MAX_ATTEMPTS,
           opensAt: new Date(openAt).toISOString(),
-          best: Math.max(...finished.map(a => Number(a.score || 0)))
+          best,
+          checks
         });
       }
       /* 7 din guzar gaye — purani koshishein band kar dete hain taake
@@ -290,7 +310,8 @@ export default async function handler(req, res) {
       questions: forStudent,
       attemptNo: finished.length + 1,
       maxAttempts: MAX_ATTEMPTS,
-      passPct: PASS_PCT
+      passPct: PASS_PCT,
+      checks
     });
 
   } catch (err) {

@@ -20,6 +20,42 @@
 import { getDb } from "./_firebase.js";
 
 export default async function handler(req, res) {
+
+  /* ---- FEHRIST — public safhe ke liye ----
+     ?list=1 par un logon ki fehrist jinho ne apna naam public karne
+     ki ijazat di hai (featured === true). Baqi kisi ka naam yahan
+     nahi aata.
+
+     Number, uid, attemptId — kuch bhi niji nahi jata. Sirf wo teen
+     cheezein jo certificate par waise bhi chhapi hoti hain. */
+  if (req.query && req.query.list === "1") {
+    try {
+      const db = getDb();
+      const snap = await db.collection("certificates")
+        .where("featured", "==", true).get();
+
+      const rows = [];
+      snap.forEach(d => {
+        const c = d.data();
+        rows.push({
+          certNo: c.certNo || "",
+          name:   c.name || "",
+          batch:  c.batch || "",
+          issuedAt: c.issuedAt ? c.issuedAt.toDate().toISOString() : null
+        });
+      });
+
+      // naye pehle
+      rows.sort((a, b) => String(b.issuedAt || "").localeCompare(String(a.issuedAt || "")));
+
+      return res.status(200).json({ list: rows, total: rows.length });
+    } catch (err) {
+      console.error("CERT LIST ERROR:", err?.message || err);
+      return res.status(500).json({ error: "Could not load the list. Please try again." });
+    }
+  }
+
+  /* ---- EK CERTIFICATE ---- */
   const no = String(
     (req.query && req.query.no) || (req.body && req.body.certNo) || ""
   ).trim().toUpperCase();
