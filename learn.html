@@ -76,6 +76,40 @@ button{font-family:var(--body)}
   background:#16B364;color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;
   text-transform:uppercase;letter-spacing:.1em}
 
+/* ---------- PROMPT LIBRARY ---------- */
+.pl-list{display:flex;flex-direction:column;gap:12px}
+.pl-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pl-head{width:100%;display:flex;align-items:flex-start;gap:13px;padding:17px 19px;
+  background:none;border:0;cursor:pointer;text-align:left;font-family:inherit}
+.pl-cat{font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;padding:4px 9px;border-radius:6px;flex-shrink:0;margin-top:2px;
+  background:var(--soft-purple);color:var(--purple)}
+.pl-t{flex:1;font-family:var(--display);font-size:16px;font-weight:700;line-height:1.35;color:var(--ink)}
+.pl-date{font-size:11px;color:var(--muted);margin-top:3px;font-weight:400;display:block}
+.pl-plus{font-size:21px;color:var(--muted);flex-shrink:0;transition:transform .2s}
+.pl-card.open .pl-plus{transform:rotate(45deg)}
+
+.pl-body{display:none;padding:0 19px 19px}
+.pl-card.open .pl-body{display:block}
+.pl-block{margin-bottom:16px}
+.pl-label{font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);margin-bottom:7px}
+.pl-text{font-size:13.5px;line-height:1.75;color:var(--ink-2);white-space:pre-wrap;
+  background:var(--card-2);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
+.pl-acts{display:flex;gap:8px;flex-wrap:wrap}
+.pl-btn{padding:9px 15px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);
+  font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .14s}
+.pl-btn:hover{border-color:var(--ink-2)}
+.pl-btn.copy{background:var(--ink);border-color:var(--ink);color:#fff}
+.pl-btn.done{background:#16B364;border-color:#16B364;color:#fff}
+
+@media(max-width:560px){
+  .pl-head{padding:15px 16px;gap:10px}
+  .pl-t{font-size:15px}
+  .pl-body{padding:0 16px 16px}
+  .pl-acts .pl-btn{flex:1}
+}
+
 .ct-viewlink{display:block;text-align:center;margin-top:14px;font-size:13.5px;
   font-weight:600;color:var(--purple);text-decoration:none}
 .ct-viewlink:hover{text-decoration:underline}
@@ -694,7 +728,7 @@ button{font-family:var(--body)}
              menu aur "Sign in" ka button na aaye — phone par saaf dikhe.
              Doc mein jo likha jaye wo foran nazar aata hai; site par kuch
              badalne ki zaroorat nahi. -->
-        <a class="snav snav-link" href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i> Prompt Library</a>
+        <button class="snav" data-s="lib"><i class="ti ti-sparkles"></i> Prompt Library</button>
         <button class="snav" data-s="prompts"><i class="ti ti-book"></i> Prompt Book</button>
         <button class="snav" data-s="cert"><i class="ti ti-certificate"></i> Certificate</button>
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
@@ -785,6 +819,26 @@ button{font-family:var(--body)}
           <div class="empty" id="pbkState"><i class="ti ti-loader-2"></i>Loading prompts…</div>
           <div class="pbk-grid" id="pbkGrid" hidden></div>
           <button class="pbk-more" id="pbkMore" hidden>Show more</button>
+        </div>
+
+
+        <!-- ============================================================
+             PROMPT LIBRARY
+             Pehle Google Doc par thi. Masla ye tha ke doc ke naye tab
+             /preview mein nazar hi nahi aate — nayi prompt daalne par
+             portal mein kuch nahi badalta tha.
+
+             Ab sheet se aati hai, jaise Prompt Book. Nayi row daalein,
+             foran nazar aa jati hai.
+             ============================================================ -->
+        <div id="secLib" style="display:none">
+          <div class="pbk-top">
+            <input type="text" id="plSearch" placeholder="Search — by title, category or any word…" autocomplete="off">
+            <div class="pbk-count" id="plCount"></div>
+          </div>
+          <div class="pbk-chips" id="plChips"></div>
+          <div class="empty" id="plState"><i class="ti ti-loader-2"></i>Loading prompts…</div>
+          <div class="pl-list" id="plList" hidden></div>
         </div>
 
         <!-- ===== TASKS SECTION ===== -->
@@ -1079,7 +1133,7 @@ button{font-family:var(--body)}
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
-    <a href="https://docs.google.com/document/d/1ONWcU7SC5Hs0R7qwuChPT_wBoG7RDWErRj3pXhvkTOo/preview" target="_blank" rel="noopener"><i class="ti ti-sparkles"></i>Library</a>
+    <button data-s="lib"><i class="ti ti-sparkles"></i>Library</button>
     <button data-s="prompts"><i class="ti ti-book"></i>Prompts</button>
     <button data-s="cert"><i class="ti ti-certificate"></i>Certificate</button>
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
@@ -2271,7 +2325,8 @@ function switchSection(s, push){
   $('secProfile').style.display = s==='profile'?'block':'none';
   $('secPrompts').style.display = s==='prompts'?'block':'none';
   $('secCert').style.display = s==='cert'?'block':'none';
-  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo'],prompts:['Prompt Book','Search, copy and use — 800+ AI video prompts'],cert:['Certificate','Finish the course, pass the test, get certified']};
+  $('secLib').style.display = s==='lib'?'block':'none';
+  const t={course:['My Course','Pick up where you left off'],tasks:['My Tasks','Submit your work and read feedback'],notes:['Notebook','Your private notes and questions'],earnings:['My Earnings','Submit and track your monthly earnings'],invest:['My Investment','What you put in vs what you earned'],profile:['My Profile','Your details and photo'],prompts:['Prompt Book','Search, copy and use — 800+ AI video prompts'],lib:['Prompt Library','The exact prompts from Umair\'s own videos'],cert:['Certificate','Finish the course, pass the test, get certified']};
   $('pageTitle').textContent=t[s][0]; $('pageSub').textContent=t[s][1];
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{
     if(b.dataset.s)b.classList.toggle('on',b.dataset.s===s);
@@ -2285,6 +2340,7 @@ function switchSection(s, push){
   /* Certificate ka safha har dafa taza — shartein badalti rehti hain
      (ghante, din, task approve hona) */
   if(s==='cert') loadCert();
+  if(s==='lib') loadLibrary();
 
   if(push !== false){
     try{
@@ -2529,6 +2585,140 @@ async function loadCert(){
     ctShow('ctLoad');
   }
 }
+
+/* ===================================================================
+   PROMPT LIBRARY — sheet se
+
+   Sheet ke column:
+     A Title · B Category · C Prompt · D Voiceover · E Audio
+     F Notes · G Date
+
+   Pehle ye Google Doc par thi. Masla ye tha ke doc ke naye tab
+   /preview mein nazar nahi aate — nayi prompt daalne par portal mein
+   kuch nahi badalta tha. Ab sheet se aati hai, jaise Prompt Book.
+   =================================================================== */
+
+const PL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRXeB3xobYOPh23f2_z0fS_sOR82-OHOa2vsbjeb0tL-XQKgwVAhCKt3543HtwxLgMWOI_UYcwiCx-6/pub?output=csv';
+
+let PL_ALL = [], PL_CAT = 'All', PL_Q = '', PL_LOADED = false;
+
+async function loadLibrary(){
+  if(PL_LOADED) return;
+  const state = $('plState');
+  try{
+    const res = await fetch(freshCsv(PL_CSV), { cache:'no-store' });
+    if(!res.ok) throw new Error(res.status);
+    const rows = parseCSV(await res.text()).slice(1);
+
+    PL_ALL = rows.map(r => ({
+      title: (r[0]||'').trim(),
+      cat:   (r[1]||'').trim(),
+      prompt:(r[2]||'').trim(),
+      vo:    (r[3]||'').trim(),
+      audio: (r[4]||'').trim(),
+      notes: (r[5]||'').trim(),
+      date:  (r[6]||'').trim()
+    })).filter(p => p.title && p.prompt);
+
+    if(!PL_ALL.length){
+      state.innerHTML = '<i class="ti ti-mood-empty"></i>No prompts yet.';
+      return;
+    }
+    PL_LOADED = true;
+    plChips();
+    plRender();
+  }catch(e){
+    state.innerHTML = '<i class="ti ti-alert-triangle"></i>Could not load the library. Check your connection and try again.';
+  }
+}
+
+function plChips(){
+  const cats = ['All', ...new Set(PL_ALL.map(p => p.cat).filter(Boolean))];
+  const bar = $('plChips');
+  bar.innerHTML = cats.map(c =>
+    '<button class="pbk-chip'+(c==='All'?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'
+  ).join('');
+  bar.querySelectorAll('.pbk-chip').forEach(b=>{
+    b.onclick = ()=>{
+      bar.querySelectorAll('.pbk-chip').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      PL_CAT = b.dataset.c;
+      plRender();
+    };
+  });
+}
+
+function plRender(){
+  const list = $('plList'), state = $('plState'), count = $('plCount');
+  const q = PL_Q.trim().toLowerCase();
+
+  const shown = PL_ALL.filter(p=>{
+    if(PL_CAT !== 'All' && p.cat !== PL_CAT) return false;
+    if(!q) return true;
+    return (p.title+' '+p.cat+' '+p.prompt+' '+p.vo+' '+p.notes).toLowerCase().includes(q);
+  });
+
+  count.textContent = q && shown.length
+    ? shown.length + (shown.length===1 ? ' prompt found' : ' prompts found') : '';
+
+  if(!shown.length){
+    list.hidden = true; state.hidden = false;
+    state.innerHTML = '<i class="ti ti-search-off"></i>'
+      + (q ? 'No prompts match that. Try a different word.' : 'Nothing in this category yet.');
+    return;
+  }
+
+  state.hidden = true; list.hidden = false;
+  list.innerHTML = shown.map((p,i)=>{
+    const block = (label, text, key) => text
+      ? '<div class="pl-block"><div class="pl-label">'+label+'</div>'
+        + '<div class="pl-text" id="pl'+key+i+'">'+esc(text)+'</div></div>'
+      : '';
+    return '<article class="pl-card" id="plc'+i+'">'
+      + '<button class="pl-head" data-i="'+i+'">'
+      +   (p.cat ? '<span class="pl-cat">'+esc(p.cat)+'</span>' : '')
+      +   '<span class="pl-t">'+esc(p.title)
+      +     (p.date ? '<span class="pl-date">'+esc(p.date)+'</span>' : '')
+      +   '</span>'
+      +   '<span class="pl-plus">+</span>'
+      + '</button>'
+      + '<div class="pl-body">'
+      +   block('Prompt',    p.prompt, 'P')
+      +   block('Voiceover', p.vo,     'V')
+      +   block('Audio',     p.audio,  'A')
+      +   block('Notes',     p.notes,  'N')
+      +   '<div class="pl-acts">'
+      +     '<button class="pl-btn copy" data-copy="P'+i+'">Copy prompt</button>'
+      +     (p.vo ? '<button class="pl-btn" data-copy="V'+i+'">Copy voiceover</button>' : '')
+      +   '</div>'
+      + '</div></article>';
+  }).join('');
+
+  list.querySelectorAll('.pl-head').forEach(b=>{
+    b.onclick = ()=> $('plc'+b.dataset.i).classList.toggle('open');
+  });
+
+  list.querySelectorAll('[data-copy]').forEach(b=>{
+    b.onclick = async ()=>{
+      const el = $('pl'+b.dataset.copy);
+      if(!el) return;
+      const was = b.textContent;
+      try{
+        await navigator.clipboard.writeText(el.textContent);
+      }catch(e){
+        /* Purane browser ya bina https ke clipboard nahi chalta —
+           us soorat mein matn select kar dete hain taake student
+           khud copy kar sake. */
+        const r = document.createRange(); r.selectNodeContents(el);
+        const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      }
+      b.textContent = 'Copied'; b.classList.add('done');
+      setTimeout(()=>{ b.textContent = was; b.classList.remove('done'); }, 1400);
+    };
+  });
+}
+
+$('plSearch').oninput = e => { PL_Q = e.target.value; plRender(); };
 
 function ctChecks(list){
   if(!Array.isArray(list)) return;
