@@ -1215,10 +1215,31 @@ function mergeConvos() {
     }
   }
 
+  /* ---------- TARTEEB ----------
+     Pehle sirf "naya message upar" tha. Us se masla ye tha ke koi banda
+     2 ghante se jawab ka muntazir ho, phir 10 nayi chats aa jayein, to wo
+     purana banda neeche dhakel diya jata tha.
+
+     Ab do hisse hain:
+       1. WAITING chats sab se upar (assigned + unassigned dono, mila kar)
+          — in mein sab se ZYADA der se intezar karne wala sab se upar
+       2. Baqi sab neeche — pehle ki tarah naya message upar
+
+     isWaiting() = unread baqi hai YA awaitingReply true hai (neeche define hai). */
   const next = [...byId.values()].sort((a, b) => {
+    const wa = isWaiting(a), wb = isWaiting(b);
+    if (wa !== wb) return wa ? -1 : 1;          // waiting hamesha upar
+
     const ta = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : 0;
     const tb = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : 0;
-    return tb - ta;
+
+    if (wa) {
+      // Purana message pehle = sab se lamba intezar sab se upar.
+      // Jis chat par timestamp hi nahi, usay waiting hisse ke aakhir mein
+      // rakhte hain (warna wo ghalti se sab se upar aa jati).
+      return (ta || Infinity) - (tb || Infinity);
+    }
+    return tb - ta;                             // baqi: naya message upar
   });
 
   // Naye messages ka pata lagana (notification ke liye)
