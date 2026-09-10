@@ -162,6 +162,16 @@
   }
   .cm-filters button.active{background:var(--brand1);border-color:var(--brand1);color:#fff}
   .cm-list{max-width:820px;margin:0 auto}
+  /* Page ke chips ki qatar — chats aur comments dono mein */
+  .cm-pages{margin-top:7px}
+  .chip-n{
+    display:inline-block;margin-left:4px;padding:0 5px;border-radius:99px;
+    background:rgba(0,0,0,.08);font-size:10px;font-weight:700;line-height:15px;
+    vertical-align:middle;
+  }
+  .filters button.active .chip-n,
+  .cm-filters button.active .chip-n{background:rgba(255,255,255,.28)}
+
   /* ---------- COMMENT KE SAATH POST ---------- */
   .cm-post{
     display:flex;gap:11px;align-items:flex-start;margin:10px 0 12px;
@@ -705,6 +715,8 @@
         <button data-s="tiktok">TikTok</button>
         <button data-s="wa">WhatsApp</button>
         <button data-s="messenger">Messenger</button>
+        <!-- Har Facebook page ka apna chip — neeche JS se bharte hain -->
+        <span id="chatPages"></span>
       </div>
       <div class="filters filters-3">
         <select id="batchFilter" class="mini-select">
@@ -753,6 +765,13 @@
           <button data-c="dm">DM sent</button>
           <button data-c="hidden">Hidden</button>
         </div>
+
+        <!-- Page ke chips. Do qatarein is liye ke dono cheezein saath
+             chal sakein — jaise "Main" + "New", ya "Backup" + "Replied".
+             Ek hi qatar mein ye mumkin nahi hota.
+             Ye chips khud ba khud bante hain, is liye teesra page aane
+             par bhi kuch badalna nahi paRega. -->
+        <div class="cm-filters cm-pages" id="cmPages"></div>
       </div>
       <div class="cm-list" id="cmList">
         <div class="empty">Loading&hellip;</div>
@@ -981,6 +1000,7 @@ onAuthStateChanged(auth, async (user) => {
       b.onclick = () => {
         cmFilter = b.getAttribute("data-c");
         $("cmFilters").querySelectorAll("button").forEach(x => x.classList.remove("active"));
+        /* Sirf pehli qatar — page wale chips apni jagah rehne dein */
         b.classList.add("active");
         renderComments();
       };
@@ -1512,6 +1532,11 @@ function filteredConvos() {
     if (studentFilter === "wa" && isMessenger(c)) return false;
     if (studentFilter === "messenger" && !isMessenger(c)) return false;
 
+    // Kisi ek Facebook page ki chats
+    if (studentFilter.indexOf("page:") === 0) {
+      if ((c.pageId || "") !== studentFilter.slice(5)) return false;
+    }
+
     if (studentFilter === "paid" && !isPaid(c)) return false;
     if (studentFilter === "free" && isPaid(c)) return false;
     if (studentFilter === "facebook" && !coursesOf(c).includes("facebook")) return false;
@@ -1529,6 +1554,7 @@ function filteredConvos() {
 
 function renderList() {
   const list = $("convoList");
+  renderChatPages();        // page ke chips aur un ki ginti taza
   const shown = filteredConvos();
 
   if (!shown.length) {
@@ -3261,6 +3287,7 @@ function statCard(num, label) {
 // ============================================================
 let comments = [];
 let cmFilter = "all";
+let cmPage = "all";        // kaunsa Facebook page — "all" ya page ka ID
 let unsubComments = null;
 let cmOpenBox = {};          // kaun sa box khula hai: { commentId: "reply" | "dm" }
 let activeTab = "chats";
@@ -3289,12 +3316,89 @@ function updateCmPill() {
 
 function filteredComments() {
   return comments.filter(c => {
+    // Page ka filter sab se pehle — baqi shartein us ke andar lagti hain
+    if (cmPage !== "all" && (c.pageId || "") !== cmPage) return false;
+
     if (cmFilter === "hidden") return c.hidden === true;
     if (c.status === "deleted") return false;
     if (cmFilter === "new") return (c.unread || 0) > 0 && c.status !== "replied";
     if (cmFilter === "replied") return c.status === "replied";
     if (cmFilter === "dm") return c.privateReplySent === true;
     return true;
+  });
+}
+
+/* ---------- PAGE KE CHIPS ----------
+   Pages ki fehrist data se khud banti hai — kahin likhi hui nahi.
+   Teesra page jorein to us ka chip apne aap aa jayega.
+
+   Har chip par ginti bhi — us se ek nazar mein pata chal jata hai ke
+   kaunse page par kitna kaam paRa hai. */
+
+function pagesFrom(items) {
+  const map = new Map();
+  items.forEach(x => {
+    const id = x.pageId || "";
+    if (!id) return;
+    if (!map.has(id)) map.set(id, { id, name: x.pageName || "", n: 0 });
+    const p = map.get(id);
+    p.n++;
+    if (!p.name && x.pageName) p.name = x.pageName;
+  });
+  return [...map.values()].sort((a, b) => b.n - a.n);
+}
+
+function renderCmPages() {
+  const box = $("cmPages");
+  if (!box) return;
+
+  /* Deleted chhoR dete hain — wo kisi filter mein nazar nahi aate,
+     is liye ginti mein bhi nahi hone chahiyen */
+  const live = comments.filter(c => c.status !== "deleted");
+  const pages = pagesFrom(live);
+
+  // Ek hi page ho to chips ka koi faida nahi
+  if (pages.length < 2) { box.innerHTML = ""; return; }
+
+  box.innerHTML =
+    '<button data-p="all"' + (cmPage === "all" ? ' class="active"' : '') + '>' +
+      'All pages <span class="chip-n">' + live.length + '</span></button>' +
+    pages.map(p =>
+      '<button data-p="' + esc(p.id) + '"' + (cmPage === p.id ? ' class="active"' : '') + '>' +
+        esc(p.name || p.id) + ' <span class="chip-n">' + p.n + '</span></button>'
+    ).join("");
+
+  box.querySelectorAll("button").forEach(b => {
+    b.onclick = () => {
+      cmPage = b.getAttribute("data-p");
+      renderCmPages();
+      renderComments();
+    };
+  });
+}
+
+function renderChatPages() {
+  const box = $("chatPages");
+  if (!box) return;
+
+  const live = convos.filter(c => isMessenger(c) && c.status !== "resolved");
+  const pages = pagesFrom(live);
+
+  if (pages.length < 2) { box.innerHTML = ""; return; }
+
+  box.innerHTML = pages.map(p =>
+    '<button data-s="page:' + esc(p.id) + '"' +
+      (studentFilter === "page:" + p.id ? ' class="active"' : '') + '>' +
+      esc(p.name || p.id) + ' <span class="chip-n">' + p.n + '</span></button>'
+  ).join("");
+
+  box.querySelectorAll("button").forEach(b => {
+    b.onclick = () => {
+      studentFilter = b.getAttribute("data-s");
+      $("filters2").querySelectorAll("button").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      renderList();
+    };
   });
 }
 
@@ -3328,6 +3432,7 @@ function postCard(c) {
 function renderComments() {
   const el = $("cmList");
   if (!el) return;
+  renderCmPages();          // chips aur un ki ginti taza
   const rows = filteredComments();
 
   if (!rows.length) {
