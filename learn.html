@@ -1718,6 +1718,7 @@ async function loadTime(){
    Ab wo nishan students ki list ke saath hi aa jata hai — koi extra
    query nahi. Wahi tarkeeb jo courseStats ke liye istemal ki thi. */
 let LAST_SEEN_WRITTEN = '';
+let LAST_PING = 0;
 
 async function addTime(sec){
   if(!ME||sec<5) return;
@@ -1725,10 +1726,23 @@ async function addTime(sec){
   const k=todayKey(); DAYS[k]=(DAYS[k]||0)+sec; paintTime();
   try{ await setDoc(doc(db,'students',ME.uid,'days',k),{seconds:DAYS[k],at:serverTimestamp()}); }catch(e){}
 
-  // Din badalne par hi likhte hain — har minute nahi, warna
-  // ek student ke rozana 60+ be-faida writes chale jayenge.
-  if(LAST_SEEN_WRITTEN !== k){
+  /* lastSeen (tareekh) din badalne par likhte hain.
+     lastSeenAt (poora waqt) har teen minute — us se admin dekh sakta
+     hai ke is waqt kaun online hai.
+
+     Teen minute is liye ke har minute likhne se ek student ke rozana
+     60+ writes chale jate. Teen minute par wo 20 reh jate hain, aur
+     "abhi online" ka andaza phir bhi theek rehta hai.
+
+     Sirf tab likhte hain jab safha samne khula ho — background mein
+     paRa tab writes zaya karta hai. */
+  const now = Date.now();
+  const dayChanged = (LAST_SEEN_WRITTEN !== k);
+  const stale = (now - LAST_PING) > 3*60*1000;
+
+  if(dayChanged || (stale && !document.hidden)){
     LAST_SEEN_WRITTEN = k;
+    LAST_PING = now;
     try{ await updateDoc(doc(db,'students',ME.uid),{lastSeen:k,lastSeenAt:serverTimestamp()}); }catch(e){}
   }
 }

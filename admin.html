@@ -140,6 +140,35 @@ button{font-family:var(--body)}
 .stf-sel{padding:9px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--card);font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
 
 
+/* ---------- IS WAQT ONLINE ----------
+   Student portal har 3 minute apna lastSeenAt likhta hai. Yahan wo
+   students ginte hain jin ka lastSeenAt pichle 5 minute mein hai.
+
+   5 minute is liye ke 3 minute ke ping mein thora farq aa sakta hai —
+   internet ruk jaye ya safha thori der background mein rahe. */
+.live{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.live-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#16B364;flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(22,179,100,.55);animation:livePulse 2s infinite}
+@keyframes livePulse{
+  0%{box-shadow:0 0 0 0 rgba(22,179,100,.5)}
+  70%{box-shadow:0 0 0 9px rgba(22,179,100,0)}
+  100%{box-shadow:0 0 0 0 rgba(22,179,100,0)}
+}
+.live-n{font-family:var(--display);font-size:26px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.live-t{font-size:13px;color:var(--muted)}
+.live-when{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted-2)}
+.live-batches{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.live-b{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;
+  background:var(--card-2);font-size:12px;color:var(--ink-2)}
+.live-b b{font-weight:700}
+.live-none{font-size:12.5px;color:var(--muted);margin-top:10px}
+
+@media(max-width:560px){
+  .live-when{margin-left:0;width:100%}
+}
+
 /* ---------- CERTIFICATES ---------- */
 .cert-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;padding:15px 18px}
 .cert-nm{font-family:var(--display);font-size:15.5px;font-weight:700;color:var(--ink)}
@@ -549,6 +578,17 @@ button{font-family:var(--body)}
             <span class="stf-count" id="stCount"></span>
           </div>
 
+          <!-- Is waqt kaun online hai. Har 30 second khud taza hota hai. -->
+          <div class="live" id="liveBox">
+            <div class="live-head">
+              <span class="live-dot"></span>
+              <span class="live-n" id="liveN">—</span>
+              <span class="live-t">online right now</span>
+              <span class="live-when" id="liveWhen"></span>
+            </div>
+            <div class="live-batches" id="liveBatches"></div>
+          </div>
+
           <div class="act" id="stAct"></div>
 
           <div class="pctbar" id="stPctBar"></div>
@@ -674,7 +714,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs,
-  query, where, serverTimestamp
+  query, where, serverTimestamp, Timestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -905,6 +945,7 @@ function switchSection(s){
   $('secStudents').style.display=s==='students'?'block':'none';
   $('secAnnounce').style.display=s==='announce'?'block':'none';
   $('secCerts').style.display=s==='certs'?'block':'none';
+  liveWatch(s==='students');   // sirf Students tab par live ginti
   const t={review:['Review','Tasks waiting for your feedback'],earnings:['Earning Submissions','Approve, reject or request correction'],students:['Students','Everyone enrolled — search, track, manage'],announce:['Announcements','Post messages to your students'],certs:['Certificates','Who passed the test, and who is still trying']};
   $('pageTitle').textContent=t[s][0]; $('pageSub').textContent=t[s][1];
   document.querySelectorAll('#sideNav .snav, #mnav button').forEach(b=>{ if(b.dataset.s) b.classList.toggle('on',b.dataset.s===s); });
@@ -953,6 +994,63 @@ function render(){
 }
 
 
+
+/* ===== IS WAQT KAUN ONLINE =====
+   Student portal har 3 minute apna lastSeenAt likhta hai. Yahan un ko
+   ginte hain jin ka lastSeenAt pichle 5 minute mein hai.
+
+   Poori students collection dobara nahi uthate — sirf wo jo abhi
+   online hain. 1,060 students har 30 second parhna mehanga bhi hai
+   aur be-faida bhi. */
+
+let LIVE_TIMER = null;
+
+async function loadLive(){
+  const n = $('liveN'), b = $('liveBatches'), w = $('liveWhen');
+  if(!n) return;
+
+  try{
+    const cut = Timestamp.fromMillis(Date.now() - 5*60*1000);
+    const snap = await getDocs(query(
+      collection(db,'students'),
+      where('lastSeenAt', '>', cut)
+    ));
+
+    const byBatch = {};
+    let total = 0;
+    snap.forEach(d=>{
+      const s = d.data() || {};
+      if(s.suspended === true) return;
+      total++;
+      const bt = (s.batches||[]).slice(-1)[0] || '—';
+      byBatch[bt] = (byBatch[bt]||0) + 1;
+    });
+
+    n.textContent = total;
+    w.textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+    const keys = Object.keys(byBatch).sort((x,y)=>byBatch[y]-byBatch[x]);
+    b.innerHTML = keys.length
+      ? keys.map(k=>`<span class="live-b"><b>${byBatch[k]}</b> ${esc(batchLabel(k))}</span>`).join('')
+      : '<div class="live-none">Koi student is waqt portal par nahi hai.</div>';
+
+  }catch(e){
+    /* Index na bana ho to Firestore mana kar deta hai. Console mein
+       Google ka link aata hai — us par click kar ke index ban jata hai. */
+    n.textContent = '—';
+    b.innerHTML = '<div class="live-none">Live count nahi mila. Browser console (F12) kholein — agar wahan "index" ka zikr ho to us link par click kar ke index bana dein.</div>';
+    console.error('LIVE COUNT:', e?.message || e);
+  }
+}
+
+/* Sirf Students wale tab par chalta hai — baqi jagah be-faida reads
+   hote rehte. */
+function liveWatch(on){
+  if(LIVE_TIMER){ clearInterval(LIVE_TIMER); LIVE_TIMER = null; }
+  if(!on) return;
+  loadLive();
+  LIVE_TIMER = setInterval(loadLive, 30*1000);
+}
 
 /* ===== CERTIFICATES =====
    Sirf dikhane ke liye. Certificate sirf server banata hai
