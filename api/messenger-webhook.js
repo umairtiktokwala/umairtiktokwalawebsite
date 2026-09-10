@@ -1,31 +1,88 @@
 // ============================================================
-//  FACEBOOK MESSENGER WEBHOOK  —  PHASE 1 (sirf receive)
+//  FACEBOOK MESSENGER WEBHOOK
 //
-//  Meta yahan Facebook Page ke messages bhejta hai. Ye file:
-//   1. Message ko Firestore mein save karti hai (wohi conversations collection)
-//   2. Bhejne wale ka naam Graph API se le kar rakhti hai
-//   3. Page se bheje gaye messages (echo) bhi save karti hai
+//  Meta yahan Facebook Pages ke messages aur comments bhejta hai.
 //
-//  PHASE 1 mein ye file KUCH BHEJTI NAHI — na welcome, na keyword reply.
-//  Reply bhejna Phase 2 mein aayega (api/messenger-send.js).
+//  ---- IS DAFA KYA BADLA ----
 //
-//  Zaroori Environment Variables (Vercel mein):
-//    MESSENGER_PAGE_TOKEN    = Page Access Token
-//    MESSENGER_PAGE_ID       = Facebook Page ID
-//    MESSENGER_VERIFY_TOKEN  = utw2026   (na ho to WHATSAPP_VERIFY_TOKEN chalega)
+//  1. AB DO (YA ZYADA) PAGES CHALTE HAIN
+//     Pehle sirf MESSENGER_PAGE_ID wale page ke events liye jate the,
+//     baqi sab pheink diye jate the. Ab har us page ka kaam hota hai
+//     jis ka token neeche PAGES mein maujood ho.
+//
+//  2. HAR PAGE KA APNA TOKEN
+//     Har Facebook page ka apna alag token hota hai. Naam nikalna ya
+//     post ki tafseel lana — sab usi page ke token se hota hai.
+//
+//  3. COMMENT KE SAATH POST BHI
+//     Pehle sirf status_type mehfooz hota tha (jaise "added_photos"),
+//     jo team ke liye be-faida tha. Ab post ka asal matn, tasveer,
+//     tareekh aur link bhi aata hai — taake team ko pata ho ke
+//     comment KIS post par aaya hai.
+//
+//  ---- VERCEL MEIN YE VARIABLES ----
+//    MESSENGER_PAGE_ID       = pehle page ka ID
+//    MESSENGER_PAGE_TOKEN    = pehle page ka token
+//    MESSENGER_PAGE_NAME     = pehle page ka chhota naam (marzi)
+//
+//    MESSENGER_PAGE_ID_2     = doosre page ka ID
+//    MESSENGER_PAGE_TOKEN_2  = doosre page ka token
+//    MESSENGER_PAGE_NAME_2   = doosre page ka chhota naam (marzi)
+//
+//    MESSENGER_VERIFY_TOKEN  = utw2026
+//
+//  Teesra page aage jorna ho to _3 laga kar wahi teen variable
+//  daal dein — code khud utha lega.
 // ============================================================
 
 import { getDb } from "./_firebase.js";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const RETENTION_DAYS = 30;
-
-// Messenger ki conversation ID ese banti hai: fb_<PSID>
-// (WhatsApp wali ID sirf 10 digit ki hoti hai, is liye kabhi takraav nahi hoga)
 const PREFIX = "fb_";
 
+/* ============================================================
+   PAGES KI FEHRIST
+   Environment se banti hai. Pehla bina number ke, baqi _2, _3…
+   ============================================================ */
+function loadPages() {
+  const out = {};
+
+  const add = (id, token, name) => {
+    if (!id || !token) return;
+    out[String(id).trim()] = {
+      token: String(token).trim(),
+      name: (name || "").trim()
+    };
+  };
+
+  add(process.env.MESSENGER_PAGE_ID,
+      process.env.MESSENGER_PAGE_TOKEN,
+      process.env.MESSENGER_PAGE_NAME);
+
+  for (let i = 2; i <= 6; i++) {
+    add(process.env["MESSENGER_PAGE_ID_" + i],
+        process.env["MESSENGER_PAGE_TOKEN_" + i],
+        process.env["MESSENGER_PAGE_NAME_" + i]);
+  }
+
+  return out;
+}
+
+const PAGES = loadPages();
+
+function tokenFor(pageId) {
+  const p = PAGES[String(pageId)];
+  return p ? p.token : "";
+}
+
+function nameFor(pageId) {
+  const p = PAGES[String(pageId)];
+  return p && p.name ? p.name : "";
+}
+
 export default async function handler(req, res) {
-  // ---- Meta ki verification (sirf webhook set karte waqt chalti hai) ----
+  // ---- Meta ki verification (sirf webhook set karte waqt) ----
   if (req.method === "GET") {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
@@ -43,7 +100,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Kaam pehle mukammal karein, phir Meta ko jawab dein.
   try {
     await processWebhook(req.body);
   } catch (err) {
@@ -62,12 +118,14 @@ async function processWebhook(body) {
 
   const entries = Array.isArray(body.entry) ? body.entry : [];
   const db = getDb();
-  const myPageId = process.env.MESSENGER_PAGE_ID || "";
 
   for (const entry of entries) {
-    // Sirf apni page ke events lein
-    if (myPageId && String(entry.id) !== String(myPageId)) {
-      console.log("Messenger: doosri page ka event, chhoR diya:", entry.id);
+    const pageId = String(entry.id || "");
+
+    /* Sirf apne pages ke events. Pehle ek hi page qubool hota tha —
+       ab har wo page jis ka token maujood hai. */
+    if (!PAGES[pageId]) {
+      console.log("Messenger: is page ka token nahi hai, chhoR diya:", pageId);
       continue;
     }
 
@@ -76,25 +134,24 @@ async function processWebhook(body) {
     for (const ch of changes) {
       if (ch.field !== "feed") continue;
       try {
-        await handleFeed(db, ch.value, entry.id);
+        await handleFeed(db, ch.value, pageId);
       } catch (e) {
         console.error("Feed event skipped:", e.message);
       }
     }
 
     const events = Array.isArray(entry.messaging) ? entry.messaging : [];
-    console.log("Messenger webhook: events =", events.length, "| feed changes =", changes.length);
+    console.log("Messenger:", pageId, "| events:", events.length, "| feed:", changes.length);
 
     for (const ev of events) {
       try {
         if (ev.message && ev.message.is_echo) {
-          await handleEcho(db, ev);
+          await handleEcho(db, ev, pageId);
         } else if (ev.message) {
-          await handleIncoming(db, ev);
+          await handleIncoming(db, ev, pageId);
         } else if (ev.postback) {
-          await handlePostback(db, ev);
+          await handlePostback(db, ev, pageId);
         }
-        // delivery / read events abhi nazar-andaz — Phase 2 mein
       } catch (e) {
         console.error("Messenger event skipped:", e.message);
       }
@@ -105,11 +162,20 @@ async function processWebhook(body) {
 // ============================================================
 //  Student ka message aaya
 // ============================================================
-async function handleIncoming(db, ev) {
+async function handleIncoming(db, ev, entryPageId) {
   const psid = ev.sender && ev.sender.id;
   if (!psid) return;
 
-  const pageId = (ev.recipient && ev.recipient.id) || process.env.MESSENGER_PAGE_ID || "";
+  const pageId = String((ev.recipient && ev.recipient.id) || entryPageId || "");
+
+  /* Conversation ki ID wahi purani — fb_<PSID>.
+
+     Badalne ki zaroorat nahi: Meta har page ke liye ALAG PSID deta
+     hai. Ek hi banda dono pages ko message kare to us ke do alag
+     PSID honge, is liye takrao ho hi nahi sakta.
+
+     Aur badalne se nuqsan hota: maujooda saari Messenger chats ki ID
+     alag ho jati aur wo dashboard se gum ho jatin. */
   const convoId = PREFIX + psid;
   const convoRef = db.collection("conversations").doc(convoId);
   const convoSnap = await convoRef.get();
@@ -119,17 +185,16 @@ async function handleIncoming(db, ev) {
   const parsed = parseMessage(ev.message);
   const now = new Date();
 
-  // ---- Bhejne wale ka naam (sirf pehli baar) ----
   let displayName = prev.displayName || "";
   if (!displayName) {
-    displayName = await fetchProfileName(psid);
+    displayName = await fetchProfileName(psid, pageId);
   }
 
-  // ---- Conversation update ----
   const convoData = {
-    channel: "messenger",           // <-- isi se dashboard pehchanta hai
+    channel: "messenger",
     psid: psid,
     pageId: pageId,
+    pageName: nameFor(pageId),      // inbox mein nishan ke liye
     displayName: displayName || prev.displayName || "",
     lastMessage: parsed.preview.slice(0, 120),
     lastMessageAt: now,
@@ -144,15 +209,14 @@ async function handleIncoming(db, ev) {
   await convoRef.set(convoData, { merge: true });
   console.log("Messenger saved convo:", convoId, "first:", isFirstEver);
 
-  // ---- Message save ----
   await convoRef.collection("messages").add({
     direction: "in",
     channel: "messenger",
     type: parsed.type,
     text: parsed.text,
     waMessageId: (ev.message && ev.message.mid) || null,
-    mediaUrlDirect: parsed.mediaUrlDirect,   // Messenger ka apna CDN link
-    mediaId: null,                            // Messenger mein media ID nahi hoti
+    mediaUrlDirect: parsed.mediaUrlDirect,
+    mediaId: null,
     mimeType: null,
     filename: parsed.filename,
     timestamp: now,
@@ -162,22 +226,21 @@ async function handleIncoming(db, ev) {
 
 // ============================================================
 //  Page ki taraf se gaya message (echo)
-//  Ye tab aata hai jab koi Meta Business Suite / Page inbox se reply kare,
-//  ya jab hum khud API se bhejen (Phase 2).
 // ============================================================
-async function handleEcho(db, ev) {
-  const psid = ev.recipient && ev.recipient.id;   // echo mein recipient = student
+async function handleEcho(db, ev, entryPageId) {
+  const psid = ev.recipient && ev.recipient.id;
   if (!psid) return;
 
+  const pageId = String((ev.sender && ev.sender.id) || entryPageId || "");
   const convoId = PREFIX + psid;
   const convoRef = db.collection("conversations").doc(convoId);
   const convoSnap = await convoRef.get();
-  if (!convoSnap.exists) return;   // pehle student ka message aana chahiye
+  if (!convoSnap.exists) return;
 
   const prev = convoSnap.data() || {};
   const mid = (ev.message && ev.message.mid) || null;
 
-  // Ek hi message do baar save na ho (API se bheja hua message bhi echo ban kar wapas aata hai)
+  // Ek hi message do baar save na ho
   if (mid) {
     const dup = await convoRef
       .collection("messages")
@@ -185,7 +248,7 @@ async function handleEcho(db, ev) {
       .limit(1)
       .get();
     if (!dup.empty) {
-      console.log("Messenger echo pehle se maujood, chhoR diya:", mid);
+      console.log("Messenger echo pehle se maujood:", mid);
       return;
     }
   }
@@ -203,7 +266,7 @@ async function handleEcho(db, ev) {
     mediaId: null,
     mimeType: null,
     filename: parsed.filename,
-    sentBy: "page-inbox",           // Meta Business Suite se gaya
+    sentBy: "page-inbox",
     status: "sent",
     timestamp: now,
     expiresAt: new Date(now.getTime() + RETENTION_DAYS * 24 * 60 * 60 * 1000),
@@ -219,9 +282,9 @@ async function handleEcho(db, ev) {
 }
 
 // ============================================================
-//  Button dabaya (Get Started wagera)
+//  Button dabaya
 // ============================================================
-async function handlePostback(db, ev) {
+async function handlePostback(db, ev, pageId) {
   const psid = ev.sender && ev.sender.id;
   if (!psid) return;
 
@@ -230,7 +293,7 @@ async function handlePostback(db, ev) {
     sender: ev.sender,
     recipient: ev.recipient,
     message: { mid: (ev.postback && ev.postback.mid) || null, text: title },
-  });
+  }, pageId);
 }
 
 // ============================================================
@@ -263,11 +326,10 @@ function parseMessage(message) {
     } else if (att.type === "location") {
       out.type = "location";
     } else {
-      out.type = "attachment";       // fallback / share / template
+      out.type = "attachment";
     }
   }
 
-  // List mein dikhane ke liye chhota sa label
   let preview = out.text;
   if (!preview) {
     if (out.type === "image") preview = "\uD83D\uDCF7 Image";
@@ -289,14 +351,12 @@ function parseMessage(message) {
 }
 
 // ============================================================
-//  Naam nikalna — Graph API se
-//  (App development mode mein sirf testers ka naam milta hai,
-//   baqi ke liye khali aayega — koi masla nahi)
+//  Naam nikalna — usi page ke token se
 // ============================================================
-async function fetchProfileName(psid) {
-  const token = process.env.MESSENGER_PAGE_TOKEN;
+async function fetchProfileName(psid, pageId) {
+  const token = tokenFor(pageId);
   if (!token) {
-    console.log("MESSENGER_PAGE_TOKEN nahi mila — naam skip");
+    console.log("Is page ka token nahi mila, naam skip:", pageId);
     return "";
   }
   try {
@@ -315,13 +375,64 @@ async function fetchProfileName(psid) {
 }
 
 // ============================================================
-//  COMMENTS  —  page ke post pe kisi ne comment kiya
-//  Webhook field: feed
+//  POST KI TAFSEEL
+//
+//  Comment ke saath Meta sirf post ka ID bhejta hai. Team ko us se
+//  kuch pata nahi chalta ke comment kis cheez par aaya.
+//
+//  Ye function post ka asal matn, tasveer, tareekh aur link laata
+//  hai — sab usi page ke token se.
+//
+//  Ek post par bees comment aa sakte hain, is liye ek dafa lane ke
+//  baad us ko yaad rakh lete hain (CACHE). Har comment par dobara
+//  Graph API call karna waqt aur kharcha dono zaya karta hai.
+// ============================================================
+const POST_CACHE = new Map();
+
+async function fetchPost(postId, pageId) {
+  if (!postId) return null;
+
+  const key = pageId + ":" + postId;
+  if (POST_CACHE.has(key)) return POST_CACHE.get(key);
+
+  const token = tokenFor(pageId);
+  if (!token) return null;
+
+  try {
+    const fields = "message,story,permalink_url,created_time,full_picture,attachments{type,title}";
+    const url = `${GRAPH}/${postId}?fields=${fields}&access_token=${encodeURIComponent(token)}`;
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!r.ok) {
+      console.log("Post nahi mila:", postId, JSON.stringify(d).slice(0, 200));
+      POST_CACHE.set(key, null);
+      return null;
+    }
+
+    const att = d.attachments && d.attachments.data && d.attachments.data[0];
+    const out = {
+      postMessage: (d.message || d.story || "").slice(0, 600),
+      postPermalink: d.permalink_url || null,
+      postImage: d.full_picture || null,
+      postType: (att && att.type) || null,
+      postCreatedAt: d.created_time ? new Date(d.created_time) : null,
+    };
+
+    POST_CACHE.set(key, out);
+    return out;
+  } catch (e) {
+    console.log("Post fetch error:", e.message);
+    return null;
+  }
+}
+
+// ============================================================
+//  COMMENTS — page ke post par kisi ne comment kiya
 // ============================================================
 async function handleFeed(db, v, pageId) {
   if (!v) return;
 
-  // Sirf comments — likes, posts, shares wagera chhoR dein
   if (v.item !== "comment") {
     console.log("Feed: item =", v.item, "— chhoR diya");
     return;
@@ -330,11 +441,11 @@ async function handleFeed(db, v, pageId) {
   const commentId = v.comment_id;
   if (!commentId) return;
 
-  const verb = v.verb || "add";              // add / edited / remove / hide / unhide
+  const verb = v.verb || "add";
   const fromId = (v.from && v.from.id) || "";
-  const myPage = String(pageId || process.env.MESSENGER_PAGE_ID || "");
+  const myPage = String(pageId || "");
 
-  // Apni hi page ka comment (team ka reply) — list mein nahi dikhana
+  // Apni hi page ka comment (team ka reply)
   if (fromId && myPage && String(fromId) === myPage) {
     console.log("Feed: apna hi comment, chhoR diya");
     return;
@@ -342,7 +453,6 @@ async function handleFeed(db, v, pageId) {
 
   const ref = db.collection("comments").doc(String(commentId));
 
-  // ---- Comment delete ho gaya ----
   if (verb === "remove") {
     await ref.set({
       status: "deleted",
@@ -354,7 +464,6 @@ async function handleFeed(db, v, pageId) {
     return;
   }
 
-  // ---- Chhupaya / dobara dikhaya gaya ----
   if (verb === "hide" || verb === "unhide") {
     await ref.set({
       hidden: verb === "hide",
@@ -378,13 +487,20 @@ async function handleFeed(db, v, pageId) {
     fromName: (v.from && v.from.name) || prev.fromName || "",
     message: v.message || "",
     permalink: v.permalink_url || prev.permalink || null,
-    postText: (v.post && (v.post.status_type || "")) || prev.postText || "",
     createdAt: new Date(createdMs),
     updatedAt: now,
     pageId: myPage,
+    pageName: nameFor(myPage),
     hidden: false,
     expiresAt: new Date(now.getTime() + RETENTION_DAYS * 24 * 60 * 60 * 1000),
   };
+
+  /* Post ki tafseel — sirf naye comment par. Purane comment par
+     dobara lane ka koi faida nahi, post to wahi hai. */
+  if (isNew && data.postId) {
+    const post = await fetchPost(data.postId, myPage);
+    if (post) Object.assign(data, post);
+  }
 
   if (isNew) {
     data.status = "open";
@@ -397,5 +513,5 @@ async function handleFeed(db, v, pageId) {
   }
 
   await ref.set(data, { merge: true });
-  console.log("Comment saved:", commentId, "new:", isNew, "verb:", verb);
+  console.log("Comment saved:", commentId, "page:", myPage, "new:", isNew);
 }

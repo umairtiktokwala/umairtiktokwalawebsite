@@ -2,14 +2,49 @@
 //  FACEBOOK COMMENTS  —  reply / delete / hide / private reply
 //  Dashboard ka Comments tab yahan call karta hai.
 //
-//  Zaroori Environment Variable:
-//    MESSENGER_PAGE_TOKEN  = Page Access Token
+//  ---- IS DAFA KYA BADLA ----
+//  Pehle ek hi token tha (MESSENGER_PAGE_TOKEN). Ab do (ya zyada)
+//  pages hain, aur har page ka apna token hota hai.
+//
+//  Comment ke record mein pageId mehfooz hai — us se pata chal jata
+//  hai ke jawab kis page ke token se jana chahiye. Galat token se
+//  Meta mana kar deta hai.
+//
+//  ---- VERCEL MEIN YE VARIABLES ----
+//    MESSENGER_PAGE_ID       aur  MESSENGER_PAGE_TOKEN
+//    MESSENGER_PAGE_ID_2     aur  MESSENGER_PAGE_TOKEN_2
+//    (aage _3, _4 bhi chal jayenge)
 // ============================================================
 
 import { getDb } from "./_firebase.js";
 import { getAuth } from "firebase-admin/auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
+
+/* Har page ka token — wahi tareeqa jo messenger-webhook.js mein hai */
+function loadPages() {
+  const out = {};
+  const add = (id, token) => {
+    if (!id || !token) return;
+    out[String(id).trim()] = String(token).trim();
+  };
+  add(process.env.MESSENGER_PAGE_ID, process.env.MESSENGER_PAGE_TOKEN);
+  for (let i = 2; i <= 6; i++) {
+    add(process.env["MESSENGER_PAGE_ID_" + i], process.env["MESSENGER_PAGE_TOKEN_" + i]);
+  }
+  return out;
+}
+
+const PAGES = loadPages();
+
+/* Comment ke pageId se us page ka token.
+   Purane comments mein pageId na ho to pehla token istemal karte hain —
+   wo purane page ka hai, aur purane comments usi ke hain. */
+function tokenFor(pageId) {
+  const id = String(pageId || "");
+  if (id && PAGES[id]) return PAGES[id];
+  return process.env.MESSENGER_PAGE_TOKEN || Object.values(PAGES)[0] || "";
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -39,13 +74,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Both action and commentId are required" });
     }
 
-    const token = process.env.MESSENGER_PAGE_TOKEN;
-    if (!token) {
-      return res.status(500).json({ error: "MESSENGER_PAGE_TOKEN is not set" });
-    }
-
     const ref = db.collection("comments").doc(String(commentId));
     const now = new Date();
+
+    /* Comment kis page ka hai — us page ka token chahiye.
+       Ek dafa parh lete hain, phir har action us ko istemal karta hai. */
+    const cSnap = await ref.get();
+    const cData = (cSnap.exists && cSnap.data()) || {};
+    const token = tokenFor(cData.pageId);
+
+    if (!token) {
+      return res.status(500).json({
+        error: "No page token found. Set MESSENGER_PAGE_TOKEN in Vercel."
+      });
+    }
 
     // ============================================================
     //  PUBLIC REPLY — comment ke neeche jawab
@@ -91,8 +133,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Message is empty" });
       }
 
-      const snap = await ref.get();
-      if (snap.exists && snap.data().privateReplySent) {
+      if (cData.privateReplySent) {
         return res.status(400).json({
           error: "A private reply has already been sent for this comment. Meta allows only one. Continue in the Chats tab.",
         });
