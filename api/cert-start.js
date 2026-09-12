@@ -31,6 +31,21 @@ const CERT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi8wumBYZU4E6
 
 const NEED_HOURS    = 50;
 const NEED_DAYS     = 30;
+const DAY_MIN       = 10 * 60;   // ek din ginne ke liye kam se kam 10 minute
+
+/* Scholarship ka counter kis tareekh se shuru hota hai.
+   Is se pehle ka waqt aur din certificate ke liye shumar nahi hote.
+
+   Wajah: scholarship ka elaan is tareekh ko hua. Sab students —
+   paid aur free — ek hi jagah se shuru karte hain, taake jo purani
+   batch mein hai us ko bila wajah bartari na mile.
+
+   Purana record mehfooz rehta hai, bas certificate ke hisaab mein
+   nahi aata. Portal par student ko saaf likha nazar aata hai ke
+   ginti kab se shuru hui.
+
+   Khali ("") kar dein to poora record dobara ginne lagega. */
+const COUNT_FROM    = "2026-09-13";
 const NEED_PCT      = 100;
 const QUESTIONS     = 30;
 const PASS_PCT      = 70;
@@ -153,12 +168,24 @@ export default async function handler(req, res) {
       need: "name, city, photo"
     });
 
-    // 4 + 5. Ghante aur din — dono ek hi jagah se
+    /* 4 + 5. Ghante aur din — dono ek hi jagah se.
+
+       Din tabhi ginte hain jab us tareekh par kam se kam DAY_MIN
+       waqt guzara ho. Pehle `n > 0` tha — yaani portal khol kar foran
+       band kar dene se bhi din gin liya jata tha, aur 30 din ki shart
+       ka koi matlab nahi rehta tha.
+
+       Ghante alag hisaab hain — un mein har second shamil hai, chahe
+       us din 2 minute hi kyun na huay hon. */
     const daysSnap = await db.collection("students").doc(uid).collection("days").get();
     let seconds = 0, activeDays = 0;
     daysSnap.forEach(d => {
+      /* Document ki ID hi tareekh hai — 2026-09-13 ki shakl mein.
+         Is liye seedha moqabla kar sakte hain. */
+      if (COUNT_FROM && d.id < COUNT_FROM) return;
       const n = Number(d.data()?.seconds || 0);
-      if (n > 0) { seconds += n; activeDays++; }
+      if (n > 0) seconds += n;
+      if (n >= DAY_MIN) activeDays++;
     });
     const hours = seconds / 3600;
 
@@ -169,7 +196,7 @@ export default async function handler(req, res) {
     });
     checks.push({
       key: "days", ok: activeDays >= NEED_DAYS,
-      label: "Keep coming back",
+      label: "Keep coming back (10+ min a day)",
       now: activeDays + " days", need: NEED_DAYS + " days"
     });
 
@@ -210,7 +237,7 @@ export default async function handler(req, res) {
     });
 
     if (!eligible) {
-      return res.status(200).json({ state: "not_eligible", checks });
+      return res.status(200).json({ state: "not_eligible", checks, countFrom: COUNT_FROM });
     }
 
     /* Adhoora test — wahi wapas de dete hain, naye sawal nahi.
@@ -223,7 +250,7 @@ export default async function handler(req, res) {
         attemptNo: finished.length + 1,
         maxAttempts: MAX_ATTEMPTS,
         passPct: PASS_PCT,
-        checks
+        checks, countFrom: COUNT_FROM
       });
     }
 
@@ -237,7 +264,7 @@ export default async function handler(req, res) {
           maxAttempts: MAX_ATTEMPTS,
           opensAt: new Date(openAt).toISOString(),
           best,
-          checks
+          checks, countFrom: COUNT_FROM
         });
       }
       /* 7 din guzar gaye — purani koshishein band kar dete hain taake
@@ -311,7 +338,7 @@ export default async function handler(req, res) {
       attemptNo: finished.length + 1,
       maxAttempts: MAX_ATTEMPTS,
       passPct: PASS_PCT,
-      checks
+      checks, countFrom: COUNT_FROM
     });
 
   } catch (err) {
