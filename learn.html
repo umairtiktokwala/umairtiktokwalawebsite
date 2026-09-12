@@ -44,6 +44,10 @@ button{font-family:var(--body)}
 .ct-check{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--line);border-radius:12px}
 .ct-check.ok{border-color:rgba(22,179,100,.35);background:rgba(22,179,100,.06)}
 /* Aakhri qadam — test khud. Baqi shartein us tak pahunchne ke liye hain. */
+.ct-from{font-size:12.5px;line-height:1.6;color:var(--muted);
+  background:var(--card-2);border:1px solid var(--line);border-radius:10px;
+  padding:10px 13px;margin-bottom:14px}
+
 .ct-check.last{border-style:dashed;border-color:var(--purple);background:var(--soft-purple)}
 .ct-check.last.ok{border-style:solid}
 .ct-tick{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
@@ -973,6 +977,7 @@ button{font-family:var(--body)}
             <div class="card ct-card">
               <h3 class="ct-h">Almost there</h3>
               <p class="ct-p">The certificate test opens once all six are done. Here is where you stand right now.</p>
+              <div class="ct-from" id="ctFrom" hidden></div>
               <div class="ct-checks" id="ctChecks"></div>
             </div>
           </div>
@@ -982,6 +987,7 @@ button{font-family:var(--body)}
             <div class="card ct-card">
               <h3 class="ct-h">You are eligible</h3>
               <p class="ct-p" id="ctReadyP"></p>
+              <div class="ct-from" id="ctFrom2" hidden></div>
               <div class="ct-checks" id="ctChecks2" style="margin-bottom:22px"></div>
               <ul class="ct-rules">
                 <li>30 questions, picked fresh each time</li>
@@ -1041,6 +1047,7 @@ button{font-family:var(--body)}
             <div class="card ct-card">
               <h3 class="ct-h">All three attempts used</h3>
               <p class="ct-p" id="ctLockedP"></p>
+              <div class="ct-from" id="ctFrom3" hidden></div>
               <div class="ct-checks" id="ctChecks3"></div>
             </div>
           </div>
@@ -2561,7 +2568,7 @@ async function loadCert(){
     /* Fehrist har halat mein banti hai — student ko poora raasta
        nazar aana chahiye, chahe wo kahin bhi khara ho. Aakhri qadam
        khud test hai. */
-    ctChecks(d.checks);
+    ctChecks(d.checks, d.countFrom);
 
     if(d.state === 'not_eligible'){ ctShow('ctGate'); return; }
 
@@ -2703,8 +2710,20 @@ function plRender(){
 
 $('plSearch').oninput = e => { PL_Q = e.target.value; plRender(); };
 
-function ctChecks(list){
+function ctChecks(list, countFrom){
   if(!Array.isArray(list)) return;
+
+  /* Ginti kis tareekh se shuru hui — student ko saaf batana zaroori
+     hai, warna wo sochega ke us ka purana waqt gum ho gaya. */
+  ['ctFrom','ctFrom2','ctFrom3'].forEach(id=>{
+    const el = $(id); if(!el) return;
+    if(!countFrom){ el.hidden = true; return; }
+    const d = new Date(countFrom + 'T00:00:00');
+    el.textContent = 'Counting from ' +
+      d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) +
+      ' — the scholarship starts everyone from the same point.';
+    el.hidden = false;
+  });
   const html = list.map(c =>
     '<div class="ct-check '+(c.ok?'ok':'')+(c.key==='test'?' last':'')+'">'
     + '<span class="ct-tick">'+(c.ok?'✓':'')+'</span>'
