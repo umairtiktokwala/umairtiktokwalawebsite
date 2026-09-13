@@ -236,13 +236,29 @@ button{font-family:var(--body)}
 
 /* mobile: hide sidebar, show bottom nav */
 .mnav{display:none}
+.mnav-wrap{display:none}
 @media(max-width:860px){
   .shell{grid-template-columns:1fr}
   .side{display:none}
-  /* Ab is mein nau cheezein hain — Certificate bhi. Sab ek saath
-     samatin to thus jati thin, is liye ye patti ab dayen-baayen
-     scroll hoti hai. Pehli paanch nazar aati hain, baqi khiska kar. */
-  .mnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--card);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom));overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+
+  /* Neeche wali patti mein gyarah cheezein hain. Sab ek saath nahi
+     samatin, is liye wo dayen-baayen khiskati hai.
+
+     Masla ye tha ke khiskane ka pata hi nahi chalta tha — log samajhte
+     the ke bas itni hi cheezein hain. Is liye:
+       1. dayen kinare par halka saya, jo batata hai ke aage aur hai
+       2. wo saya khud ghayab ho jata hai jab patti aakhir tak pahunche */
+  .mnav-wrap{display:block;position:fixed;bottom:0;left:0;right:0;z-index:60;
+    background:var(--card);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom)}
+  .mnav-wrap::after{
+    content:'';position:absolute;top:0;bottom:0;right:0;width:34px;
+    pointer-events:none;opacity:1;transition:opacity .2s;
+    background:linear-gradient(to right, rgba(255,255,255,0), var(--card) 78%);
+  }
+  .mnav-wrap.at-end::after{opacity:0}
+
+  .mnav{display:flex;position:static;padding:8px 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .mnav::-webkit-scrollbar{display:none}
   .mnav button,.mnav a{flex:0 0 auto;min-width:66px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;border-radius:10px;text-decoration:none}
   .mnav button i,.mnav a i{font-size:21px}
@@ -722,6 +738,7 @@ button{font-family:var(--body)}
       <nav class="side-nav" id="sideNav">
         <button class="snav on" data-s="course"><i class="ti ti-book-2"></i> Course</button>
         <button class="snav" data-s="tasks"><i class="ti ti-checklist"></i> Tasks</button>
+        <button class="snav" data-s="cert"><i class="ti ti-certificate"></i> Certificate</button>
         <button class="snav" data-s="notes"><i class="ti ti-notebook"></i> Notebook</button>
         <button class="snav" data-s="earnings"><i class="ti ti-chart-line"></i> My Earnings</button>
         <button class="snav" data-s="invest"><i class="ti ti-coins"></i> My Investment</button>
@@ -734,7 +751,7 @@ button{font-family:var(--body)}
              badalne ki zaroorat nahi. -->
         <button class="snav" data-s="lib"><i class="ti ti-sparkles"></i> Prompt Library</button>
         <button class="snav" data-s="prompts"><i class="ti ti-book"></i> Prompt Book</button>
-        <button class="snav" data-s="cert"><i class="ti ti-certificate"></i> Certificate</button>
+
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
       </nav>
       <div class="side-foot">
@@ -1133,19 +1150,25 @@ button{font-family:var(--body)}
   </div>
 
   <!-- MOBILE BOTTOM NAV -->
+  <div class="mnav-wrap" id="mnavWrap">
   <nav class="mnav" id="mnav">
     <button class="on" data-s="course"><i class="ti ti-book-2"></i>Course</button>
     <button data-s="tasks"><i class="ti ti-checklist"></i>Tasks</button>
+    <!-- Certificate teesre number par — pehle aathwein par tha aur phone
+         par patti ko bahut khiskana paRta tha. App ke WebView mein to
+         wo tqreeban nazar hi nahi aata tha. Scholarship ke liye yehi
+         sab se ahem cheez hai. -->
+    <button data-s="cert"><i class="ti ti-certificate"></i>Certificate</button>
     <button data-s="notes"><i class="ti ti-notebook"></i>Notebook</button>
     <button data-s="earnings"><i class="ti ti-chart-line"></i>Earnings</button>
     <button data-s="invest"><i class="ti ti-coins"></i>Invest</button>
     <button data-s="lib"><i class="ti ti-sparkles"></i>Library</button>
     <button data-s="prompts"><i class="ti ti-book"></i>Prompts</button>
-    <button data-s="cert"><i class="ti ti-certificate"></i>Certificate</button>
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
     <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923498319331','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
   </nav>
+  </div>
 </div>
 
 <!-- ============ VIDEO MODAL ============ -->
@@ -2851,6 +2874,21 @@ $('ctYes').onclick  = ()=> ctSetFeature('', true);
 $('ctNo').onclick   = ()=> ctSetFeature('', false);
 $('ctYes2').onclick = ()=> ctSetFeature('2', true);
 $('ctNo2').onclick  = ()=> ctSetFeature('2', false);
+
+/* Neeche wali patti ka saya — jab wo aakhir tak pahunch jaye to
+   saya ghayab ho jata hai. Us se pata chalta hai ke aur kuch baqi
+   nahi. */
+(function(){
+  const nav = $('mnav'), wrap = $('mnavWrap');
+  if(!nav || !wrap) return;
+  function check(){
+    const end = nav.scrollLeft + nav.clientWidth >= nav.scrollWidth - 4;
+    wrap.classList.toggle('at-end', end);
+  }
+  nav.addEventListener('scroll', check, { passive:true });
+  window.addEventListener('resize', check);
+  check();
+})();
 
 $('ctStart').onclick = ()=>{ ctShow('ctPlay'); ctPaint(); };
 $('ctPrev').onclick  = ()=>{ if(CT.at > 0){ CT.at--; ctPaint(); } };
