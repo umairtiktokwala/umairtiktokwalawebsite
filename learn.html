@@ -195,12 +195,21 @@ button{font-family:var(--body)}
 .shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
 
 /* sidebar */
-.side{background:var(--card);border-right:1px solid var(--line);padding:24px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+/* overflow-y:auto zaroori hai. Pehle sirf height:100vh tha — agar
+   fehrist screen se lambi ho jaye to neeche wali cheezein kat jati
+   thin aur un tak pahunchne ka koi raasta hi nahi tha.
+
+   App ke WebView mein yehi hua: screen chauri samjhi gayi to ye
+   sidebar nazar aayi, magar chhoti oonchai mein Certificate aur
+   neeche wali cheezein gayab thin. */
+.side{background:var(--card);border-right:1px solid var(--line);padding:24px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.side::-webkit-scrollbar{width:4px}
+.side::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
 .side-logo{display:flex;align-items:center;gap:11px;padding:0 8px 26px;margin-bottom:8px}
 .side-logo img{width:38px;height:38px;object-fit:contain}
 .side-logo-t{font-family:var(--display);font-weight:800;font-size:15px;line-height:1.15}
 .side-logo-t em{display:block;font-family:var(--mono);font-style:normal;font-weight:500;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--purple);margin-top:2px}
-.side-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.side-nav{display:flex;flex-direction:column;gap:4px;flex:1 0 auto}
 .snav{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:12px;border:none;background:none;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--muted);transition:all .16s;width:100%;text-align:left}
 .snav i{font-size:19px}
 .snav:hover{background:var(--card-2);color:var(--ink-2)}
