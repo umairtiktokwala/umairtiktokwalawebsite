@@ -1615,7 +1615,13 @@ $('claimFile').onchange = ev=>{
   d.querySelector('.t').textContent='Screenshot ready';
   d.querySelector('.s').textContent=file.name;
 
-  readScreenshot(file);
+  /* WebView ko apna file-chooser ka silsila mukammal karne dein, phir
+     hamara kaam. Android ki WebView mein onShowFileChooser ka callback
+     onchange ke foran baad band hota hai — agar hum usi lamhe FileReader
+     aur fetch shuru kar dein to agli dafa chooser khulna band ho sakta
+     hai. setTimeout(...,0) se onchange foran khatam ho jata hai aur
+     WebView ka silsila nahi tootta. Chrome par koi farq nahi parta. */
+  setTimeout(()=>readScreenshot(file), 0);
 };
 
 /* ---------------------------------------------------------------------------
