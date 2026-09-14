@@ -1081,6 +1081,10 @@ async function loadAll(uid){
     provider:d.provider||'',
     accountTitle:d.accountTitle||'',
     last4:d.last4||'',
+    /* Student ko apna poora number nazar aana chahiye — wo khud check kar
+       sake ke theek likha hai. Chhupane ka faida us ke apne safhe par
+       koi nahi, kyunke account us ka apna hai. */
+    identifier:d.accountIdentifier||'',
     isPrimary:d.isPrimary===true,
     status:String(d.status||'active').toLowerCase(),
     at:tsSeconds(d.updatedAt),
@@ -1326,7 +1330,8 @@ async function removeMethod(id, btn){
   const m = METHODS.find(x=>x.id===id);
   if(!m) return;
 
-  const label = [m.provider, m.last4 ? '•••• '+m.last4 : ''].filter(Boolean).join(' ');
+  const label = [m.provider, m.identifier || (m.last4 ? '•••• '+m.last4 : '')]
+                  .filter(Boolean).join(' ');
   if(!confirm('Remove '+label+'?\n\nYour past payments keep their record. You can add a new method any time.')) return;
 
   btn.disabled = true;
@@ -1459,7 +1464,8 @@ function methodRow(m){
     + '<div class="frow-main">'
       + '<div class="frow-t">'+esc(m.provider||'Payment method')+'</div>'
       + '<div class="frow-m">'+esc(m.accountTitle||'')
-        + (m.last4?' · •••• '+esc(m.last4):'')+'</div>'
+        + (m.identifier ? ' · '+esc(m.identifier)
+                        : (m.last4 ? ' · •••• '+esc(m.last4) : ''))+'</div>'
       + (cooling ? '<div class="cool"><i class="ti ti-clock-hour-4"></i>Waiting period active — this method can be used shortly</div>' : '')
       + '<div class="frow-acts" style="margin-top:9px">'
         + (canPrimary ? '<button class="mini" data-primary="'+esc(m.id)+'">Make primary</button>' : '')
