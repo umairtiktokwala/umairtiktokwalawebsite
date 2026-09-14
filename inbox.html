@@ -1890,16 +1890,17 @@ function paintChatHead() {
     bb.disabled = true;
     bb.textContent = isBlocked ? "Unblocking\u2026" : "Blocking\u2026";
     try {
+      /* 14 Sept 2026: /api/whatsapp-block ab login maangta hai (pehle
+         khula tha). Kis ne block kiya — server khud admins se likhta
+         hai, is liye by/byName ab yahan se nahi jate. */
+      const token = await getToken();
       const r = await fetch("/api/whatsapp-block", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({
           convoId,
           waNumber: c.waNumber || convoId,
-          phoneNumberId: c.phoneNumberId || null,
-          action: isBlocked ? "unblock" : "block",
-          by: me.uid,
-          byName: me.name
+          action: isBlocked ? "unblock" : "block"
         })
       });
       const data = await r.json();

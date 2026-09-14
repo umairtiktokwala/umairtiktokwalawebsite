@@ -236,6 +236,31 @@ h1{
 
 /* ---------- SECTIONS ---------- */
 .sec{padding:100px 0}
+/* ---------- HOME SLIDERS (14 Sept 2026) ----------
+   Upar: student results (earning screenshots). Neeche: Prompt Book.
+   Dono sheet se chalte hain — koi code nahi chheRna. CSS scroll-snap,
+   koi library nahi; har 4 second khud khiskta hai, ungli se bhi. */
+.sld-sec{padding:70px 0 20px}
+.sld-sec + .sld-sec{padding-top:30px;padding-bottom:70px}
+.sld-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.sld-head h2{font-family:var(--display);font-size:clamp(24px,3.4vw,34px);letter-spacing:-.03em;line-height:1.1}
+.sld-head p{font-size:14.5px;color:var(--muted);margin-top:6px}
+.sld-more{font-size:14px;font-weight:600;white-space:nowrap;color:var(--ink);border-bottom:2px solid var(--line);padding-bottom:2px}
+.sld-more:hover{border-color:var(--ink)}
+.sld{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 12px;margin:0 -4px}
+.sld::-webkit-scrollbar{display:none}
+.sld-card{flex:0 0 auto;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--ink);display:flex;flex-direction:column}
+.sld-card img{display:block;width:100%;height:100%;object-fit:cover;background:var(--paper-2)}
+.sld-res{width:190px}
+.sld-res .sld-img{aspect-ratio:9/16;overflow:hidden}
+.sld-pb{width:230px}
+.sld-pb .sld-img{aspect-ratio:1/1;overflow:hidden}
+.sld-cap{padding:11px 13px;font-size:13px;line-height:1.4}
+.sld-cap b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sld-cap span{color:var(--muted);font-size:12px}
+.sld-empty{padding:34px;border:1px dashed var(--line);border-radius:14px;text-align:center;color:var(--muted);font-size:14px}
+@media(max-width:640px){.sld-res{width:150px}.sld-pb{width:190px}.sld-head{flex-direction:column;align-items:flex-start;gap:6px}}
+
 .sec-alt{background:var(--paper-2)}
 .sec-head{margin-bottom:56px;max-width:60ch}
 .sec-eyebrow{
@@ -790,6 +815,22 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
       <div><div class="proof-num">Urdu</div><div class="proof-lbl">Every session taught in the language you think in</div></div>
     </div>
   </div>
+</section><section class="sld-sec" id="homeResults">
+  <div class="wrap">
+    <div class="sld-head">
+      <div><h2>Student results</h2><p>Real payouts from real students. Names are hidden for their privacy.</p></div>
+      <a class="sld-more" href="results.html">See all results →</a>
+    </div>
+    <div class="sld" id="sldRes"><div class="sld-empty">Loading…</div></div>
+  </div>
+</section><section class="sld-sec" id="homePrompts">
+  <div class="wrap">
+    <div class="sld-head">
+      <div><h2>From the Prompt Book</h2><p>876 AI video prompts, free. Tap any picture to open its prompt.</p></div>
+      <a class="sld-more" href="prompt-book.html">Open the Prompt Book →</a>
+    </div>
+    <div class="sld" id="sldPb"><div class="sld-empty">Loading…</div></div>
+  </div>
 </section><section class="sec">
   <div class="wrap">
     <div class="sec-head">
@@ -815,6 +856,112 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     </div>
   </div>
 </section>
+<script>
+/* ===================================================================
+   HOME SLIDERS (14 Sept 2026)
+
+   1. STUDENT RESULTS — "Results" sheet se
+        Name | Platform | Amount | Month | Image | Home | Note
+        Image  = results/ folder ki file ka naam (r001.webp) ya poora URL
+        Home   = yes  → home page ke slider mein (baqi sirf results.html)
+      RESULTS_CSV neeche PASTE_ karein — sheet publish kar ke (CSV).
+
+   2. PROMPT BOOK — Website Prompt Book sheet se
+        Image URL | Title | Prompt | Category | Tool | Home
+        Home = yes wali prompts slider mein. Column F naya hai — na ho to
+        sab se nayi 12 prompts dikhti hain.
+   =================================================================== */
+const RESULTS_CSV = 'PASTE_RESULTS_CSV_URL_HERE';
+const PBK_CSV     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
+const RESULTS_DIR = 'results/';
+const SLD_MAX     = 15;
+
+function sldParseCSV(text){
+  const rows=[]; let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else{ if(c==='"')q=true; else if(c===','){row.push(cell);cell='';} else if(c==='\n'){row.push(cell);rows.push(row);row=[];cell='';} else if(c!=='\r')cell+=c; } }
+  if(cell||row.length){row.push(cell);rows.push(row);}
+  return rows;
+}
+function sldEsc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+async function sldCsv(url){
+  const key='utw_csv_'+url.length+'_'+url.slice(-24).replace(/[^a-z0-9]/gi,'');
+  let cached=null;
+  try{ const raw=localStorage.getItem(key); if(raw){ const o=JSON.parse(raw); if(o&&typeof o.d==='string') cached=o; } }catch(e){}
+  if(cached && Date.now()-cached.t < 15*60*1000) return cached.d;
+  try{
+    const r=await fetch(url+(url.indexOf('?')>=0?'&':'?')+'_cb='+Date.now(),{cache:'no-store'});
+    if(!r.ok) throw new Error(r.status);
+    const t=await r.text();
+    try{ localStorage.setItem(key,JSON.stringify({t:Date.now(),d:t})); }catch(e){}
+    return t;
+  }catch(e){ if(cached) return cached.d; throw e; }
+}
+const yes = v => /^(yes|y|true|1|haan|han)$/i.test(String(v||'').trim());
+function imgUrl(v){
+  v=String(v||'').trim(); if(!v) return '';
+  return /^https?:\/\//i.test(v) ? v : RESULTS_DIR + v;
+}
+
+async function loadResultsSlider(){
+  const box=document.getElementById('sldRes'); if(!box) return;
+  const sec=document.getElementById('homeResults');
+  if(!RESULTS_CSV || RESULTS_CSV.indexOf('http')!==0){ sec.style.display='none'; return; }
+  try{
+    const rows=sldParseCSV(await sldCsv(RESULTS_CSV)).slice(1)
+      .map(r=>({name:(r[0]||'').trim(),platform:(r[1]||'').trim(),amount:(r[2]||'').trim(),month:(r[3]||'').trim(),img:imgUrl(r[4]),home:yes(r[5]),note:(r[6]||'').trim()}))
+      .filter(x=>x.img);
+    let list=rows.filter(x=>x.home); if(!list.length) list=rows.slice(-SLD_MAX).reverse();
+    list=list.slice(0,SLD_MAX);
+    if(!list.length){ sec.style.display='none'; return; }
+    box.innerHTML=list.map(x=>`<a class="sld-card sld-res" href="results.html">
+      <div class="sld-img"><img src="${sldEsc(x.img)}" alt="" loading="lazy" onerror="this.parentNode.parentNode.style.display='none'"></div>
+      <div class="sld-cap"><b>${sldEsc(x.amount||x.platform||'Payout')}</b><span>${sldEsc([x.platform,x.month].filter(Boolean).join(' · '))}</span></div>
+    </a>`).join('');
+    autoSlide(box);
+  }catch(e){ sec.style.display='none'; }
+}
+
+async function loadPromptSlider(){
+  const box=document.getElementById('sldPb'); if(!box) return;
+  const sec=document.getElementById('homePrompts');
+  try{
+    const rows=sldParseCSV(await sldCsv(PBK_CSV)).slice(1).map(r=>{
+      r=r.map(c=>(c||'').trim());
+      // Cloudinary URL mein comma ho to wapas joRna (wahi jo prompt-book.html karta hai)
+      if(r[0]&&r[0].indexOf('http')===0){ while(r.length>5&&r[1]&&!/\s/.test(r[1])&&!/^https?:/.test(r[1])&&(r[1].indexOf('/')>-1||/^[a-z]_[a-z0-9]+$/i.test(r[1]))){ r[0]=r[0]+','+r[1]; r.splice(1,1);} }
+      return {img:r[0]||'',title:r[1]||'',cat:r[3]||'',home:yes(r[5])};
+    }).filter(x=>x.img);
+    let list=rows.filter(x=>x.home); if(!list.length) list=rows.slice(-12).reverse();
+    list=list.slice(0,SLD_MAX);
+    if(!list.length){ sec.style.display='none'; return; }
+    box.innerHTML=list.map(x=>`<a class="sld-card sld-pb" href="prompt-book.html?q=${encodeURIComponent(x.title)}">
+      <div class="sld-img"><img src="${sldEsc(x.img)}" alt="${sldEsc(x.title)}" loading="lazy" onerror="this.parentNode.parentNode.style.display='none'"></div>
+      <div class="sld-cap"><b>${sldEsc(x.title||'Prompt')}</b><span>${sldEsc(x.cat||'Prompt Book')}</span></div>
+    </a>`).join('');
+    autoSlide(box);
+  }catch(e){ sec.style.display='none'; }
+}
+
+/* Har 4 second ek card aage; ungli/mouse lagte hi ruk jata hai,
+   aakhir par wapas shuru. Safha nazar mein na ho to bhi ruka rehta hai. */
+function autoSlide(box){
+  let pause=false, t=null;
+  const stop=()=>{ pause=true; clearTimeout(t); t=setTimeout(()=>{pause=false;},8000); };
+  ['touchstart','pointerdown','mouseenter','wheel'].forEach(ev=>box.addEventListener(ev,stop,{passive:true}));
+  setInterval(()=>{
+    if(pause||document.hidden) return;
+    const card=box.querySelector('.sld-card'); if(!card) return;
+    const step=card.getBoundingClientRect().width+14;
+    const end=box.scrollWidth-box.clientWidth-4;
+    if(box.scrollLeft>=end) box.scrollTo({left:0,behavior:'smooth'});
+    else box.scrollBy({left:step,behavior:'smooth'});
+  },4000);
+}
+loadResultsSlider(); loadPromptSlider();
+</script>
+
 <footer>
   <div class="wrap">
     <div class="foot-grid">

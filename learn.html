@@ -67,6 +67,24 @@ button{font-family:var(--body)}
   text-align:left;color:var(--ink);transition:all .14s}
 .ct-opt:hover{border-color:var(--ink-2)}
 .ct-opt.on{border-color:var(--purple);background:var(--soft-purple);font-weight:600}
+.ct-timer{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ct-tbar{flex:1;height:8px;background:var(--card-2);border-radius:99px;overflow:hidden}
+.ct-tfill{height:100%;background:#16B364;border-radius:99px;transition:width 1s linear,background .3s}
+.ct-tfill.warn{background:#F59E0B}
+.ct-tfill.late{background:#F0333E}
+.ct-tnum{font-family:var(--mono);font-weight:700;font-size:15px;min-width:34px;text-align:right}
+.ct-plat{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 8px}
+.ct-pbtn{padding:20px 14px;border:2px solid var(--line);border-radius:16px;background:var(--card);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--ink)}
+.ct-pbtn i{font-size:30px}
+.ct-pbtn.fb i{color:#1877F2}.ct-pbtn.tt i{color:#000}
+.ct-pbtn:hover,.ct-pbtn.on{border-color:var(--ink)}
+.ct-pbtn small{font-weight:500;color:var(--muted);font-size:12px}
+.ct-link input{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;font-family:var(--body);font-size:14.5px;background:var(--card);color:var(--ink);margin:10px 0 12px}
+.ct-link input:focus{outline:none;border-color:var(--purple)}
+.ct-note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:12px 14px;font-size:13.5px;color:#92400E;margin:12px 0;line-height:1.55}
+.ct-note.bad{background:#FEECEC;border-color:#FCA5A5;color:#991B1B}
+.ct-note.wait{background:#EEF1FF;border-color:#C7D2FE;color:#3730A3}
+.ct-wlink{font-family:var(--mono);font-size:12.5px;word-break:break-all;color:var(--purple)}
 .ct-nav{display:flex;gap:10px}
 .ct-nav button{flex:1}
 
@@ -100,7 +118,11 @@ button{font-family:var(--body)}
   letter-spacing:.1em;color:var(--muted);margin-bottom:7px}
 .pl-text{font-size:13.5px;line-height:1.75;color:var(--ink-2);white-space:pre-wrap;
   background:var(--card-2);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
-.pl-acts{display:flex;gap:8px;flex-wrap:wrap}
+.pl-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Favourite (dil) ka button — Prompt Book aur Library dono mein */
+.fav-btn{width:38px;height:38px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--muted);font-size:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto;transition:all .15s}
+.fav-btn:hover{border-color:#F0333E;color:#F0333E}
+.fav-btn.on{background:#FEECEC;border-color:#F0333E;color:#F0333E}
 .pl-btn{padding:9px 15px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);
   font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;transition:all .14s}
 .pl-btn:hover{border-color:var(--ink-2)}
@@ -380,6 +402,16 @@ button{font-family:var(--body)}
 .tab.on .tab-ic{background:rgba(255,255,255,.16);color:#fff}
 
 /* ---------- MODULES ---------- */
+/* Continue where you left off (14 Sept 2026) */
+.cont{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;border-radius:16px;padding:16px 18px;margin-bottom:18px}
+.cont-ic{width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.cont-b{flex:1;min-width:0}
+.cont-l{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:3px}
+.cont-t{font-weight:700;font-size:15px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cont-m{font-size:12.5px;opacity:.75;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cont-btn{flex-shrink:0;padding:11px 18px;border:none;border-radius:11px;background:#fff;color:var(--ink);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.cont-btn:hover{opacity:.92}
+@media(max-width:520px){.cont{padding:14px}.cont-btn{padding:10px 14px}}
 .mod-g{display:flex;flex-direction:column;gap:14px;padding-bottom:20px}
 .module{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden;box-shadow:var(--shadow)}
 .mod-h{padding:18px 22px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:background .16s}
@@ -442,6 +474,13 @@ button{font-family:var(--body)}
 .tmsg.admin{align-self:flex-start;background:#fff;border:1px solid #FBE3BF;color:#92400E;border-bottom-left-radius:4px}
 .tmsg.me{align-self:flex-end;background:#FFF6E6;border:1px solid #FBE3BF;color:var(--ink-2);border-bottom-right-radius:4px}
 .task-sent{font-size:13.5px;color:var(--ink-2);padding:4px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.task-sep{color:var(--muted);padding:0 2px}
+.task-lrow{display:flex;gap:8px;align-items:center}
+.task-lrow input{flex:1;margin-bottom:8px}
+.task-lx{flex-shrink:0;width:34px;height:34px;margin-bottom:8px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+.task-lx:hover{border-color:#F0333E;color:#F0333E}
+.task-addl{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;margin-bottom:10px;border:1.5px dashed var(--line);border-radius:10px;background:none;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.task-addl:hover{border-color:var(--ink-2);color:var(--ink-2)}
 .task-sent a{color:var(--purple);text-decoration:underline;word-break:break-all}
 .task-again{background:none;border:none;cursor:pointer;color:var(--purple);font-weight:700;font-size:13px;padding:6px 0 0}
 .task-again:hover{text-decoration:underline}
@@ -770,6 +809,12 @@ button{font-family:var(--body)}
         <a class="side-wa" href="https://wa.me/923498319331" target="_blank" rel="noopener">
           <i class="ti ti-brand-whatsapp"></i> Support on WhatsApp
         </a>
+        <!-- Report a problem (14 Sept 2026) — WhatsApp par pehle se likha
+             message khulta hai: naam, number, app/browser. Student bas
+             masla likhe aur screenshot/recording laga de. -->
+        <a class="side-link" id="reportLink" href="https://wa.me/923498319331" target="_blank" rel="noopener">
+          <i class="ti ti-bug"></i> Report a problem
+        </a>
       </div>
     </aside>
 
@@ -830,6 +875,7 @@ button{font-family:var(--body)}
             </div>
           </div>
 
+          <div id="contBox" style="display:none"></div>
           <div class="tabs" id="tabs"></div>
           <div class="mod-g" id="mods"><div class="empty"><i class="ti ti-loader-2"></i>Loading your course…</div></div>
         </div>
@@ -865,6 +911,10 @@ button{font-family:var(--body)}
           <div class="pbk-top">
             <input type="text" id="plSearch" placeholder="Search — by title or any word inside the prompt…" autocomplete="off">
             <div class="pbk-count" id="plCount"></div>
+          </div>
+          <div class="pbk-chips">
+            <button class="pbk-chip on" id="plFavAll">All</button>
+            <button class="pbk-chip" id="plFavOnly"><i class="ti ti-heart"></i> My Favourites</button>
           </div>
           <div class="empty" id="plState"><i class="ti ti-loader-2"></i>Loading prompts…</div>
           <div class="pl-list" id="plList" hidden></div>
@@ -1016,10 +1066,12 @@ button{font-family:var(--body)}
               <div class="ct-from" id="ctFrom2" hidden></div>
               <div class="ct-checks" id="ctChecks2" style="margin-bottom:22px"></div>
               <ul class="ct-rules">
-                <li>30 questions, picked fresh each time</li>
+                <li>30 questions, picked fresh each time — general plus your platform</li>
+                <li><b>30 seconds per question.</b> When time runs out the question is skipped</li>
+                <li>No going back — once you move on, that question is closed</li>
                 <li>You need 70% to pass — that is 21 correct</li>
-                <li>Answer every question, then submit once</li>
-                <li>Do not close this page in the middle</li>
+                <li>No AI tools, no help from anyone. The timer is on our server, not your phone</li>
+                <li>Do not close this page in the middle — the clock keeps running</li>
               </ul>
               <button class="btn-primary ct-go" id="ctStart">Start the test</button>
             </div>
@@ -1030,12 +1082,63 @@ button{font-family:var(--body)}
             <div class="card ct-card">
               <div class="ct-bar"><div class="ct-fill" id="ctFill"></div></div>
               <div class="ct-meta"><span id="ctNum"></span><span id="ctLeft"></span></div>
+              <div class="ct-timer"><div class="ct-tbar"><div class="ct-tfill" id="ctTFill"></div></div><div class="ct-tnum" id="ctTNum">30</div></div>
               <h3 class="ct-q" id="ctQ"></h3>
               <div class="ct-opts" id="ctOpts"></div>
               <div class="ct-nav">
-                <button class="btn-ghost" id="ctPrev">Back</button>
                 <button class="btn-primary" id="ctNext">Next</button>
               </div>
+            </div>
+          </div>
+
+          <!-- platform chunna (14 Sept 2026) -->
+          <div id="ctPlatform" hidden>
+            <div class="card ct-card">
+              <h3 class="ct-h">Choose your platform</h3>
+              <p class="ct-p">Which platform have you been working on? Your test questions and the account link we ask for afterwards will both be for this platform. <b>This cannot be changed later.</b></p>
+              <div class="ct-plat">
+                <button class="ct-pbtn fb" data-plat="facebook"><i class="ti ti-brand-facebook"></i>Facebook<small>Page monetization</small></button>
+                <button class="ct-pbtn tt" data-plat="tiktok"><i class="ti ti-brand-tiktok"></i>TikTok<small>Creator monetization</small></button>
+              </div>
+              <div class="ct-from" id="ctFrom4" hidden></div>
+              <div class="ct-checks" id="ctChecks4"></div>
+            </div>
+          </div>
+
+          <!-- test paas — ab link -->
+          <div id="ctLink" hidden>
+            <div class="card ct-card">
+              <div class="ct-badge" style="margin-bottom:10px">Test passed</div>
+              <h3 class="ct-h">One last step</h3>
+              <p class="ct-p" id="ctLinkP"></p>
+              <div class="ct-note bad" id="ctLinkNote" hidden></div>
+              <div class="ct-link">
+                <input type="url" id="ctLinkIn" placeholder="https://" autocomplete="off">
+                <button class="btn-primary ct-go" id="ctLinkSend">Send for review</button>
+              </div>
+              <p class="ct-p" style="font-size:12.5px;margin-top:10px">Our team checks that the account is yours, has videos, and has been active for at least 30 days. You get two chances to share the correct link.</p>
+              <div class="ct-checks" id="ctChecks5" style="margin-top:16px"></div>
+            </div>
+          </div>
+
+          <!-- link team ke paas -->
+          <div id="ctWait" hidden>
+            <div class="card ct-card">
+              <div class="ct-badge" style="margin-bottom:10px">Under review</div>
+              <h3 class="ct-h">Our team is checking your account</h3>
+              <p class="ct-p">We will look at your account and issue your certificate once it is approved. You will get a notification here.</p>
+              <div class="ct-note wait">Link sent: <span class="ct-wlink" id="ctWaitLink"></span></div>
+              <div class="ct-checks" id="ctChecks6"></div>
+            </div>
+          </div>
+
+          <!-- radd -->
+          <div id="ctRejected" hidden>
+            <div class="card ct-card">
+              <h3 class="ct-h">Certificate request closed</h3>
+              <p class="ct-p" id="ctRejP"></p>
+              <div class="ct-note bad" id="ctRejNote" hidden></div>
+              <p class="ct-p" style="font-size:12.5px">If you think this is a mistake, message our support team on WhatsApp.</p>
             </div>
           </div>
 
@@ -1176,6 +1279,7 @@ button{font-family:var(--body)}
     <button data-s="profile"><i class="ti ti-user"></i>Profile</button>
     <button id="mnavFin" onclick="location.href='finance.html'"><i class="ti ti-wallet"></i>Finance</button>
     <button onclick="window.open('https://wa.me/923498319331','_blank')"><i class="ti ti-brand-whatsapp"></i>Support</button>
+    <button id="mnavReport"><i class="ti ti-bug"></i>Report</button>
   </nav>
   </div>
 </div>
@@ -1211,7 +1315,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
   getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs,
-  deleteDoc, query, where, serverTimestamp
+  deleteDoc, query, where, serverTimestamp, arrayUnion, arrayRemove
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
@@ -1273,6 +1377,54 @@ function ytId(url){
    kabhi kabhi ghanton tak. Har load par ek naya number laga dete hain. */
 function freshCsv(url){
   return url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cb=' + Date.now();
+}
+
+/* ===== CSV CACHE (14 Sept 2026) =====
+   Pehle har CSV har dafa Google se dobara aati thi — lessons, tasks,
+   free course, 876 prompts, library — sab. Google Sheets ka server
+   sust hai (1-3 second har file), aur Pakistan ke net par ye sab mila
+   kar 5-10 second ka safed screen ban jata tha. Students ki sab se
+   bari shikayat "app slow hai" isi se thi.
+
+   Ab CSV phone mein (localStorage) rakh lete hain:
+     - CSV_TTL_MIN minute tak wahi istemal hoti hai, Google ko call nahi
+     - us ke baad taza aati hai aur phir se mehfooz ho jati hai
+     - net na ho ya Google na chale to purani wali chal jati hai, chahe
+       kitni bhi purani ho — khali screen se behtar
+
+   Sheet mein tabdeeli zyada se zyada CSV_TTL_MIN minute mein pahunch
+   jati hai. Foran dekhna ho to browser ka cache/site data saaf karein. */
+const CSV_TTL_MIN = 15;
+
+function csvKey(url){
+  let h = 5381;
+  for(let i = 0; i < url.length; i++) h = ((h << 5) + h + url.charCodeAt(i)) | 0;
+  return 'utw_csv_' + (h >>> 0).toString(36);
+}
+
+async function fetchCsvText(url){
+  const key = csvKey(url);
+  let cached = null;
+  try{
+    const raw = localStorage.getItem(key);
+    if(raw){ const o = JSON.parse(raw); if(o && typeof o.d === 'string') cached = o; }
+  }catch(e){}
+
+  // Taza hai — wahi de do, Google ko tang na karo
+  if(cached && (Date.now() - cached.t) < CSV_TTL_MIN * 60 * 1000) return cached.d;
+
+  try{
+    const res = await fetch(freshCsv(url), { cache: 'no-store' });
+    if(!res.ok) throw new Error('csv ' + res.status);
+    const text = await res.text();
+    try{ localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: text })); }
+    catch(e){ /* jagah kam — koi baat nahi, agli dafa phir aayegi */ }
+    return text;
+  }catch(e){
+    // Net nahi ya Google nahi chala — purani wali hi sahi
+    if(cached) return cached.d;
+    throw e;
+  }
 }
 
 function parseCSV(text){
@@ -1618,9 +1770,17 @@ onAuthStateChanged(auth, async user=>{
     ? d.joined.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
     : '';
 
-  ME={uid:user.uid,number:d.number,name:d.name,email:d.email,city:d.city||'',photoUrl:d.photoUrl||'',joinedText:joinedTxt,batches:d.batches||[],enrollments:d.enrollments||[]};
+  ME={uid:user.uid,number:d.number,name:d.name,email:d.email,city:d.city||'',photoUrl:d.photoUrl||'',joinedText:joinedTxt,batches:d.batches||[],enrollments:d.enrollments||[],
+      favs:new Set(Array.isArray(d.favourites)?d.favourites:[])};
   healOwnRecord(d).catch(()=>{});
   await refreshBatches();
+
+  /* ?next=prompt-book.html — prompt-book se favourites ke liye login
+     karne aaya tha; wapas wahin bhej do. Sirf apni site ke .html safhe. */
+  try{
+    const next = new URLSearchParams(location.search).get('next') || '';
+    if(/^[a-z0-9-]+\.html$/i.test(next) && next !== 'learn.html'){ location.replace(next); return; }
+  }catch(e){}
 
   $('auth').style.display='none'; $('app').style.display='block';
   if(splash) splash.style.display='none';
@@ -1628,6 +1788,7 @@ onAuthStateChanged(auth, async user=>{
   $('tbName').textContent=ME.name||'Student';
   $('tbNum').textContent=ME.number||'';
   $('tbAv').textContent=(first||ME.number||'S').charAt(0).toUpperCase();
+  setupReportLink();
 
   SESSION=Date.now();
   /* Ye aath kaam ek doosre par munhasir NAHI hain — har ek sirf ME.uid
@@ -1653,6 +1814,23 @@ onAuthStateChanged(auth, async user=>{
   pushCourseStats().catch(()=>{});
 });
 
+/* Report a problem — WhatsApp par pehle se bhara message.
+   App ke WebView ka pata UA mein "wv" se chalta hai. */
+function setupReportLink(){
+  const ua = navigator.userAgent || '';
+  const inApp = /\bwv\b/.test(ua) || /UmairAcademy/i.test(ua);
+  const where = inApp ? 'Android app' : 'Website (' + (/Android/i.test(ua) ? 'Android' : (/iPhone|iPad/i.test(ua) ? 'iPhone' : 'computer')) + ' browser)';
+  const msg = 'Problem report\n'
+    + 'Name: ' + (ME.name || '') + '\n'
+    + 'Number: ' + (ME.number || '') + '\n'
+    + 'Using: ' + where + '\n'
+    + 'Page: ' + (SECTION || 'course') + '\n\n'
+    + 'Problem: ';
+  const url = 'https://wa.me/923498319331?text=' + encodeURIComponent(msg);
+  const a = $('reportLink'); if(a) a.href = url;
+  const m = $('mnavReport'); if(m) m.onclick = () => window.open(url, '_blank');
+}
+
 async function refreshBatches(){
   try{
     const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:ME.number})});
@@ -1676,7 +1854,11 @@ async function loadProgress(){
   const snap=await getDocs(collection(db,'students',ME.uid,'progress'));
   snap.forEach(d=>{
     const v=d.data()||{};
-    PROG.set(d.id,{done:!!v.done, pct:Number(v.pct||0), seconds:Number(v.seconds||0)});
+    /* pos/dur/posAt — video mein jahan chhoRa tha (14 Sept 2026, resume).
+       posAt number hai (Date.now()), taake "sab se aakhri" lesson
+       dhoondna aasan ho. */
+    PROG.set(d.id,{done:!!v.done, pct:Number(v.pct||0), seconds:Number(v.seconds||0),
+      pos:Number(v.pos||0), dur:Number(v.dur||0), posAt:Number(v.posAt||0)});
     if(v.done) DONE.add(d.id);
   });
 }
@@ -1737,11 +1919,77 @@ async function saveWatch(l, pct, seconds){
   try{
     await setDoc(doc(db,'students',ME.uid,'progress',l.id),
       {done:false, pct, seconds:seconds||0, at:serverTimestamp()}, {merge:true});
-    PROG.set(l.id,{done:false,pct,seconds:seconds||0});
+    const old=PROG.get(l.id)||{};
+    PROG.set(l.id,{...old,done:false,pct,seconds:seconds||0});
     WATCH_SAVED=pct;
     await dropLegacy(l);
     pushCourseStats().catch(()=>{});
   }catch(e){}
+}
+
+/* ===== RESUME (14 Sept 2026) =====
+   Video mein jahan student hai wo jagah (seconds) mehfooz karna, taake
+   agli dafa wahin se chale — aur course ke upar "Continue where you
+   left off" ka card ban sake.
+
+   Kab likhta hai:
+     - video chalte huay har 30 second (agar 15+ second aage/peeche gaya ho)
+     - lesson band karte waqt
+   Mukammal lesson par nahi likhta — wo shuru se hi chale to theek hai. */
+let POS_SAVED=0, POS_TICKS=0;
+async function savePos(l, pos, dur){
+  if(!l||!ME) return;
+  pos=Math.max(0,Math.round(pos||0)); dur=Math.max(0,Math.round(dur||0));
+  const p=progFor(l);
+  if(p&&p.done) return;
+  if(Math.abs(pos-POS_SAVED)<15) return;
+  POS_SAVED=pos;
+  const posAt=Date.now();
+  try{
+    await setDoc(doc(db,'students',ME.uid,'progress',l.id),
+      {pos, dur, posAt, at:serverTimestamp()}, {merge:true});
+    const old=PROG.get(l.id)||{done:false,pct:0,seconds:0};
+    PROG.set(l.id,{...old,pos,dur,posAt});
+  }catch(e){}
+}
+
+function fmtClock(sec){
+  sec=Math.max(0,Math.round(sec||0));
+  const m=Math.floor(sec/60), s=sec%60;
+  return m+':'+String(s).padStart(2,'0');
+}
+
+/* Kaunsa lesson "continue" karna hai — jis par sab se aakhri dafa kaam
+   hua aur jo mukammal nahi. Sirf isi batch aur ijazat wale courses se. */
+function continueLesson(mine){
+  let best=null, bestAt=0;
+  mine.forEach(l=>{
+    const p=progFor(l);
+    if(!p||p.done) return;
+    const at=Number(p.posAt||0);
+    if(at>bestAt && (Number(p.pos||0)>15 || Number(p.pct||0)>0)){ best=l; bestAt=at; }
+  });
+  return best;
+}
+
+function renderContinue(mine){
+  const box=$('contBox'); if(!box) return;
+  const l=continueLesson(mine);
+  if(!l){ box.innerHTML=''; box.style.display='none'; return; }
+  const p=progFor(l)||{};
+  const pos=Number(p.pos||0), dur=Number(p.dur||0);
+  const left=dur>pos?fmtClock(dur-pos)+' remaining':(p.pct?p.pct+'% watched':'');
+  box.style.display='block';
+  box.innerHTML=`<div class="cont">
+    <div class="cont-ic"><i class="ti ti-player-play-filled"></i></div>
+    <div class="cont-b">
+      <div class="cont-l">Continue where you left off</div>
+      <div class="cont-t">${esc(l.title)}</div>
+      <div class="cont-m">${esc(l.module)}${left?' · '+esc(left):''}</div>
+    </div>
+    <button class="cont-btn" data-cont="${esc(l.id)}">Resume</button>
+  </div>`;
+  box.querySelector('[data-cont]').onclick=()=>openLesson(l.id);
 }
 
 /* ===== time ===== */
@@ -1843,7 +2091,7 @@ async function loadContent(){
 
   if(LESSONS_CSV && LESSONS_CSV.indexOf('http')===0){
     try{
-      const rows=parseCSV(await(await fetch(freshCsv(LESSONS_CSV))).text()).slice(1);
+      const rows=parseCSV(await fetchCsvText(LESSONS_CSV)).slice(1);
       /* Lesson ki ID YouTube video se banti hai, sheet ke row number se
          nahi. Pehle 'L1','L2'… hoti thi — us ka matlab tha ke sheet mein
          ek row beech mein daalte hi neeche ke sab lessons ki ID khisak
@@ -1859,7 +2107,7 @@ async function loadContent(){
      paid wale 'L1' se na takra jaye. */
   if(FREE_CSV && FREE_CSV.indexOf('http')===0){
     try{
-      const rows=parseCSV(await(await fetch(freshCsv(FREE_CSV))).text()).slice(1);
+      const rows=parseCSV(await fetchCsvText(FREE_CSV)).slice(1);
       all.push(...rowsToLessons(rows,'F'));
     }catch(e){}
   }
@@ -1867,7 +2115,7 @@ async function loadContent(){
   LESSONS = all.sort((a,b)=>a.order-b.order);
   if(TASKS_CSV && TASKS_CSV.indexOf('http')===0){
     try{
-      const rows=parseCSV(await(await fetch(freshCsv(TASKS_CSV))).text()).slice(1);
+      const rows=parseCSV(await fetchCsvText(TASKS_CSV)).slice(1);
       TASKS=rows.filter(r=>(r[0]||'').trim()&&(r[3]||'').trim())
         .map(r=>({batch:cleanBatch(r[0]),course:(r[1]||'').trim().toLowerCase(),module:(r[2]||'').trim(),
           task:(r[3]||'').trim(),submit:(r[4]||'').trim()}));
@@ -1896,14 +2144,17 @@ async function loadSubs(){
   }catch(e){}
 }
 const subKey=(batch,course,module)=>batch+'::'+course+'::'+module;
-async function submitTask(batch,course,module,link,text,btn){
+async function submitTask(batch,course,module,links,text,btn){
   const key=subKey(batch,course,module); const existing=SUBS[key];
   btn.disabled=true; btn.textContent='Sending…';
   // keep the conversation history; add this note as a student message
   const prevMsgs=(existing&&Array.isArray(existing.messages))?existing.messages.slice():[];
   if(existing && text) prevMsgs.push({from:'student',text:text,at:Math.floor(Date.now()/1000)});
+  /* `links` naya array hai; `link` pehla link — purana admin code aur
+     purani submissions isi par chalte hain, is liye dono likhte hain. */
+  links=Array.isArray(links)?links.filter(Boolean).slice(0,10):(links?[links]:[]);
   const payload={uid:ME.uid,key,name:ME.name||'',number:ME.number||'',batch,course,module,
-    link:link||'',text:text||'',status:'pending',messages:prevMsgs,at:serverTimestamp()};
+    link:links[0]||'',links,text:text||'',status:'pending',messages:prevMsgs,at:serverTimestamp()};
   try{
     const seen=existing?Number(existing.studentSeenAt||0):0;
     if(existing){ await updateDoc(doc(db,'submissions',existing.id),payload); SUBS[key]={id:existing.id,...payload,studentSeenAt:seen}; }
@@ -2412,6 +2663,50 @@ window.addEventListener('popstate', e => {
 document.querySelectorAll('#sideNav .snav').forEach(b=>{ b.onclick=()=>switchSection(b.dataset.s); });
 document.querySelectorAll('#mnav button').forEach(b=>{ if(b.dataset.s) b.onclick=()=>switchSection(b.dataset.s); });
 
+/* ===== FAVOURITES (14 Sept 2026) =====
+   Student apni pasand ke prompts (Prompt Book + Library) dil ka button
+   daba kar mehfooz karta hai. students/{uid}.favourites mein keys ka
+   array — Firestore mein, is liye phone badle to bhi rehte hain.
+
+   Key prompt ke matn se banti hai (sheet mein ID ka column nahi), is
+   liye wahi prompt prompt-book.html par bhi wahi key deta hai —
+   dono jagah ek hi list. Prompt ka matn badle to key badal jayegi;
+   ye qabool hai. */
+function favKey(kind, title, prompt){
+  const str = kind + '|' + String(title||'').trim() + '|' + String(prompt||'').trim().slice(0,300);
+  let h = 5381;
+  for(let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
+  return kind + '_' + (h >>> 0).toString(36);
+}
+function isFav(key){ return !!(ME && ME.favs && ME.favs.has(key)); }
+async function toggleFav(key, btn){
+  if(!ME) return;
+  const on = !isFav(key);
+  if(on) ME.favs.add(key); else ME.favs.delete(key);
+  paintFavBtn(btn, on);
+  try{
+    await updateDoc(doc(db,'students',ME.uid), { favourites: on ? arrayUnion(key) : arrayRemove(key) });
+  }catch(e){
+    // wapas — likha nahi ja saka
+    if(on) ME.favs.delete(key); else ME.favs.add(key);
+    paintFavBtn(btn, !on);
+  }
+}
+function paintFavBtn(btn, on){
+  if(!btn) return;
+  btn.classList.toggle('on', on);
+  btn.innerHTML = '<i class="ti ' + (on ? 'ti-heart-filled' : 'ti-heart') + '"></i>';
+  btn.title = on ? 'Remove from favourites' : 'Add to favourites';
+}
+function favBtnHTML(key){
+  const on = isFav(key);
+  return '<button type="button" class="fav-btn' + (on?' on':'') + '" data-fav="' + esc(key) + '" title="' + (on?'Remove from favourites':'Add to favourites') + '">'
+       + '<i class="ti ' + (on?'ti-heart-filled':'ti-heart') + '"></i></button>';
+}
+function wireFav(root){
+  root.querySelectorAll('[data-fav]').forEach(b=>{ b.onclick = e => { e.stopPropagation(); toggleFav(b.dataset.fav, b); }; });
+}
+
 /* ===== PROMPT BOOK (portal ke andar) =====
    Wahi data jo prompt-book.html par hai — usi published Sheet CSV se.
    Sheet mein kuch badlein to dono jagah khud badal jata hai.
@@ -2428,9 +2723,7 @@ async function loadPromptBook(){
   PBK_LOADED = true;                       // dobara koshish na ho
   const state = $('pbkState');
   try{
-    const res = await fetch(freshCsv(PBK_CSV), { cache: 'no-store' });
-    if(!res.ok) throw new Error(res.status);
-    const rows = parseCSV(await res.text()).slice(1);
+    const rows = parseCSV(await fetchCsvText(PBK_CSV)).slice(1);
     PBK_ALL = rows.map(pbkRow).filter(p => p.prompt).reverse();   // naye pehle
     if(!PBK_ALL.length){ state.innerHTML = '<i class="ti ti-mood-empty"></i>No prompts yet.'; return; }
     pbkChips();
@@ -2453,11 +2746,13 @@ function pbkRow(r){
       r.splice(1,1);
     }
   }
-  return { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
+  const p = { img:r[0]||'', title:r[1]||'', prompt:r[2]||'', cat:r[3]||'', tool:r[4]||'' };
+  p.key = favKey('pb', p.title, p.prompt);
+  return p;
 }
 
 function pbkChips(){
-  const cats = ['All', ...new Set(PBK_ALL.map(p=>p.cat).filter(Boolean))];
+  const cats = ['All', 'My Favourites', ...new Set(PBK_ALL.map(p=>p.cat).filter(Boolean))];
   const bar = $('pbkChips');
   bar.innerHTML = cats.map(c =>
     `<button class="pbk-chip${c==='All'?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`
@@ -2478,7 +2773,8 @@ function pbkRender(reset){
   const q = PBK_Q.trim().toLowerCase();
 
   const list = PBK_ALL.filter(p => {
-    if(PBK_FILTER !== 'All' && p.cat !== PBK_FILTER) return false;
+    if(PBK_FILTER === 'My Favourites'){ if(!isFav(p.key)) return false; }
+    else if(PBK_FILTER !== 'All' && p.cat !== PBK_FILTER) return false;
     if(!q) return true;
     return (p.title||'').toLowerCase().includes(q)
         || (p.prompt||'').toLowerCase().includes(q)
@@ -2494,7 +2790,9 @@ function pbkRender(reset){
     grid.hidden = true; more.hidden = true; state.hidden = false;
     state.innerHTML = '<i class="ti ti-search-off"></i>' + (q
       ? 'No prompts match that. Try a different word.'
-      : 'Nothing in this category yet.');
+      : (PBK_FILTER === 'My Favourites'
+          ? 'No favourites yet. Tap the heart on any prompt to save it here.'
+          : 'Nothing in this category yet.'));
     return;
   }
 
@@ -2515,6 +2813,7 @@ function pbkRender(reset){
         <div class="pbk-acts">
           <button class="pbk-btn copy" data-pbkcopy="${i}">Copy prompt</button>
           <button class="pbk-btn" data-pbkopen="${i}">Read all</button>
+          ${favBtnHTML(p.key)}
         </div>
       </div>
     </article>`).join('');
@@ -2543,6 +2842,7 @@ function pbkRender(reset){
       b.textContent = el.classList.toggle('open') ? 'Show less' : 'Read all';
     };
   });
+  wireFav(grid);
 }
 
 
@@ -2557,7 +2857,14 @@ function pbkRender(reset){
    server ke code mein hai. Is liye koi apna score nahi badal sakta.
    =================================================================== */
 
-let CT = { attemptId: null, qs: [], at: 0, picks: [] };
+/* CT — test ki halat.
+   at      = kaunsa sawal saamne hai (server ka `cur`)
+   curAt   = wo sawal kab shuru hua — SERVER ka waqt (ms)
+   skew    = server aur phone ki ghari ka farq — phone ki ghari ghalat
+             ho to bhi timer sahi rahe
+   picks   = sirf dikhane ke liye; asal jawab server par (cert-answer) */
+let CT = { attemptId: null, qs: [], at: 0, picks: [], curAt: 0, skew: 0, qSeconds: 30, sending: false, done: false };
+let CT_TICK = null;
 
 /* Har request ke saath ID token — server usi se pehchanta hai ke kaun
    hai. Bina is ke koi doosre student ke naam par test shuru kar sakta. */
@@ -2576,9 +2883,12 @@ async function ctFetch(path, body){
 }
 
 function ctShow(which){
-  ['ctLoad','ctGate','ctReady','ctPlay','ctResult','ctLocked','ctDone']
+  ['ctLoad','ctGate','ctReady','ctPlay','ctResult','ctLocked','ctDone',
+   'ctPlatform','ctLink','ctWait','ctRejected']
     .forEach(id => { const el = $(id); if(el) el.hidden = (id !== which); });
+  if(which !== 'ctPlay'){ clearInterval(CT_TICK); CT_TICK = null; }
 }
+const platName = p => p === 'tiktok' ? 'TikTok' : (p === 'facebook' ? 'Facebook' : 'your platform');
 
 async function loadCert(){
   ctShow('ctLoad');
@@ -2601,8 +2911,41 @@ async function loadCert(){
        nazar aana chahiye, chahe wo kahin bhi khara ho. Aakhri qadam
        khud test hai. */
     ctChecks(d.checks, d.countFrom);
+    CT.skew = (Number(d.now) || Date.now()) - Date.now();   // server − phone
+    CT.qSeconds = Number(d.qSeconds) || 30;
 
     if(d.state === 'not_eligible'){ ctShow('ctGate'); return; }
+
+    /* ---- Platform chunna ---- */
+    if(d.state === 'choose_platform'){ ctShow('ctPlatform'); return; }
+
+    /* ---- Test paas — link ka marhala ---- */
+    if(d.state === 'passed_link'){
+      const w = d.work || {};
+      $('ctLinkP').innerHTML = 'You scored <b>' + (w.score||0) + '/' + (w.total||30) + '</b>. Now paste the link to your <b>'
+        + platName(w.platform) + '</b> account — the one you have been working on — so our team can review it.';
+      const note = $('ctLinkNote');
+      if(w.status === 'link_bad'){
+        note.hidden = false;
+        note.innerHTML = '<b>Your last link was not accepted.</b> ' + esc(w.note || '') + ' You have '
+          + Math.max(0,(w.maxTries||2)-(w.tries||0)) + ' more chance.';
+      }else note.hidden = true;
+      $('ctLinkIn').value = '';
+      $('ctLinkIn').placeholder = w.platform === 'tiktok' ? 'https://www.tiktok.com/@yourname' : 'https://www.facebook.com/yourpage';
+      ctShow('ctLink'); return;
+    }
+    if(d.state === 'work_pending'){
+      $('ctWaitLink').textContent = (d.work||{}).link || '';
+      ctShow('ctWait'); return;
+    }
+    if(d.state === 'work_rejected'){
+      const w = d.work || {};
+      $('ctRejP').textContent = w.status === 'false'
+        ? 'The account link you shared could not be accepted, and this request has been closed.'
+        : 'Both chances to share a correct account link have been used.';
+      if(w.note){ $('ctRejNote').hidden = false; $('ctRejNote').textContent = w.note; } else $('ctRejNote').hidden = true;
+      ctShow('ctRejected'); return;
+    }
 
     if(d.state === 'locked'){
       const when = new Date(d.opensAt);
@@ -2618,17 +2961,20 @@ async function loadCert(){
     CT.attemptId = d.attemptId;
     CT.qs = d.questions || [];
     CT.picks = new Array(CT.qs.length).fill(0);
-    CT.at = 0;
+    CT.at = Number(d.cur) || 0;
+    CT.curAt = Number(d.curAt) || 0;
+    CT.done = false;
 
-    if(d.state === 'in_progress'){
-      /* Adhoora test — seedha wahin se shuru, naye sawal nahi milte */
+    if(d.state === 'in_progress' && CT.curAt){
+      /* Adhoora test — seedha wahin se, naye sawal nahi milte */
+      if(CT.at >= CT.qs.length){ ctSubmit(); return; }
       ctShow('ctPlay');
       ctPaint();
       return;
     }
 
     $('ctReadyP').textContent =
-      'This is attempt ' + d.attemptNo + ' of ' + d.maxAttempts + '.';
+      'This is attempt ' + d.attemptNo + ' of ' + d.maxAttempts + ' — ' + platName(d.platform) + ' questions.';
     ctShow('ctReady');
 
   }catch(e){
@@ -2657,20 +3003,19 @@ async function loadCert(){
 
 const PL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRXeB3xobYOPh23f2_z0fS_sOR82-OHOa2vsbjeb0tL-XQKgwVAhCKt3543HtwxLgMWOI_UYcwiCx-6/pub?output=csv';
 
-let PL_ALL = [], PL_Q = '', PL_LOADED = false;
+let PL_ALL = [], PL_Q = '', PL_LOADED = false, PL_FAV_ONLY = false;
 
 async function loadLibrary(){
   if(PL_LOADED) return;
   const state = $('plState');
   try{
-    const res = await fetch(freshCsv(PL_CSV), { cache:'no-store' });
-    if(!res.ok) throw new Error(res.status);
-    const rows = parseCSV(await res.text()).slice(1);
+    const rows = parseCSV(await fetchCsvText(PL_CSV)).slice(1);
 
     PL_ALL = rows.map(r => ({
       title: (r[0]||'').trim(),
       prompt:(r[1]||'').trim()
     })).filter(p => p.title && p.prompt);
+    PL_ALL.forEach(p => { p.key = favKey('pl', p.title, p.prompt); });
 
     if(!PL_ALL.length){
       state.innerHTML = '<i class="ti ti-mood-empty"></i>No prompts yet.';
@@ -2688,6 +3033,7 @@ function plRender(){
   const q = PL_Q.trim().toLowerCase();
 
   const shown = PL_ALL.filter(p=>{
+    if(PL_FAV_ONLY && !isFav(p.key)) return false;
     if(!q) return true;
     return (p.title+' '+p.prompt).toLowerCase().includes(q);
   });
@@ -2697,7 +3043,9 @@ function plRender(){
 
   if(!shown.length){
     list.hidden = true; state.hidden = false;
-    state.innerHTML = '<i class="ti ti-search-off"></i>No prompts match that. Try a different word.';
+    state.innerHTML = '<i class="ti ti-search-off"></i>' + (PL_FAV_ONLY && !q
+      ? 'No favourites yet. Tap the heart on any prompt to save it here.'
+      : 'No prompts match that. Try a different word.');
     return;
   }
 
@@ -2712,9 +3060,11 @@ function plRender(){
     +   '<div class="pl-text" id="plP'+i+'">'+esc(p.prompt)+'</div>'
     +   '<div class="pl-acts">'
     +     '<button class="pl-btn copy" data-copy="P'+i+'">Copy the whole prompt</button>'
+    +     favBtnHTML(p.key)
     +   '</div>'
     + '</div></article>'
   ).join('');
+  wireFav(list);
 
   list.querySelectorAll('.pl-head').forEach(b=>{
     b.onclick = ()=> $('plc'+b.dataset.i).classList.toggle('open');
@@ -2741,13 +3091,15 @@ function plRender(){
 }
 
 $('plSearch').oninput = e => { PL_Q = e.target.value; plRender(); };
+$('plFavAll').onclick = () => { PL_FAV_ONLY = false; $('plFavAll').classList.add('on'); $('plFavOnly').classList.remove('on'); plRender(); };
+$('plFavOnly').onclick = () => { PL_FAV_ONLY = true; $('plFavOnly').classList.add('on'); $('plFavAll').classList.remove('on'); plRender(); };
 
 function ctChecks(list, countFrom){
   if(!Array.isArray(list)) return;
 
   /* Ginti kis tareekh se shuru hui — student ko saaf batana zaroori
      hai, warna wo sochega ke us ka purana waqt gum ho gaya. */
-  ['ctFrom','ctFrom2','ctFrom3'].forEach(id=>{
+  ['ctFrom','ctFrom2','ctFrom3','ctFrom4'].forEach(id=>{
     const el = $(id); if(!el) return;
     if(!countFrom){ el.hidden = true; return; }
     const d = new Date(countFrom + 'T00:00:00');
@@ -2763,18 +3115,17 @@ function ctChecks(list, countFrom){
     + '<span class="ct-cnow">'+esc(c.now)+' of '+esc(c.need)+'</span></span>'
     + '</div>'
   ).join('');
-  ['ctChecks','ctChecks2','ctChecks3'].forEach(id=>{
+  ['ctChecks','ctChecks2','ctChecks3','ctChecks4','ctChecks5','ctChecks6'].forEach(id=>{
     const el = $(id); if(el) el.innerHTML = html;
   });
 }
 
 function ctPaint(){
   const q = CT.qs[CT.at];
-  if(!q) return;
+  if(!q){ clearInterval(CT_TICK); return; }
   $('ctFill').style.width = ((CT.at / CT.qs.length) * 100) + '%';
   $('ctNum').textContent = 'Question ' + (CT.at+1) + ' of ' + CT.qs.length;
-  const left = CT.picks.filter(p => !p).length;
-  $('ctLeft').textContent = left ? left + ' still to answer' : 'all answered';
+  $('ctLeft').textContent = (CT.qs.length - CT.at - 1) + ' after this';
   $('ctQ').textContent = q.q;
 
   $('ctOpts').innerHTML = (q.opts||[]).map((o,i) =>
@@ -2785,36 +3136,94 @@ function ctPaint(){
   $('ctOpts').querySelectorAll('.ct-opt').forEach(b=>{
     b.onclick = ()=>{
       CT.picks[CT.at] = parseInt(b.dataset.i,10);
-      ctPaint();
+      $('ctOpts').querySelectorAll('.ct-opt').forEach(x=>x.classList.toggle('on', x===b));
     };
   });
 
-  $('ctPrev').disabled = CT.at === 0;
-  $('ctNext').textContent = (CT.at === CT.qs.length-1) ? 'Submit test' : 'Next';
+  const btn = $('ctNext');
+  btn.disabled = false;
+  btn.textContent = (CT.at === CT.qs.length-1) ? 'Submit test' : 'Next';
+
+  /* Timer — server ke waqt se. Har second ginta hai; 0 par khud
+     agla sawal (jawab khali). */
+  clearInterval(CT_TICK);
+  ctTick();
+  CT_TICK = setInterval(ctTick, 250);
+}
+
+function ctSecondsLeft(){
+  const serverNow = Date.now() + CT.skew;
+  return CT.qSeconds - (serverNow - CT.curAt) / 1000;
+}
+
+function ctTick(){
+  const left = ctSecondsLeft();
+  const shown = Math.max(0, Math.ceil(left));
+  const fill = $('ctTFill'), num = $('ctTNum');
+  if(fill){
+    fill.style.width = Math.max(0, Math.min(100, left / CT.qSeconds * 100)) + '%';
+    fill.className = 'ct-tfill' + (left <= 5 ? ' late' : (left <= 10 ? ' warn' : ''));
+  }
+  if(num) num.textContent = shown;
+  if(left <= 0 && !CT.sending){
+    /* Waqt khatam — jo chuna tha (ya kuch nahi) wahi chala jayega */
+    ctAdvance(true);
+  }
+}
+
+/* Jawab server ko bhejna aur agla sawal — ya aakhir par submit.
+   timedOut = true jab timer ne khud aage barhaya. */
+async function ctAdvance(timedOut){
+  if(CT.sending || CT.done) return;
+  CT.sending = true;
+  clearInterval(CT_TICK); CT_TICK = null;
+  const btn = $('ctNext');
+  btn.disabled = true; btn.textContent = timedOut ? 'Time is up…' : 'Saving…';
+  try{
+    const d = await ctFetch('/api/cert-answer', {
+      attemptId: CT.attemptId, n: CT.at, pick: CT.picks[CT.at] || 0
+    });
+    if(d.now) CT.skew = Number(d.now) - Date.now();
+    CT.at = Number(d.cur) || 0;
+    CT.curAt = Number(d.curAt) || (Date.now() + CT.skew);
+    CT.sending = false;
+    if(d.done || CT.at >= CT.qs.length){ CT.done = true; ctSubmit(); return; }
+    ctPaint();
+  }catch(e){
+    CT.sending = false;
+    /* Net gaya — 2 second baad phir koshish; timer server par chal
+       raha hai, is liye der ka nuqsan student ka hi hai */
+    btn.textContent = 'No connection — retrying…';
+    setTimeout(()=>ctAdvance(timedOut), 2000);
+  }
 }
 
 async function ctSubmit(){
-  const left = CT.picks.filter(p => !p).length;
-  if(left && !confirm(left + ' question(s) have no answer. Submit anyway?')) return;
-
+  clearInterval(CT_TICK); CT_TICK = null;
   const btn = $('ctNext');
   btn.disabled = true; btn.textContent = 'Checking…';
   try{
-    const d = await ctFetch('/api/cert-submit', {
-      attemptId: CT.attemptId, answers: CT.picks
-    });
+    /* Jawab server par pehle se hain (cert-answer) — yahan sirf score */
+    const d = await ctFetch('/api/cert-submit', { attemptId: CT.attemptId });
 
+    const pctShown = (d.pct != null) ? d.pct : (d.total ? Math.round((d.score||0)/d.total*100) : 0);
     $('ctScore').textContent = d.score + ' / ' + d.total;
-    $('ctScoreSub').textContent = d.pct + '% — pass mark is 70%';
+    $('ctScoreSub').textContent = pctShown + '% — pass mark is 70%';
 
-    if(d.state === 'passed'){
-      $('ctMsg').textContent = 'You passed. Your certificate has been issued.';
-      $('ctCertNo').textContent = d.certNo;
-      $('ctView').href = 'certificate.html?no=' + encodeURIComponent(d.certNo||'');
-      $('ctCertBox').hidden = false;
+    if(d.state === 'passed' || (d.state === 'already_submitted' && d.passed)){
+      /* Paas — magar certificate abhi nahi. Link ka marhala loadCert
+         dikhata hai. Pehle 2 second nateeja. */
+      $('ctMsg').textContent = 'You passed. One last step: share your account link.';
+      $('ctCertBox').hidden = true;
       $('ctAgain').hidden = true;
-      ctFeatureBox('', null);   // abhi poocha nahi — sawal dikhao
+      $('ctFeature').hidden = true;
+      $('ctReview').innerHTML = '';
+      ctShow('ctResult');
+      window.scrollTo({top:0,behavior:'smooth'});
+      setTimeout(loadCert, 2500);
+      return;
     }else{
+      $('ctFeature').hidden = true;
       const leftTries = 3 - (d.attemptsUsed || 0);
       $('ctMsg').textContent = leftTries > 0
         ? 'Not this time. You have ' + leftTries + ' attempt(s) left. Go back through the lessons before trying again.'
@@ -2899,13 +3308,52 @@ $('ctNo2').onclick  = ()=> ctSetFeature('2', false);
   check();
 })();
 
-$('ctStart').onclick = ()=>{ ctShow('ctPlay'); ctPaint(); };
-$('ctPrev').onclick  = ()=>{ if(CT.at > 0){ CT.at--; ctPaint(); } };
-$('ctNext').onclick  = ()=>{
-  if(CT.at < CT.qs.length-1){ CT.at++; ctPaint(); }
-  else ctSubmit();
+/* Start — server ko batao ke ghari ab shuru (pehle sawal ka waqt) */
+$('ctStart').onclick = async ()=>{
+  const b = $('ctStart'); b.disabled = true; b.textContent = 'Starting…';
+  try{
+    const d = await ctFetch('/api/cert-answer', { attemptId: CT.attemptId, begin: true });
+    if(d.now) CT.skew = Number(d.now) - Date.now();
+    CT.at = Number(d.cur) || 0;
+    CT.curAt = Number(d.curAt) || (Date.now() + CT.skew);
+    if(d.done){ ctSubmit(); return; }
+    ctShow('ctPlay'); ctPaint();
+  }catch(e){
+    alert(e.message || 'Could not start. Please try again.');
+  }finally{ b.disabled = false; b.textContent = 'Start the test'; }
 };
+$('ctNext').onclick  = ()=> ctAdvance(false);
 $('ctAgain').onclick = ()=> loadCert();
+
+/* Platform chunna */
+document.querySelectorAll('[data-plat]').forEach(b=>{
+  b.onclick = async ()=>{
+    const p = b.dataset.plat;
+    if(!confirm('Choose ' + platName(p) + '? This cannot be changed later.')) return;
+    document.querySelectorAll('[data-plat]').forEach(x=>x.disabled = true);
+    ctShow('ctLoad');
+    try{
+      await ctFetch('/api/cert-start', { platform: p });
+    }catch(e){ alert(e.message || 'Could not save. Please try again.'); }
+    document.querySelectorAll('[data-plat]').forEach(x=>x.disabled = false);
+    loadCert();
+  };
+});
+
+/* Link bhejna */
+$('ctLinkSend').onclick = async ()=>{
+  const link = $('ctLinkIn').value.trim();
+  if(!link){ alert('Please paste the link to your account.'); return; }
+  if(!/^https?:\/\//i.test(link)){ alert('Please paste the full link, starting with https://'); return; }
+  if(!confirm('Send this link for review?\n\n' + link)) return;
+  const b = $('ctLinkSend'); b.disabled = true; b.textContent = 'Sending…';
+  try{
+    await ctFetch('/api/cert-work', { link });
+    loadCert();
+  }catch(e){
+    alert(e.message || 'Could not send. Please try again.');
+  }finally{ b.disabled = false; b.textContent = 'Send for review'; }
+};
 
 $('pbkSearch').oninput = e => { PBK_Q = e.target.value; pbkRender(true); };
 $('pbkMore').onclick   = () => pbkRender(false);
@@ -2994,6 +3442,9 @@ function render(){
   $('progLeft').textContent = mine.length===0 ? 'Coming soon'
     : (mine.length-done>0 ? (mine.length-done)+' to go' : 'All complete!');
 
+  // "Continue where you left off" — progress ke neeche, tabs ke upar
+  try{ renderContinue(mine); }catch(e){}
+
   // modules for selected course
   const shown=inBatch.filter(l=>l.course===TAB);
   if(!shown.length){ $('mods').innerHTML='<div class="empty"><i class="ti ti-books"></i>No lessons added to this course yet.</div>'; return; }
@@ -3078,6 +3529,24 @@ function threadHTML(s){
   return `<div class="task-thread">${out}</div>`;
 }
 
+/* Submission ke saare links — naya `links` array, ya purana ek `link` */
+function subLinks(s){
+  if(!s) return [];
+  const arr=Array.isArray(s.links)?s.links.filter(Boolean):[];
+  if(!arr.length && s.link) arr.push(s.link);
+  return arr;
+}
+function linksHTML(s){
+  const ls=subLinks(s);
+  if(!ls.length) return 'Submitted';
+  return (ls.length===1?'Your link: ':'Your links: ')
+    + ls.map(l=>`<a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('<span class="task-sep">·</span>');
+}
+/* Link ka ek khana — "Add another link" isi ko dobara banata hai */
+function linkInput(key,val){
+  return `<div class="task-lrow"><input type="url" placeholder="Link to your video" data-link="${esc(key)}" value="${esc(val||'')}"><button type="button" class="task-lx" data-lx="${esc(key)}" title="Remove">&times;</button></div>`;
+}
+
 function taskCard(t){
   const key=subKey(t.batch,t.course,t.module);
   const s=SUBS[key], st=s?s.status:null;
@@ -3088,11 +3557,15 @@ function taskCard(t){
   const fb = threadHTML(s);
   const head=`<div class="task-h"><span class="task-tag"><i class="ti ti-checklist"></i>${esc(courseName(t.course))} · ${esc(t.module)}</span>${chip}</div><div class="task-t">${esc(t.task)}</div>`;
 
-  if(st==='approved') return `<div class="task">${head}${fb}<div class="task-sent">${s.link?`Your link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>`:'Submitted'}</div></div>`;
-  if(st==='pending') return `<div class="task">${head}<div class="task-sent">${s.link?`Your link: <a href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.link)}</a>`:'Submitted'} — waiting for review</div><button class="task-again" data-edit="${esc(key)}">Change my submission</button></div>`;
+  if(st==='approved') return `<div class="task">${head}${fb}<div class="task-sent">${linksHTML(s)}</div></div>`;
+  if(st==='pending') return `<div class="task">${head}<div class="task-sent">${linksHTML(s)} — waiting for review</div><button class="task-again" data-edit="${esc(key)}">Change my submission</button></div>`;
+  /* Multiple links (14 Sept 2026) — ek se zyada video ho to har ek ka
+     alag khana. Pehle sirf ek link ja sakta tha. */
+  const prev=subLinks(s); if(!prev.length) prev.push('');
   return `<div class="task">${head}${t.submit?`<div class="task-w">${esc(t.submit)}</div>`:''}${fb}
     <div class="task-f">
-      <input type="url" placeholder="Link to your video" data-link="${esc(key)}" value="${s?esc(s.link):''}">
+      <div class="task-links" data-links="${esc(key)}">${prev.map(l=>linkInput(key,l)).join('')}</div>
+      <button type="button" class="task-addl" data-addl="${esc(key)}"><i class="ti ti-plus"></i> Add another link</button>
       <textarea placeholder="Anything to add? (optional)" data-text="${esc(key)}">${s?esc(s.text):''}</textarea>
       <button class="task-btn" data-send="${esc(key)}" data-b="${esc(t.batch)}" data-c="${esc(t.course)}" data-m="${esc(t.module)}">${st==='rework'?'Submit again':'Submit'}</button>
     </div></div>`;
@@ -3102,28 +3575,54 @@ function wireTaskButtons(wrap){
   wrap.querySelectorAll('[data-send]').forEach(b=>{
     b.onclick=()=>{
       const key=b.dataset.send;
-      const link=wrap.querySelector('[data-link="'+CSS.escape(key)+'"]').value.trim();
+      const links=[...wrap.querySelectorAll('[data-link="'+CSS.escape(key)+'"]')]
+        .map(i=>i.value.trim()).filter(Boolean);
+      const bad=links.find(l=>!/^https?:\/\//i.test(l));
+      if(bad){ alert('Please paste the full link, starting with http:// or https://'); return; }
       const text=wrap.querySelector('[data-text="'+CSS.escape(key)+'"]').value.trim();
-      if(!link&&!text){ alert('Please add a link or some text.'); return; }
-      submitTask(b.dataset.b,b.dataset.c,b.dataset.m,link,text,b);
+      if(!links.length&&!text){ alert('Please add a link or some text.'); return; }
+      submitTask(b.dataset.b,b.dataset.c,b.dataset.m,links,text,b);
     };
   });
+  // "Add another link" — naya khana, zyada se zyada 10
+  wrap.querySelectorAll('[data-addl]').forEach(b=>{
+    b.onclick=()=>{
+      const key=b.dataset.addl;
+      const box=wrap.querySelector('[data-links="'+CSS.escape(key)+'"]');
+      if(box.querySelectorAll('input').length>=10){ alert('You can add up to 10 links.'); return; }
+      box.insertAdjacentHTML('beforeend',linkInput(key,''));
+      wireLinkRemove(box);
+      box.lastElementChild.querySelector('input').focus();
+    };
+  });
+  wrap.querySelectorAll('[data-links]').forEach(wireLinkRemove);
   wrap.querySelectorAll('[data-edit]').forEach(b=>{
     b.onclick=()=>{ const key=b.dataset.edit; if(SUBS[key])SUBS[key].status='rework'; renderTasks(); };
+  });
+}
+/* Link ka khana hatana — pehla khana kabhi nahi hatta, sirf khali hota hai */
+function wireLinkRemove(box){
+  box.querySelectorAll('[data-lx]').forEach(x=>{
+    x.onclick=()=>{
+      const row=x.parentElement;
+      if(box.querySelectorAll('.task-lrow').length<=1){ row.querySelector('input').value=''; return; }
+      row.remove();
+    };
   });
 }
 
 /* ===== VIDEO (watch before complete) ===== */
 /* Video ko saada iframe se chalana — jab YouTube ki API na mile.
    Is soorat mein watch % nahi banta, sirf waqt se button khulta hai. */
-function mountPlain(vid){
+function mountPlain(vid, startAt){
   const box=$('mFrame');
   box.innerHTML='';
   if(!vid) return;
   const f=document.createElement('iframe');
   f.setAttribute('allow','accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
   f.setAttribute('allowfullscreen','');
-  f.src='https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&modestbranding=1&iv_load_policy=3&color=white&playsinline=1';
+  f.src='https://www.youtube-nocookie.com/embed/'+vid+'?rel=0&modestbranding=1&iv_load_policy=3&color=white&playsinline=1'
+    +(startAt>0?'&start='+Math.round(startAt):'');
   box.appendChild(f);
 }
 
@@ -3152,6 +3651,9 @@ function startWatchTick(){
       }
     }
     if(WATCH_MAX-WATCH_SAVED>=5) saveWatch(OPEN,WATCH_MAX,Math.round((Date.now()-T0)/1000));
+    /* Resume — har 30 second (6 tick) par jagah likh do */
+    POS_TICKS++;
+    if(POS_TICKS%6===0) savePos(OPEN,cur,dur);
   },5000);
 }
 function paintWatch(){
@@ -3169,6 +3671,14 @@ function openLesson(id){
   const p=progFor(l);
   WATCH_MAX=(p&&!p.done)?Number(p.pct||0):0;   // jahan chhora tha wahin se ginti
   WATCH_SAVED=WATCH_MAX;
+  /* Resume — jahan pichli dafa chhoRa tha. Mukammal lesson shuru se.
+     Aakhri 20 second par chhoRa ho to bhi shuru se — wo khatam hi tha. */
+  let resumeAt=0;
+  if(p&&!p.done){
+    const pos=Number(p.pos||0), dur=Number(p.dur||0);
+    if(pos>15 && (!dur || pos<dur-20)) resumeAt=pos;
+  }
+  POS_SAVED=resumeAt; POS_TICKS=0;
   $('mTitle').textContent=l.title;
   paintWatch();
 
@@ -3183,12 +3693,19 @@ function openLesson(id){
       PLAYER=new window.YT.Player(holder,{
         videoId:vid,
         host:'https://www.youtube-nocookie.com',
-        playerVars:{rel:0,modestbranding:1,iv_load_policy:3,playsinline:1},
-        events:{ onReady:()=>startWatchTick() }
+        playerVars:{rel:0,modestbranding:1,iv_load_policy:3,playsinline:1,start:resumeAt||0},
+        events:{ onReady:()=>{
+          if(resumeAt>0){
+            try{ PLAYER.seekTo(resumeAt,true); }catch(e){}
+            const n=$('mNote');
+            if(n && !isDone(l)){ n.className='mnote'; n.innerHTML='<i class="ti ti-player-skip-forward"></i> <span>Resumed from '+fmtClock(resumeAt)+'</span>'; }
+          }
+          startWatchTick();
+        } }
       });
-    }catch(e){ PLAYER=null; mountPlain(vid); }
+    }catch(e){ PLAYER=null; mountPlain(vid,resumeAt); }
   }else{
-    mountPlain(vid);
+    mountPlain(vid,resumeAt);
   }
 
   const btn=$('mDone'), noteEl=$('mNote'), done=isDone(l);
@@ -3213,6 +3730,11 @@ function openLesson(id){
 function shutModal(){
   // band karte waqt jo dekha tha wo mehfooz kar lo
   if(OPEN && WATCH_MAX>WATCH_SAVED) saveWatch(OPEN,WATCH_MAX,Math.round((Date.now()-T0)/1000));
+  // aur jahan tha wo jagah bhi — resume ke liye
+  if(OPEN && PLAYER){
+    let cur=0,dur=0; try{ cur=PLAYER.getCurrentTime()||0; dur=PLAYER.getDuration()||0; }catch(e){}
+    if(cur>0){ POS_SAVED=-999; savePos(OPEN,cur,dur); }
+  }
   clearInterval(watchTick); watchTick=null;
   try{ if(PLAYER&&PLAYER.destroy) PLAYER.destroy(); }catch(e){}
   PLAYER=null;

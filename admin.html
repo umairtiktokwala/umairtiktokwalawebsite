@@ -176,6 +176,15 @@ button{font-family:var(--body)}
 .cert-side{text-align:right;flex-shrink:0}
 .cert-no{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.05em;color:var(--purple)}
 
+.wr-count{display:inline-block;font-size:12px;font-weight:700;background:var(--amber,#F59E0B);color:#fff;border-radius:99px;padding:2px 9px;margin-left:8px;vertical-align:middle}
+.wr{background:var(--card);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.wr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.wr-nm{font-weight:700;font-size:15px}
+.wr-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.wr-plat{font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--card-2,#F1F1EE)}
+.wr-link{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:13px;color:var(--purple);text-decoration:underline;word-break:break-all;margin:6px 0 12px}
+.wr-note{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:11px;font-family:inherit;font-size:13.5px;background:var(--card);color:var(--ink);margin-bottom:10px;min-height:44px;resize:vertical}
+.wr-warn{background:var(--card);border:1.5px solid #F59E0B;color:#92400E}
 .att-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line);font-size:13px;flex-wrap:wrap}
 .att-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .att-dot.ok{background:#16B364}
@@ -606,6 +615,21 @@ button{font-family:var(--body)}
              ============================================================ -->
         <div id="secCerts" style="display:none">
           <div class="act" id="certAct"></div>
+
+          <!-- ============================================================
+               WORK REVIEW (14 Sept 2026)
+               Test paas karne ke baad student apne account ka link deta
+               hai. Yahan team dekhti hai: account us ka apna hai, videos
+               hain, 30 din se kaam ho raha hai. Teen button:
+                 Approve         → certificate ban gaya (api/cert-review)
+                 Link not right  → dobara de sakta hai (kul 2 mauqe)
+                 False claim     → khatam. Sirf tab jab YAQEEN ho.
+               ============================================================ -->
+          <h3 class="sec-h">Work review <span class="wr-count" id="wrCount"></span></h3>
+          <div class="empty" id="wrEmpty" style="display:none"><i class="ti ti-user-check"></i>No account links waiting for review.</div>
+          <div id="wrList"></div>
+
+          <h3 class="sec-h" style="margin-top:32px">Certificates issued</h3>
 
           <div class="row-b">
             <input type="text" id="certSearch" class="inp" placeholder="Search by name, number or certificate no…">
@@ -1069,7 +1093,81 @@ function certDate(ts){
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
 
+/* ===== WORK REVIEW (14 Sept 2026) =====
+   Jin students ka workStatus 'pending' hai — un ka link, platform,
+   kitni dafa diya, kab. Faisla api/cert-review par jata hai (login
+   token ke saath); certificate wahin banta hai. */
+function renderWork(){
+  const list = STUDENTS.filter(s => s.workStatus === 'pending')
+    .sort((a,b)=>(a.workAt?.seconds||0)-(b.workAt?.seconds||0));   // purane pehle
+  $('wrCount').textContent = list.length ? list.length : '';
+  $('wrCount').style.display = list.length ? 'inline-block' : 'none';
+  $('wrEmpty').style.display = list.length ? 'none' : 'block';
+  $('wrList').innerHTML = list.map(s => {
+    const plat = s.workPlatform === 'tiktok' ? 'TikTok' : 'Facebook';
+    const tries = Number(s.workTries||0);
+    return `<div class="wr" data-wr="${esc(s.uid)}">
+      <div class="wr-top">
+        <div>
+          <div class="wr-nm">${esc(s.name||'No name')}</div>
+          <div class="wr-meta">${esc(s.number||'')} · ${esc(batchLabel((s.batches||[])[0]||''))} · sent ${certDate(s.workAt)} · link ${tries} of 2</div>
+        </div>
+        <span class="wr-plat">${plat}</span>
+      </div>
+      <a class="wr-link" href="${esc(s.workLink||'#')}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>${esc(s.workLink||'')}</a>
+      <textarea class="wr-note" data-wrnote="${esc(s.uid)}" placeholder="Reason for the student (required for the two red buttons)"></textarea>
+      <div class="s-btns">
+        <button class="ok" data-wrok="${esc(s.uid)}"><i class="ti ti-check"></i> Approve — issue certificate</button>
+        <button class="no wr-warn" data-wrbad="${esc(s.uid)}"><i class="ti ti-link-off"></i> Link not right</button>
+        <button class="no" data-wrfalse="${esc(s.uid)}"><i class="ti ti-ban"></i> False claim</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const note = uid => { const t=$('wrList').querySelector('[data-wrnote="'+CSS.escape(uid)+'"]'); return t?t.value.trim():''; };
+  $('wrList').querySelectorAll('[data-wrok]').forEach(b=>{ b.onclick=()=>{
+    if(!confirm('Approve and issue the certificate?')) return;
+    workDecide(b.dataset.wrok,'approve',note(b.dataset.wrok),b);
+  };});
+  $('wrList').querySelectorAll('[data-wrbad]').forEach(b=>{ b.onclick=()=>{
+    const n=note(b.dataset.wrbad); if(!n){ alert('Write a short reason — the student will see it.'); return; }
+    workDecide(b.dataset.wrbad,'link_bad',n,b);
+  };});
+  $('wrList').querySelectorAll('[data-wrfalse]').forEach(b=>{ b.onclick=()=>{
+    const n=note(b.dataset.wrfalse); if(!n){ alert('Write a short reason — the student will see it.'); return; }
+    if(!confirm('FALSE CLAIM closes this student\'s certificate request for good. Only use it when you are certain.\n\nContinue?')) return;
+    workDecide(b.dataset.wrfalse,'false',n,b);
+  };});
+}
+
+async function workDecide(uid, action, note, btn){
+  const card = btn.closest('.wr');
+  card.querySelectorAll('button').forEach(x=>x.disabled=true);
+  try{
+    const token = await auth.currentUser.getIdToken();
+    const r = await fetch('/api/cert-review',{
+      method:'POST',
+      headers:{'Content-Type':'application/json', Authorization:'Bearer '+token},
+      body: JSON.stringify({ uid, action, note })
+    });
+    const d = await r.json();
+    if(!r.ok || d.error) throw new Error(d.error || 'Failed');
+    const st = STUDENTS.find(x=>x.uid===uid);
+    if(st){ st.workStatus = action==='approve'?'approved':(action==='link_bad'?'link_bad':'false'); st.workNote=note; }
+    if(action==='approve' && d.certNo){
+      CERTS[uid] = { id:uid, uid, name:st?.name||'', number:st?.number||'', batch:(st?.batches||[])[0]||'', certNo:d.certNo,
+        score:0, total:0, pct:0, issuedAt:{ seconds: Math.floor(Date.now()/1000) } };
+      alert('Certificate issued: ' + d.certNo);
+    }
+    renderCerts();
+  }catch(e){
+    alert(e.message || 'Could not save the decision.');
+    card.querySelectorAll('button').forEach(x=>x.disabled=false);
+  }
+}
+
 function renderCerts(){
+  try{ renderWork(); }catch(e){ console.error(e); }
   const list = Object.values(CERTS)
     .sort((a,b)=>(b.issuedAt?.seconds||0)-(a.issuedAt?.seconds||0));
 
@@ -1241,11 +1339,20 @@ function subCard(s){
       <span class="chip mod">${esc(courseName(s.course))} · ${esc(s.module||'')}</span>
       <span class="chip ${esc(s.status)}">${chipTxt}</span>
     </div>
-    ${s.link?`<a class="s-link" href="${esc(s.link)}" target="_blank" rel="noopener"><i class="ti ti-link"></i>${esc(s.link)}</a>`:''}
+    ${subLinks(s).map((l,li)=>`<a class="s-link" href="${esc(l)}" target="_blank" rel="noopener"><i class="ti ti-link"></i>${subLinks(s).length>1?'<b>'+(li+1)+'.</b> ':''}${esc(l)}</a>`).join('<br>')}
     ${s.reviewedByName?`<div class="s-rev"><i class="ti ti-user-check"></i> Reviewed by ${esc(s.reviewedByName)}${s.reviewedAt?.seconds?' · '+fmtDateTime(s.reviewedAt.seconds):''}</div>`:''}
     <div class="thread">${threadHTML}</div>
     ${actions}
   </div>`;
+}
+
+/* Submission ke saare links — naya `links` array (14 Sept 2026, student
+   ab kai links bhej sakta hai), ya purana ek `link`. */
+function subLinks(s){
+  if(!s) return [];
+  const arr=Array.isArray(s.links)?s.links.filter(Boolean):[];
+  if(!arr.length && s.link) arr.push(s.link);
+  return arr;
 }
 
 function wireSubs(wrap){
@@ -1265,9 +1372,12 @@ function wireSubs(wrap){
    dafa portal khole to jawab wahan dikh hi jayega. */
 async function push(payload){
   try{
+    /* 14 Sept 2026: /api/push ab login maangta hai (pehle khula tha).
+       Token ke bagair server 401 dega. */
+    const token = await auth.currentUser.getIdToken();
     const r = await fetch('/api/push', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json', Authorization:'Bearer '+token},
       body: JSON.stringify(payload)
     });
     return await r.json();
@@ -1638,7 +1748,7 @@ function renderStudentSubs(s){
         <span class="dsub-m">${esc(courseName(x.course))} · ${esc(x.module||'')}</span>
         <span class="dsub-st ${st}">${lbl}</span>
       </div>
-      ${x.link?`<div class="dsub-l"><a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.link)}</a></div>`:'<div class="dsub-l">No link — text only</div>'}
+      ${subLinks(x).length?subLinks(x).map(l=>`<div class="dsub-l"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a></div>`).join(''):'<div class="dsub-l">No link — text only</div>'}
       <div class="dsub-d">${fmtDateTime(x.at?.seconds)}${msgs?' · '+msgs+(msgs===1?' message':' messages'):''}</div>
     </div>`;
   }).join('');
