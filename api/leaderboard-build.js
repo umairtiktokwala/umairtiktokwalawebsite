@@ -26,6 +26,7 @@
 // ============================================================
 
 import { getDb } from "./_firebase.js";
+import { FieldPath } from "firebase-admin/firestore";
 
 /* Wahi hadd jo cert-start.js mein hain — dono jagah barabar rehni
    chahiyen, warna student ko do alag number nazar aayenge. */
@@ -84,18 +85,35 @@ export default async function handler(req, res) {
     const certified = new Set();
     certSnap.forEach(d => certified.add(d.id));
 
-    /* ---- Har student ka hisaab ---- */
-    const rows = [];
+    /* ---- Har student ka hisaab ----
 
-    for (const doc of studSnap.docs) {
+       AHEM: pehle ye loop `days` ki subcollection EK EK KAR KE parhta
+       tha — 1,060 dafa, ek ke baad ek. Har call par 50-100ms lagte
+       hain, to kul 60-100 second — aur Vercel ka function us se pehle
+       hi waqt khatam kar deta tha (logs mein status "---" aata tha).
+
+       Ab 60 students ek saath parhte hain. 1,060 ke liye ~18 chakkar
+       lagte hain, aur kaam 5-8 second mein ho jata hai.
+
+       60 se zyada ek saath karne se Firestore rok deta hai. */
+    const rows = [];
+    const CHUNK = 60;
+
+    const docs = studSnap.docs.filter(doc => {
+      const s = doc.data() || {};
+      if (s.suspended === true) return false;
+      return String(s.name || "").trim().length > 0;
+    });
+
+    for (let i = 0; i < docs.length; i += CHUNK) {
+      const slice = docs.slice(i, i + CHUNK);
+      await Promise.all(slice.map(doc => one(doc)));
+    }
+
+    async function one(doc) {
       const uid = doc.id;
       const s = doc.data() || {};
-
-      if (s.suspended === true) continue;
-
-      /* Jis ne naam hi nahi diya wo ab tak shuru hi nahi hua */
       const name = String(s.name || "").trim();
-      if (!name) continue;
 
       // 1. Course
       const pct = Number(s.courseStats?.pct || 0);
@@ -110,12 +128,18 @@ export default async function handler(req, res) {
       const hasPhoto = String(s.photo || s.photoURL || "").trim().length > 0;
       const cProfile = (hasName + hasCity + hasPhoto) / 3;
 
-      // 4 + 5. Ghante aur din
+      /* 4 + 5. Ghante aur din.
+
+         Sirf COUNT_FROM ke baad wale din uthate hain — document ki ID
+         hi tareekh hai (2026-09-13 ki shakl mein), is liye Firestore
+         se seedha maang sakte hain. Us se purane mahinon ke documents
+         network par aate hi nahi. */
       let seconds = 0, activeDays = 0;
       try {
-        const daysSnap = await doc.ref.collection("days").get();
+        let q = doc.ref.collection("days");
+        if (COUNT_FROM) q = q.where(FieldPath.documentId(), ">=", COUNT_FROM);
+        const daysSnap = await q.get();
         daysSnap.forEach(d => {
-          if (COUNT_FROM && d.id < COUNT_FROM) return;
           const n = Number(d.data()?.seconds || 0);
           if (n > 0) seconds += n;
           if (n >= DAY_MIN) activeDays++;
@@ -148,7 +172,7 @@ export default async function handler(req, res) {
 
       /* Jis ne abhi kuch shuru hi nahi kiya wo fehrist mein na aaye —
          warna safha sifar wale naamon se bhar jata hai */
-      if (score < 1) continue;
+      if (score < 1) return;
 
       /* Free ya paid — wahi mantiq jo admin dashboard mein hai */
       const batches = Array.isArray(s.batches) ? s.batches : [];
