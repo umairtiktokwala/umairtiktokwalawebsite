@@ -5,12 +5,51 @@
 //  jawab kabhi browser tak nahi jate, is liye koi apna score nahi
 //  badal sakta.
 //
-//  Paas ho jaye to certificates/{uid} ban jata hai. Wo record kabhi
-//  badalta nahi — na student, na admin. Rules mein bhi band hai.
+//  14 Sept 2026: paas hone par certificate NAHI banta. Student link
+//  deta hai (cert-work.js), team dekhti hai (cert-review.js), Approve
+//  par certificate banta hai. cleanBatch/pickBatch wahan istemal hote
+//  hain — is liye yahan se export hain.
 // ============================================================
 
 import { getDb } from "./_firebase.js";
 import { getAuth } from "firebase-admin/auth";
+
+/* Batch ka naam saaf karna — certificate par chhapta hai (14 Sept 2026).
+
+   Sheet se batch teen shakloon mein aata hai:
+     "July-2026"                          — theek
+     "2026-07-01T07:00:00.000Z"           — Google ka date
+     "Wed Jul 01 2026 ... (Pakistan Standard Time)"
+   Pehle jo bhi pehla batch tha wahi chhap jata tha — yaani certificate
+   par "2026 07 01T07:00:00.000Z" bhi aa sakta tha.
+
+   Ab: paid batch pehle (Free nahi), aur naam "July-2026" ki shakl mein. */
+const MONTHS = ["January","February","March","April","May","June","July",
+                "August","September","October","November","December"];
+export function cleanBatch(v) {
+  const s = String(v || "").trim();
+  if (!s) return "";
+  // pehle se saaf: "July-2026" / "July 2026"
+  const m1 = s.match(/^([A-Za-z]+)[-\s]?(20\d{2})$/);
+  if (m1) return m1[1] + "-" + m1[2];
+  // ISO date: 2026-07-01T...
+  const m2 = s.match(/^(20\d{2})-(\d{2})-\d{2}/);
+  if (m2) { const mi = parseInt(m2[2], 10) - 1; if (MONTHS[mi]) return MONTHS[mi] + "-" + m2[1]; }
+  // "Wed Jul 01 2026 ..." ya koi aur shakl jis mein mahina aur saal ho
+  const mm = s.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b/i);
+  const yy = s.match(/\b(20\d{2})\b/);
+  if (mm && yy) {
+    const full = MONTHS.find(x => x.slice(0, 3).toLowerCase() === mm[1].slice(0, 3).toLowerCase());
+    if (full) return full + "-" + yy[1];
+  }
+  return s;
+}
+export function pickBatch(batches) {
+  const arr = Array.isArray(batches) ? batches.map(cleanBatch).filter(Boolean) : [];
+  if (!arr.length) return "";
+  const paid = arr.filter(b => !/^free$/i.test(b) && !/paypal/i.test(b));
+  return (paid.length ? paid[paid.length - 1] : arr[0]);
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -36,9 +75,10 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Session expired. Please log in again." });
     }
 
-    const { attemptId, answers } = req.body || {};
-    if (!attemptId || !Array.isArray(answers)) {
-      return res.status(400).json({ error: "attemptId and answers are required" });
+    const { attemptId } = req.body || {};
+    const answers = Array.isArray(req.body?.answers) ? req.body.answers : [];
+    if (!attemptId) {
+      return res.status(400).json({ error: "attemptId is required" });
     }
 
     const ref = db.collection("certificateAttempts").doc(String(attemptId));
@@ -59,13 +99,17 @@ export default async function handler(req, res) {
       });
     }
 
-    /* ---- Jaanch ---- */
+    /* ---- Jaanch ----
+       14 Sept 2026: jawab attempt ke `given` se — jo cert-answer.js ne
+       server ke waqt ke saath likhe. Browser se aaye `answers` sirf tab
+       jab `given` maujood na ho (purane attempts). */
     const key = a.answers || [];
+    const src = Array.isArray(a.given) && a.given.length ? a.given : answers;
     let score = 0;
     const wrong = [];
 
     key.forEach((right, i) => {
-      const given = Number(answers[i] || 0);
+      const given = Number(src[i] || 0);
       if (given === right) score++;
       else wrong.push({
         n: i + 1,
@@ -86,53 +130,29 @@ export default async function handler(req, res) {
       wrongCount: wrong.length
     });
 
-    /* ---- Paas — certificate bana dete hain ---- */
+    /* ---- Paas — magar certificate ABHI NAHI (14 Sept 2026) ----
+       Student ab apne account ka link deta hai (api/cert-work), team
+       dekhti hai (api/cert-review). Approve par wahin certificate banta
+       hai. Yahan sirf student ko itlaa. */
     if (passed) {
       const s = await db.collection("students").doc(uid).get();
       const d = s.data() || {};
 
-      /* Number aisa jo dohra na ho aur padha ja sake.
-         Misaal: UTW-2026-4F7K2 */
-      const y = new Date().getFullYear();
-      const rnd = Math.random().toString(36).slice(2, 7).toUpperCase();
-      const certNo = "UTW-" + y + "-" + rnd;
-
-      await db.collection("certificates").doc(uid).set({
-        uid,
-        certNo,
-        name: d.name || "",
-        number: d.number || "",
-        batch: (d.batches || [])[0] || "",
-        score, total, pct,
-        attemptId: String(attemptId),
-        issuedAt: FieldValue.serverTimestamp(),
-
-        /* featured: kya is student ka naam public safhe par aa sakta hai.
-             null  = abhi poocha nahi
-             true  = haan
-             false = nahi
-
-           Shuru mein null rakhte hain — student khud faisla karta hai
-           (api/cert-feature.js). Har koi apna naam public nahi karna
-           chahta; kuch log apni pehchan chhupa kar kaam karte hain. */
-        featured: null
-      }, { merge: false });
-
-      /* Student ko portal mein itlaa */
       const nid = db.collection("notifications").doc();
       await nid.set({
         studentUid: uid,
         studentName: d.name || "",
-        title: "Certificate issued",
-        message: "You passed the certificate test with " + score + "/" + total
-               + ". Your certificate number is " + certNo + ".",
+        title: "You passed the certificate test",
+        message: "You scored " + score + "/" + total + ". One last step: open the Certificate "
+               + "page and share the link to your " + (a.platform === "tiktok" ? "TikTok" : "Facebook")
+               + " account so our team can review it.",
         isRead: false,
         isArchived: false,
         createdAt: FieldValue.serverTimestamp()
       });
 
       return res.status(200).json({
-        state: "passed", score, total, pct, certNo, wrong
+        state: "passed", score, total, pct, wrong, platform: a.platform || d.workPlatform || ""
       });
     }
 

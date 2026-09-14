@@ -8,6 +8,16 @@
 //    - Aap bhi us ko message nahi bhej sakte
 //    - Us ko koi itlaa nahi jati (khamoshi se hota hai)
 //
+//  ---- KAUN CHALA SAKTA HAI (14 Sept 2026 — SECURITY FIX) ----
+//  Pehle ye endpoint KHULA tha — koi bhi bahar ka banda kisi bhi
+//  student ko block kar sakta tha, aur `by`/`byName` khud likh kar
+//  kisi team member ka naam laga sakta tha.
+//
+//  Ab: Firebase ID token (Bearer) + admins/{uid} mein naam — jaise
+//  whatsapp-send.js mein hai. Kis ne block kiya, ye server khud
+//  admins ke record se likhta hai; browser se aaya naam nahi maana
+//  jata.
+//
 //  ---- META KI SHART (is ko badla nahi ja sakta) ----
 //  Sirf wahi banda block ho sakta hai jis ne PICHLE 24 GHANTE mein
 //  message kiya ho. Purani chat kholkar block nahi kar sakte.
@@ -21,6 +31,7 @@
 // ============================================================
 
 import { getDb } from "./_firebase.js";
+import { getAuth } from "firebase-admin/auth";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
@@ -29,7 +40,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { convoId, waNumber, phoneNumberId, action, by, byName } = req.body || {};
+  // ---- Login check (bilkul whatsapp-send jaisa) ----
+  /* AHEM: getDb() PEHLE — wahi Firebase app initialize karta hai. */
+  const db = getDb();
+
+  const header = req.headers.authorization || "";
+  const idToken = header.startsWith("Bearer ") ? header.slice(7) : "";
+  if (!idToken) return res.status(401).json({ error: "Login required" });
+
+  let decoded;
+  try {
+    decoded = await getAuth().verifyIdToken(idToken);
+  } catch (e) {
+    return res.status(401).json({ error: "Invalid session" });
+  }
+
+  const adminSnap = await db.collection("admins").doc(decoded.uid).get();
+  if (!adminSnap.exists) return res.status(403).json({ error: "Not authorized" });
+
+  /* Naam browser se nahi — admins ke record se */
+  const by = decoded.uid;
+  const byName = adminSnap.data()?.name || decoded.email || "Team";
+
+  const { convoId, waNumber, action } = req.body || {};
 
   if (!convoId || !waNumber) {
     return res.status(400).json({ error: "convoId and waNumber are required" });
@@ -38,7 +71,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "action must be 'block' or 'unblock'" });
   }
 
-  const fromId = phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  /* Kis number par block lagana hai — chat ke record se, browser se
+     nahi. Browser se aaya phoneNumberId maanne ka matlab hota ke koi
+     bhi kisi bhi number par block laga sakta hai. */
+  let fromId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  try {
+    const cSnap = await db.collection("conversations").doc(String(convoId)).get();
+    if (cSnap.exists && cSnap.data().phoneNumberId) {
+      fromId = cSnap.data().phoneNumberId;
+    }
+  } catch (e) {
+    console.log("phoneNumberId nahi mila, default use ho raha hai:", e.message);
+  }
+
   const endpoint = action === "block" ? "block_users" : "unblock_users";
   const url = `${GRAPH}/${fromId}/${endpoint}`;
 
@@ -79,11 +124,10 @@ export default async function handler(req, res) {
 
     // Firestore mein nishan — taake dashboard mein halat dikhe
     try {
-      const db = getDb();
       await db.collection("conversations").doc(String(convoId)).set(
         action === "block"
-          ? { blocked: true, blockedAt: new Date(), blockedBy: by || null, blockedByName: byName || null }
-          : { blocked: false, unblockedAt: new Date(), unblockedBy: by || null, unblockedByName: byName || null },
+          ? { blocked: true, blockedAt: new Date(), blockedBy: by, blockedByName: byName }
+          : { blocked: false, unblockedAt: new Date(), unblockedBy: by, unblockedByName: byName },
         { merge: true }
       );
     } catch (e) {

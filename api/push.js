@@ -12,6 +12,16 @@
 //    3. { all: true, title, body }
 //       Sab students ko — kam istemal karein
 //
+//  ---- KAUN CHALA SAKTA HAI (14 Sept 2026 — SECURITY FIX) ----
+//  Pehle ye endpoint KHULA tha: secret na bhejo to check guzar jata
+//  tha, aur koi bhi bahar ka banda { all: true } bhej kar 4,000
+//  phones par apna paigham bhej sakta tha.
+//
+//  Ab do hi raaste hain:
+//    a) Dashboard — Firebase ID token (Bearer) + admins/{uid} mein naam
+//    b) Cron / server — sahi CRON_SECRET
+//  Dono mein se kuch na ho to 401.
+//
 //  ---- KHARCHA ----
 //  Firebase Cloud Messaging bilkul MUFT hai, koi hadd nahi.
 //  WhatsApp par ek message PKR 2.79 ka hota hai.
@@ -28,6 +38,7 @@
 // ============================================================
 
 import { getDb } from "./_firebase.js";
+import { getAuth } from "firebase-admin/auth";
 import { getMessaging } from "firebase-admin/messaging";
 
 // Ek dafa mein zyada se zyada itne token — Firebase ki apni hadd 500 hai
@@ -40,21 +51,44 @@ export default async function handler(req, res) {
 
   const { uid, batch, all, title, body, tab, secret } = req.body || {};
 
-  // Dashboard se aane wali request par secret nahi hota (wo login ke
-  // peeche hai). Cron ya kisi aur server se aaye to secret lazmi.
-  if (secret && secret !== process.env.CRON_SECRET) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  if (!title || !body) {
-    return res.status(400).json({ error: "title and body are required" });
-  }
-  if (!uid && !batch && !all) {
-    return res.status(400).json({ error: "one of uid, batch or all is required" });
-  }
-
   try {
+    /* AHEM: getDb() PEHLE — wahi Firebase app initialize karta hai.
+       getAuth() us se pehle chale to verifyIdToken nakaam ho jata hai. */
     const db = getDb();
+
+    // ---- Kaun hai? ----
+    let sentBy = null;
+
+    const header = req.headers.authorization || "";
+    const idToken = header.startsWith("Bearer ") ? header.slice(7) : "";
+
+    if (idToken) {
+      // Raasta (a): dashboard se, login ke saath
+      let decoded;
+      try {
+        decoded = await getAuth().verifyIdToken(idToken);
+      } catch (e) {
+        return res.status(401).json({ error: "Invalid session" });
+      }
+      const adminSnap = await db.collection("admins").doc(decoded.uid).get();
+      if (!adminSnap.exists) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+      sentBy = adminSnap.data()?.name || decoded.email || decoded.uid;
+    } else if (secret && process.env.CRON_SECRET && secret === process.env.CRON_SECRET) {
+      // Raasta (b): cron ya apna server
+      sentBy = "cron";
+    } else {
+      return res.status(401).json({ error: "Login required" });
+    }
+
+    if (!title || !body) {
+      return res.status(400).json({ error: "title and body are required" });
+    }
+    if (!uid && !batch && !all) {
+      return res.status(400).json({ error: "one of uid, batch or all is required" });
+    }
+
     const tokens = [];
     const tokenOwner = {};   // token -> uid, purana token hatane ke liye
 
@@ -134,6 +168,8 @@ export default async function handler(req, res) {
         })
       );
     }
+
+    console.log("PUSH by", sentBy, "→ sent", sent, "failed", failed);
 
     return res.status(200).json({
       ok: true,
