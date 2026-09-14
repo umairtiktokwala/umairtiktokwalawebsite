@@ -34,6 +34,12 @@
   </url>
 
   <url>
+    <loc>https://www.umairtiktokwala.com/leaderboard.html</loc>
+    <priority>0.7</priority>
+    <changefreq>hourly</changefreq>
+  </url>
+
+  <url>
     <loc>https://www.umairtiktokwala.com/certified.html</loc>
     <priority>0.7</priority>
     <changefreq>weekly</changefreq>
