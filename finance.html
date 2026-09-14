@@ -220,6 +220,16 @@ button{font-family:var(--body)}
 .guide-link{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:8px 13px;border:1.5px solid var(--line);background:none;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
 .guide-link:hover{border-color:var(--ink-2);background:var(--line)}
 .guide-link i{font-size:15px}
+.f-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calcbox{background:var(--card-2);border:1px solid var(--line);border-radius:11px;padding:12px 14px;margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.calcbox .cl{font-size:12.5px;color:var(--muted);font-weight:600}
+.calcbox .cv{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em}
+.aistat{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.5;margin-top:10px;color:var(--muted)}
+.aistat.ok{color:#0B7A47}
+.aistat.warn{color:#92400E}
+.aistat i{font-size:15px;flex-shrink:0;margin-top:1px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);border-top-color:var(--purple);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0;margin-top:1px}
+@keyframes sp{to{transform:rotate(360deg)}}
 .f-check{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:14px;color:var(--ink-2)}
 .f-check input{width:18px;height:18px;accent-color:var(--purple)}
 .drop{border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:var(--card-2)}
@@ -679,27 +689,33 @@ button{font-family:var(--body)}
     </div>
 
     <div class="f">
-      <label for="claimAmount">How much arrived in the PayPal account?</label>
-      <input type="number" id="claimAmount" step="0.01" min="0.01" placeholder="37.59" inputmode="decimal">
-      <div class="hint">
-        In your TikTok screenshot, use the figure next to
-        <b>&ldquo;Estimated amount you receive&rdquo;</b> &mdash; not the large amount
-        at the top. The large one still includes the TikTok fee, so it will not
-        match what reached the account.
-      </div>
-      <button type="button" class="guide-link" id="claimGuide">
-        <i class="ti ti-photo-question"></i> Which figure? See an example
-      </button>
-    </div>
-
-    <div class="f">
       <label>Screenshot of the payment</label>
       <div class="drop" id="claimDrop">
         <i class="ti ti-camera-plus"></i>
         <div class="t">Tap to choose a screenshot</div>
-        <div class="s">JPG, PNG or WebP — up to 5 MB</div>
+        <div class="s">JPG, PNG or WebP &mdash; up to 5 MB</div>
       </div>
       <input type="file" id="claimFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+      <div class="aistat" id="claimAi" style="display:none"></div>
+    </div>
+
+    <div class="f">
+      <label>Amounts from that screenshot</label>
+      <div class="f-two">
+        <input type="number" id="claimGross" step="0.01" min="0" placeholder="Total amount" inputmode="decimal">
+        <input type="number" id="claimFee" step="0.01" min="0" placeholder="Service fee" inputmode="decimal">
+      </div>
+      <div class="hint">
+        Copy both figures exactly as they appear &mdash; the large amount at the top,
+        and the <b>Service fee</b> line below it. If there is no fee, leave it at 0.
+      </div>
+      <div class="calcbox">
+        <span class="cl">This reached your PayPal</span>
+        <span class="cv" id="claimNet">$0.00</span>
+      </div>
+      <button type="button" class="guide-link" id="claimGuide">
+        <i class="ti ti-photo-question"></i> Which figures? See an example
+      </button>
     </div>
 
     <div class="sbtns">
@@ -843,6 +859,9 @@ async function withRetry(fn){
 let ME=null, ACCESS=null;
 let SETTLEMENTS=[], CLAIMS=[], ACCOUNTS=[], METHODS=[], ALERTS=[];
 let claimFile=null;
+/* What the screenshot reader found, so the team can see later whether the
+   student typed something different from what the picture actually says. */
+let claimAi=null;
 
 /* Guide picture for the claim amount. Students were sending the big TikTok
    figure instead of what actually landed in PayPal, so the two never matched
@@ -1545,8 +1564,12 @@ function openClaimSheet(){
           + esc(a.email || a.displayName || 'Account') + '</option>')
     .join('');
 
-  $('claimAmount').value = '';
+  $('claimGross').value = '';
+  $('claimFee').value   = '';
   claimFile = null;
+  claimAi   = null;
+  paintClaimNet();
+  setAiStat('');
   resetDrop();
   clearSheetMsg('claimMsg');
   $('claimSheet').classList.add('show');
@@ -1591,18 +1614,129 @@ $('claimFile').onchange = ev=>{
   d.querySelector('i').className='ti ti-circle-check';
   d.querySelector('.t').textContent='Screenshot ready';
   d.querySelector('.s').textContent=file.name;
+
+  readScreenshot(file);
 };
+
+/* ---------------------------------------------------------------------------
+   READING THE SCREENSHOT
+
+   Students kept sending the large TikTok figure while the smaller one is what
+   actually reaches PayPal, so nothing ever matched. Asking for both figures
+   removes the guesswork, and this reader fills them in so most people do not
+   have to type anything at all.
+
+   The reading is done by /api/read-claim on our own server. It is never done
+   here in the browser, because that would put the API key in a page anyone
+   can open.
+
+   If the reader is slow, offline, or not deployed yet, the fields simply stay
+   empty and the student types the two figures themselves. Nothing is blocked.
+   --------------------------------------------------------------------------- */
+
+function setAiStat(html, cls){
+  const el=$('claimAi');
+  if(!html){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='flex';
+  el.className='aistat'+(cls?' '+cls:'');
+  el.innerHTML=html;
+}
+
+function num2(v){
+  const n=Number(v);
+  return isFinite(n) && n>0 ? Math.round(n*100)/100 : 0;
+}
+
+/** Live total — whatever is typed, minus the fee. */
+function paintClaimNet(){
+  const g=Number($('claimGross').value||0);
+  const f=Number($('claimFee').value||0);
+  const net=Math.max(0, Math.round((g-f)*100)/100);
+  $('claimNet').textContent = usd(net);
+  return net;
+}
+$('claimGross').oninput = paintClaimNet;
+$('claimFee').oninput   = paintClaimNet;
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload  = ()=>{
+      const s=String(r.result||'');
+      const i=s.indexOf(',');
+      resolve(i>=0 ? s.slice(i+1) : s);
+    };
+    r.onerror = ()=>reject(new Error('read failed'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function readScreenshot(file){
+  setAiStat('<span class="spin"></span> Reading your screenshot&hellip;');
+
+  const stop = new AbortController();
+  const timer = setTimeout(()=>stop.abort(), 12000);
+
+  try{
+    const b64 = await fileToBase64(file);
+
+    const r = await fetch('/api/read-claim', {
+      method:  'POST',
+      headers: { 'Content-Type':'application/json' },
+      body:    JSON.stringify({ image: b64, mediaType: file.type || 'image/jpeg' }),
+      signal:  stop.signal
+    });
+
+    clearTimeout(timer);
+    if(!r.ok) throw new Error('http '+r.status);
+
+    const d = await r.json();
+    const gross = num2(d && d.gross);
+    const fee   = num2(d && d.fee);
+
+    if(!gross){
+      setAiStat('<i class="ti ti-info-circle"></i> We could not read the figures from this picture. '
+              + 'Please type them in below.', 'warn');
+      return;
+    }
+
+    $('claimGross').value = gross.toFixed(2);
+    $('claimFee').value   = fee.toFixed(2);
+    claimAi = { gross: gross, fee: fee };
+    paintClaimNet();
+
+    setAiStat('<i class="ti ti-circle-check"></i> Read from your screenshot. '
+            + 'Please check both figures before you send.', 'ok');
+
+  }catch(e){
+    clearTimeout(timer);
+    console.error('read-claim', e);
+    setAiStat('<i class="ti ti-info-circle"></i> We could not read this picture just now. '
+            + 'Please type the two figures in below.', 'warn');
+  }
+}
 
 $('claimSubmit').onclick = async ()=>{
   clearSheetMsg('claimMsg');
 
-  const email  = $('claimEmail').value;
-  const amount = Number($('claimAmount').value);
-  const btn    = $('claimSubmit');
+  const email = $('claimEmail').value;
+  const gross = Number($('claimGross').value||0);
+  const fee   = Number($('claimFee').value||0);
+  const btn   = $('claimSubmit');
 
-  if(!email)                       return sheetMsg('claimMsg','Please choose the PayPal account.');
-  if(!amount || amount<=0)         return sheetMsg('claimMsg','Please enter the amount in USD.');
-  if(!claimFile)                   return sheetMsg('claimMsg','Please attach a screenshot of the payment.');
+  if(!email)        return sheetMsg('claimMsg','Please choose the PayPal account.');
+  if(!claimFile)    return sheetMsg('claimMsg','Please attach a screenshot of the payment.');
+  if(!(gross>0))    return sheetMsg('claimMsg','Please enter the total amount shown in your screenshot.');
+  if(fee<0)         return sheetMsg('claimMsg','The service fee cannot be less than zero.');
+  if(fee>=gross)    return sheetMsg('claimMsg','The service fee cannot be the same as, or more than, the total amount.');
+
+  const amount = Math.round((gross-fee)*100)/100;
+  if(!(amount>0))   return sheetMsg('claimMsg','Please check the two figures — nothing is left after the fee.');
+
+  /* Did the student change what the reader found? The team sees this in the
+     admin view, so a wrong reading can be spotted against the screenshot. */
+  const edited = !!claimAi
+    && (Math.abs(claimAi.gross-gross)>0.001 || Math.abs(claimAi.fee-fee)>0.001);
 
   btn.disabled=true; btn.textContent='Sending…';
 
@@ -1619,7 +1753,18 @@ $('claimSubmit').onclick = async ()=>{
       studentName:  ME.name || '',
       studentPhone: ME.number || '',
       paypalEmail:  String(email).toLowerCase(),
-      netUsd:       Math.round(amount*100)/100,
+
+      /* netUsd stays the figure that reached PayPal — the matcher compares
+         against this, so its meaning must not change. */
+      netUsd:       amount,
+      grossUsd:     Math.round(gross*100)/100,
+      feeUsd:       Math.round(fee*100)/100,
+
+      aiRead:       !!claimAi,
+      aiGrossUsd:   claimAi ? claimAi.gross : null,
+      aiFeeUsd:     claimAi ? claimAi.fee   : null,
+      aiEdited:     edited,
+
       status:       'submitted',
       proofUrl:     proofUrl,
       createdAt:    serverTimestamp()
