@@ -38,14 +38,19 @@ export default async function handler(req, res) {
       updatedAt: d.updatedAt ? d.updatedAt.toDate().toISOString() : null,
       countFrom: d.countFrom || null,
       seats: d.seats || { free: 100, paid: 100 },
-      totals: d.totals || { racing: 0, certified: 0, seatsLeft: 200 },
+      /* `racing` aur `total` jaan boojh kar nahi bhejte — un se
+         students ki kul tadaad public ho jati hai, jo karobari
+         maloomat hai. Firestore mein wo mehfooz rehti hai, bas
+         safhe tak nahi aati. */
+      totals: {
+        certified: d.totals?.certified || 0,
+        seatsLeft: d.totals?.seatsLeft || 200
+      },
       free: {
-        total:     d.free?.total || 0,
         certified: d.free?.certified || 0,
         top:       d.free?.top || []
       },
       paid: {
-        total:     d.paid?.total || 0,
         certified: d.paid?.certified || 0,
         top:       d.paid?.top || []
       }
