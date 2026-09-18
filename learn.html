@@ -301,6 +301,27 @@ button{font-family:var(--body)}
 }
 
 /* ---------- ANNOUNCEMENT ---------- */
+/* Sidebar wala (desktop) */
+.side-ann{margin:10px 0 4px;display:flex;flex-direction:column;gap:8px}
+.side-ann-h{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;padding:0 4px}
+.side-ann-h b{background:var(--purple);color:#fff;border-radius:99px;font-size:10px;padding:1px 7px;font-family:var(--body)}
+.sann{padding:10px 12px;border-radius:12px;background:linear-gradient(103deg,var(--soft-blue),var(--soft-purple));border:1px solid #E4E0FB;font-size:12.5px;line-height:1.5;color:var(--ink-2);cursor:pointer}
+.sann-x{white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sann.open .sann-x{display:block;-webkit-line-clamp:unset}
+.sann-d{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:5px}
+/* Course ke upar — sirf phone par, ek line, tap se khule */
+.ann-strip{display:none}
+@media(max-width:860px){
+  .ann-strip{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:linear-gradient(103deg,var(--soft-blue),var(--soft-purple));border:1px solid #E4E0FB;margin-bottom:16px;cursor:pointer;font-size:13px}
+  .ann-strip i{color:var(--purple);font-size:18px;flex-shrink:0}
+  .ann-strip .as-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+  .ann-strip .as-n{background:var(--purple);color:#fff;border-radius:99px;font-size:11px;padding:2px 8px;font-weight:700}
+  .ann-strip.open{flex-direction:column;align-items:stretch}
+  .ann-strip.open .as-t{white-space:pre-wrap;overflow:visible}
+  .ann-strip.open .as-more{display:block}
+  .as-more{display:none;font-size:12.5px;color:var(--ink-2);white-space:pre-wrap;line-height:1.55}
+  .as-more .ann-date{margin:2px 0 10px}
+}
 .ann{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border-radius:16px;background:linear-gradient(103deg,var(--soft-blue),var(--soft-purple));border:1px solid #E4E0FB;margin-bottom:24px}
 .ann-ic{width:38px;height:38px;border-radius:11px;background:var(--grad);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ann-ic i{font-size:19px;color:#fff}
@@ -805,6 +826,11 @@ button{font-family:var(--body)}
 
         <button class="snav" data-s="profile"><i class="ti ti-user"></i> My Profile</button>
       </nav>
+      <!-- Announcements — sidebar mein (18 Sept 2026). Pehle course ke
+           upar poora matn aata tha aur naye student ko lessons neeche
+           dhoondne paRte the. -->
+      <div class="side-ann" id="annSide"></div>
+
       <div class="side-foot">
         <a class="side-link" id="finLink" href="finance.html">
           <i class="ti ti-wallet"></i> Finance Dashboard
@@ -3496,18 +3522,34 @@ function render(){
 }
 
 /* ===== announcements render ===== */
+/* Announcements — 18 Sept 2026:
+     desktop  → sidebar mein (side-ann), 3 line, click par poora
+     phone    → course ke upar ek patli line "1 announcement", tap par poora
+   Pehle poora matn course ke upar aata tha aur lessons neeche dab jate the. */
 function renderAnnouncements(){
-  const box=$('annBox'); if(!box) return;
+  const side=$('annSide'), box=$('annBox');
   const list=ANN.filter(a=>!a.batch || a.batch===BATCH);
-  if(!list.length){ box.innerHTML=''; return; }
-  box.innerHTML=list.map(a=>`<div class="ann">
-    <div class="ann-ic"><i class="ti ti-speakerphone"></i></div>
-    <div class="ann-b">
-      <div class="ann-t">Announcement</div>
-      <div class="ann-x">${esc(a.msg)}</div>
-      ${a.date?`<div class="ann-date">${esc(a.date)}</div>`:''}
-    </div>
-  </div>`).join('');
+  if(!list.length){ if(side) side.innerHTML=''; if(box) box.innerHTML=''; return; }
+
+  if(side){
+    side.innerHTML='<div class="side-ann-h"><i class="ti ti-speakerphone"></i> Announcements <b>'+list.length+'</b></div>'
+      + list.slice(0,3).map(a=>`<div class="sann" title="Tap to read">
+          <div class="sann-x">${esc(a.msg)}</div>
+          ${a.date?`<div class="sann-d">${esc(a.date)}</div>`:''}
+        </div>`).join('');
+    side.querySelectorAll('.sann').forEach(el=>{ el.onclick=()=>el.classList.toggle('open'); });
+  }
+
+  if(box){
+    const first=list[0];
+    box.innerHTML=`<div class="ann-strip" id="annStrip">
+      <i class="ti ti-speakerphone"></i>
+      <span class="as-t">${esc(first.msg)}</span>
+      <span class="as-n">${list.length}</span>
+      <div class="as-more">${list.map(a=>esc(a.msg)+(a.date?`<div class="ann-date">${esc(a.date)}</div>`:'<div class="ann-date"></div>')).join('')}</div>
+    </div>`;
+    const st=$('annStrip'); st.onclick=()=>st.classList.toggle('open');
+  }
 }
 
 /* ===== TASKS section render ===== */
