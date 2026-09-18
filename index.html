@@ -240,8 +240,8 @@ h1{
    Upar: student results (earning screenshots). Neeche: Prompt Book.
    Dono sheet se chalte hain — koi code nahi chheRna. CSS scroll-snap,
    koi library nahi; har 4 second khud khiskta hai, ungli se bhi. */
-.sld-sec{padding:70px 0 20px}
-.sld-sec + .sld-sec{padding-top:30px;padding-bottom:70px}
+.sld-sec{padding:36px 0 10px}
+.sld-sec + .sld-sec{padding-top:16px;padding-bottom:36px}
 .sld-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
 .sld-head h2{font-family:var(--display);font-size:clamp(24px,3.4vw,34px);letter-spacing:-.03em;line-height:1.1}
 .sld-head p{font-size:14.5px;color:var(--muted);margin-top:6px}
@@ -762,6 +762,24 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
     </div>
   </div>
 </nav>
+<!-- Sliders sab se upar (18 Sept 2026) — safha khulte hi nazar aayen -->
+<section class="sld-sec" id="homeResults">
+  <div class="wrap">
+    <div class="sld-head">
+      <div><h2>Student results</h2><p>Real payouts from real students. Names are hidden for their privacy.</p></div>
+      <a class="sld-more" href="results.html">See all results →</a>
+    </div>
+    <div class="sld" id="sldRes"><div class="sld-empty">Loading…</div></div>
+  </div>
+</section><section class="sld-sec" id="homePrompts">
+  <div class="wrap">
+    <div class="sld-head">
+      <div><h2>From the Prompt Book</h2><p>876 AI video prompts, free. Tap any picture to open its prompt.</p></div>
+      <a class="sld-more" href="prompt-book.html">Open the Prompt Book →</a>
+    </div>
+    <div class="sld" id="sldPb"><div class="sld-empty">Loading…</div></div>
+  </div>
+</section>
 <header class="hero">
   <div class="wrap">
     <div class="hero-cols">
@@ -814,22 +832,6 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
       <div><div class="proof-num">AI</div><div class="proof-lbl">Content workflows taught alongside the basics</div></div>
       <div><div class="proof-num">Urdu</div><div class="proof-lbl">Every session taught in the language you think in</div></div>
     </div>
-  </div>
-</section><section class="sld-sec" id="homeResults">
-  <div class="wrap">
-    <div class="sld-head">
-      <div><h2>Student results</h2><p>Real payouts from real students. Names are hidden for their privacy.</p></div>
-      <a class="sld-more" href="results.html">See all results →</a>
-    </div>
-    <div class="sld" id="sldRes"><div class="sld-empty">Loading…</div></div>
-  </div>
-</section><section class="sld-sec" id="homePrompts">
-  <div class="wrap">
-    <div class="sld-head">
-      <div><h2>From the Prompt Book</h2><p>876 AI video prompts, free. Tap any picture to open its prompt.</p></div>
-      <a class="sld-more" href="prompt-book.html">Open the Prompt Book →</a>
-    </div>
-    <div class="sld" id="sldPb"><div class="sld-empty">Loading…</div></div>
   </div>
 </section><section class="sec">
   <div class="wrap">
