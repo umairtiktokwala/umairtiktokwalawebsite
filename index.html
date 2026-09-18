@@ -879,7 +879,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
 const RESULTS_CSV = 'PASTE_RESULTS_CSV_URL_HERE';
 const PBK_CSV     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRPCgJBd8X8BJc8Vfkbi6rUYNtDZe9U7lkgikaio2yrYwkofn4Xc4HsBA9xPVglO_QY-cElD-tDojnu/pub?output=csv';
 const RESULTS_DIR = 'results/';
-const SLD_MAX     = 15;
+const SLD_MAX     = 20;   // ek dafa mein itne card — Home=yes walon mein se random
 
 function sldParseCSV(text){
   const rows=[]; let row=[],cell='',q=false;
@@ -939,6 +939,8 @@ async function loadPromptSlider(){
       return {img:r[0]||'',title:r[1]||'',cat:r[3]||'',home:yes(r[5])};
     }).filter(x=>x.img);
     let list=rows.filter(x=>x.home); if(!list.length) list=rows.slice(-12).reverse();
+    /* Har dafa alag — Home=yes walon ko ghuma kar pehle SLD_MAX lo */
+    for(let i=list.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [list[i],list[j]]=[list[j],list[i]]; }
     list=list.slice(0,SLD_MAX);
     if(!list.length){ sec.style.display='none'; return; }
     box.innerHTML=list.map(x=>`<a class="sld-card sld-pb" href="prompt-book.html?q=${encodeURIComponent(x.title)}">
