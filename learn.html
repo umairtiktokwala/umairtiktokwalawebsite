@@ -100,6 +100,9 @@ button{font-family:var(--body)}
 
 /* ---------- PROMPT LIBRARY ---------- */
 .pl-list{display:flex;flex-direction:column;gap:12px}
+/* BUG FIX 16 Sept 2026: `hidden` attribute class ke display:flex/grid se
+   haar jata tha — "No favourites yet" ke neeche purani list dikhti rehti thi */
+[hidden]{display:none !important}
 .pl-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .pl-head{width:100%;display:flex;align-items:flex-start;gap:13px;padding:17px 19px;
   background:none;border:0;cursor:pointer;text-align:left;font-family:inherit}
@@ -1784,6 +1787,15 @@ onAuthStateChanged(auth, async user=>{
 
   $('auth').style.display='none'; $('app').style.display='block';
   if(splash) splash.style.display='none';
+  /* learn.html#cert (ya #tasks, #prompts, #lib, #profile...) — app ka
+     drawer isi se seedha wo section kholta hai (18 Sept 2026). Login se
+     pehle hash sirf signup/login ke liye dekha jata hai; yahan baqi. */
+  try{
+    const want=(location.hash||'').replace('#','');
+    if(['course','tasks','notes','earnings','invest','profile','prompts','cert','lib'].includes(want)){
+      setTimeout(()=>{ try{ switchSection(want,false); }catch(e){} }, 300);
+    }
+  }catch(e){}
   const first=(ME.name||'').split(' ')[0];
   $('tbName').textContent=ME.name||'Student';
   $('tbNum').textContent=ME.number||'';
