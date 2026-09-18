@@ -246,6 +246,9 @@ h1{
 .sld-head h2{font-family:var(--display);font-size:clamp(24px,3.4vw,34px);letter-spacing:-.03em;line-height:1.1}
 .sld-head p{font-size:14.5px;color:var(--muted);margin-top:6px}
 .sld-more{font-size:14px;font-weight:600;white-space:nowrap;color:var(--ink);border-bottom:2px solid var(--line);padding-bottom:2px}
+.sld-ctl{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sld-arr{width:38px;height:38px;border:1.5px solid var(--line);border-radius:50%;background:#fff;color:var(--ink);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0 0 3px}
+.sld-arr:hover{border-color:var(--ink)}
 .sld-more:hover{border-color:var(--ink)}
 .sld{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 12px;margin:0 -4px}
 .sld::-webkit-scrollbar{display:none}
@@ -767,7 +770,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   <div class="wrap">
     <div class="sld-head">
       <div><h2>Student results</h2><p>Real payouts from real students. Names are hidden for their privacy.</p></div>
-      <a class="sld-more" href="results.html">See all results →</a>
+      <div class="sld-ctl"><a class="sld-more" href="results.html">See all results →</a><button class="sld-arr" data-prev aria-label="Previous">&#8249;</button><button class="sld-arr" data-next aria-label="Next">&#8250;</button></div>
     </div>
     <div class="sld" id="sldRes"><div class="sld-empty">Loading…</div></div>
   </div>
@@ -775,7 +778,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.09);padding:
   <div class="wrap">
     <div class="sld-head">
       <div><h2>From the Prompt Book</h2><p>876 AI video prompts, free. Tap any picture to open its prompt.</p></div>
-      <a class="sld-more" href="prompt-book.html">Open the Prompt Book →</a>
+      <div class="sld-ctl"><a class="sld-more" href="prompt-book.html">Open the Prompt Book →</a><button class="sld-arr" data-prev aria-label="Previous">&#8249;</button><button class="sld-arr" data-next aria-label="Next">&#8250;</button></div>
     </div>
     <div class="sld" id="sldPb"><div class="sld-empty">Loading…</div></div>
   </div>
@@ -946,12 +949,18 @@ async function loadPromptSlider(){
   }catch(e){ sec.style.display='none'; }
 }
 
-/* Har 4 second ek card aage; ungli/mouse lagte hi ruk jata hai,
+/* Har 2 second ek card aage; ungli/mouse lagte hi ruk jata hai,
    aakhir par wapas shuru. Safha nazar mein na ho to bhi ruka rehta hai. */
 function autoSlide(box){
   let pause=false, t=null;
   const stop=()=>{ pause=true; clearTimeout(t); t=setTimeout(()=>{pause=false;},8000); };
   ['touchstart','pointerdown','mouseenter','wheel'].forEach(ev=>box.addEventListener(ev,stop,{passive:true}));
+  /* Next / Previous ke button */
+  const sec=box.closest('.sld-sec');
+  const step=()=>{ const c=box.querySelector('.sld-card'); return c?c.getBoundingClientRect().width+14:200; };
+  const prev=sec&&sec.querySelector('[data-prev]'), next=sec&&sec.querySelector('[data-next]');
+  if(prev) prev.onclick=()=>{ stop(); box.scrollBy({left:-step()*2,behavior:'smooth'}); };
+  if(next) next.onclick=()=>{ stop(); box.scrollBy({left: step()*2,behavior:'smooth'}); };
   setInterval(()=>{
     if(pause||document.hidden) return;
     const card=box.querySelector('.sld-card'); if(!card) return;
@@ -959,7 +968,7 @@ function autoSlide(box){
     const end=box.scrollWidth-box.clientWidth-4;
     if(box.scrollLeft>=end) box.scrollTo({left:0,behavior:'smooth'});
     else box.scrollBy({left:step,behavior:'smooth'});
-  },4000);
+  },2000);
 }
 loadResultsSlider(); loadPromptSlider();
 </script>
