@@ -416,7 +416,17 @@ button{font-family:var(--body)}
 
 /* ---------- COURSE TABS ---------- */
 .section-h{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:-.02em;margin-bottom:16px}
-.tabs{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.tabs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+/* Lessons ka filter — All / To watch / Watched / New (24 Sept 2026) */
+.lfilter{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.lfilter:empty{display:none}
+.lf{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:99px;border:1.5px solid var(--line);background:#fff;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.lf b{font-family:var(--mono);font-size:10.5px;font-weight:600;background:var(--paper-2);color:var(--ink-2);border-radius:99px;padding:1px 7px}
+.lf.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.lf.on b{background:rgba(255,255,255,.18);color:#fff}
+.lf.new b{background:var(--red);color:#fff}
+.l-new{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;background:var(--red);color:#fff;border-radius:6px;padding:2px 6px;margin-left:8px;flex-shrink:0}
+.mod-new{font-family:var(--mono);font-size:10px;color:var(--red);font-weight:700;margin-left:8px}
 .tab{display:flex;align-items:center;gap:9px;padding:11px 20px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;font-weight:700;font-size:14px;color:var(--muted);transition:all .16s;box-shadow:var(--shadow)}
 .tab:hover{color:var(--ink-2);transform:translateY(-1px)}
 .tab.on{background:var(--ink);border-color:transparent;color:#fff}
@@ -906,6 +916,8 @@ button{font-family:var(--body)}
 
           <div id="contBox" style="display:none"></div>
           <div class="tabs" id="tabs"></div>
+          <!-- Watched / To watch / New ka filter (24 Sept 2026) -->
+          <div class="lfilter" id="lfilter"></div>
           <div class="mod-g" id="mods"><div class="empty"><i class="ti ti-loader-2"></i>Loading your course…</div></div>
         </div>
 
@@ -3432,6 +3444,20 @@ async function pushCourseStats(){
   try{ await updateDoc(doc(db,'students',ME.uid),{courseStats:stats,courseStatsAt:serverTimestamp()}); }catch(e){}
 }
 
+/* ===== NAYE LESSONS KA PATA (24 Sept 2026) =====
+   Sheet mein tareekh nahi hoti, is liye "naya" ka matlab: wo lesson jo is
+   student ne is browser par pehle kabhi nahi dekha tha. Pehli dafa portal
+   khulne par sab lessons "dekhe huay" gin liye jate hain (warna sab NEW
+   dikhte); us ke baad sheet mein jo naya aayega wo NEW — jab tak student
+   usay khol na le. Phone/browser ke hisab se alag alag rehta hai. */
+let VIEW='all';   // all | todo | done | new
+function seenKey(){ return 'utw_seen_'+((ME&&ME.uid)||'x'); }
+function seenSet(){ try{ const r=localStorage.getItem(seenKey()); return r?new Set(JSON.parse(r)):null; }catch(e){ return null; } }
+function seenSave(set){ try{ localStorage.setItem(seenKey(), JSON.stringify(Array.from(set))); }catch(e){} }
+function isNew(l){ const s=seenSet(); if(!s) return false; return !s.has(l.id) && !isDone(l) && !(pctFor(l)>0); }
+function markSeen(id){ const s=seenSet()||new Set(); s.add(id); seenSave(s); }
+function seedSeen(list){ if(seenSet()) return; seenSave(new Set(list.map(l=>l.id))); }
+
 function render(){
   // announcements (for this batch or all)
   renderAnnouncements();
@@ -3484,8 +3510,30 @@ function render(){
   try{ renderContinue(mine); }catch(e){}
 
   // modules for selected course
-  const shown=inBatch.filter(l=>l.course===TAB);
-  if(!shown.length){ $('mods').innerHTML='<div class="empty"><i class="ti ti-books"></i>No lessons added to this course yet.</div>'; return; }
+  const shownAll=inBatch.filter(l=>l.course===TAB);
+  if(!shownAll.length){ $('lfilter').innerHTML=''; $('mods').innerHTML='<div class="empty"><i class="ti ti-books"></i>No lessons added to this course yet.</div>'; return; }
+
+  /* Pehli dafa: jo lessons abhi hain wo sab "dekhe huay" — is ke baad
+     jo sheet mein naya aaye wahi NEW */
+  seedSeen(mine);
+
+  const nDone=shownAll.filter(l=>isDone(l)).length;
+  const nNew=shownAll.filter(l=>isNew(l)).length;
+  const nTodo=shownAll.length-nDone;
+  const chips=[['all','All',shownAll.length],['todo','To watch',nTodo],['done','Watched',nDone],['new','New',nNew]];
+  if(VIEW==='new' && !nNew) VIEW='all';
+  $('lfilter').innerHTML=chips.filter(c=>c[0]!=='new'||nNew>0).map(([k,lbl,n])=>
+    `<button class="lf ${VIEW===k?'on':''} ${k==='new'?'new':''}" data-v="${k}">${lbl} <b>${n}</b></button>`).join('');
+  $('lfilter').querySelectorAll('.lf').forEach(b=>{ b.onclick=()=>{ VIEW=b.dataset.v; render(); }; });
+
+  const shown=shownAll.filter(l=>
+    VIEW==='all' ? true :
+    VIEW==='todo' ? !isDone(l) :
+    VIEW==='done' ? isDone(l) : isNew(l));
+  if(!shown.length){
+    $('mods').innerHTML='<div class="empty"><i class="ti ti-check"></i>'+(VIEW==='todo'?'Everything watched — well done!':VIEW==='done'?'Nothing watched yet.':'No new lessons.')+'</div>';
+    return;
+  }
   const mods={};
   shown.forEach(l=>{(mods[l.module]=mods[l.module]||[]).push(l);});
   // order modules by the smallest lesson Order inside each one
@@ -3497,21 +3545,23 @@ function render(){
   // and order lessons inside each module too
   modNames.forEach(m=>mods[m].sort((a,b)=>(a.order||0)-(b.order||0)));
   $('mods').innerHTML=modNames.map((m,i)=>{
-    const ls=mods[m], d=ls.filter(l=>isDone(l)).length;
-    return `<div class="module ${i===0?'open':''}">
+    const ls=mods[m], d=ls.filter(l=>isDone(l)).length, nw=ls.filter(l=>isNew(l)).length;
+    /* Filter laga ho to sab modules khule — dhoondna na pare */
+    const open = VIEW!=='all' || i===0 || nw>0;
+    return `<div class="module ${open?'open':''}">
       <div class="mod-h">
         <span class="mod-n">${String(i+1).padStart(2,'0')}</span>
-        <span class="mod-t">${esc(m)}</span>
+        <span class="mod-t">${esc(m)}${nw?`<span class="mod-new">${nw} new</span>`:''}</span>
         <span class="mod-c">${d}/${ls.length} done</span>
         <span class="mod-ic"></span>
       </div>
       <div class="lessons">
         ${ls.map(l=>{
-          const dn=isDone(l), pc=pctFor(l), part=!dn&&pc>0;
+          const dn=isDone(l), pc=pctFor(l), part=!dn&&pc>0, nw=isNew(l);
           return `<div class="lesson ${dn?'done':''} ${part?'part':''}" data-l="${esc(l.id)}">
           <span class="l-check">${dn?'<i class="ti ti-check"></i>':(part?pc+'%':'')}</span>
           <span class="l-ic"><i class="ti ti-player-play"></i></span>
-          <span class="l-t">${esc(l.title)}</span>
+          <span class="l-t">${esc(l.title)}${nw?'<span class="l-new">NEW</span>':''}</span>
           <span class="l-play"><i class="ti ti-player-play"></i><span>${dn?'Rewatch':(part?'Continue':'Watch')}</span></span>
         </div>`;}).join('')}
       </div>
@@ -3720,6 +3770,7 @@ function paintWatch(){
 
 function openLesson(id){
   const l=LESSONS.find(x=>x.id===id); if(!l) return;
+  markSeen(id);                     // ab ye "NEW" nahi raha
   OPEN=l; T0=Date.now();
   const vid=ytId(l.url);
   const p=progFor(l);
