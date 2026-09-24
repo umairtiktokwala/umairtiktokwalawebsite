@@ -1633,30 +1633,22 @@ window.addEventListener('hashchange', applyHash);
           {email:null,  ok:true}  = waqai koi account nahi hai
           {email:null,  ok:false} = check hi nahi ho saka (net/Firestore ka masla)
    Teesri soorat mein student ko "No account found" DIKHANA GHALAT hai. */
+/* Number se email — sirf server se (24 Sept 2026).
+   Pehle browser seedha numbers/{number} parhta tha — us ke liye rules
+   mein "koi bhi parh sakta hai" rakhna paRta tha, jo khatarnak tha.
+   Ab wo rasta band hai; /api/lookup-email hi jawab deta hai. */
 async function emailForNumber(num){
-  let firestoreFailed=false;
-
-  // 1. numbers/{number} — sab se tez raasta
-  try{
-    const s=await getDoc(doc(db,'numbers',num));
-    if(s.exists() && s.data().email) return {email:String(s.data().email).toLowerCase(), ok:true, google:!!s.data().google};
-  }catch(e){ firestoreFailed=true; }
-
-  // 2. Server se — students collection mein har shakal ka number check hota hai,
-  //    aur ghayab entry khud ba khud ban jati hai.
   try{
     const r=await fetch('/api/lookup-email',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({number:num})
     });
     const v=await r.json();
-    if(v && v.found && v.email) return {email:String(v.email).toLowerCase(), ok:true};
+    if(v && v.found && v.email) return {email:String(v.email).toLowerCase(), ok:true, google:!!v.google};
     if(r.ok) return {email:null, ok:true};
   }catch(e){ /* neeche */ }
-
-  // Yahan tak pohanche to na Firestore ne jawab diya na server ne —
-  // "account nahi hai" kehna ghalat hoga.
-  return {email:null, ok:false, firestoreFailed:firestoreFailed};
+  // Server ne jawab nahi diya — "account nahi hai" kehna ghalat hoga.
+  return {email:null, ok:false};
 }
 
 /* Firestore ka kaam kabhi kabhi ek baar mein nahi hota (net, quota).
@@ -1695,8 +1687,8 @@ async function writeAccountDocs(uid, num, email, name, batches, enrollments, isF
    number pehle se kisi email par hai to naya nahi banta. */
 async function numberTakenBy(num, myEmail){
   try{
-    const s=await getDoc(doc(db,'numbers',num));
-    const e=s.exists()?String(s.data().email||'').toLowerCase():'';
+    const look=await emailForNumber(num);
+    const e=String(look.email||'').toLowerCase();
     if(e && e!==String(myEmail||'').toLowerCase()) return e;
   }catch(e){}
   return '';
