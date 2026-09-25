@@ -124,4 +124,23 @@
     <changefreq>weekly</changefreq>
   </url>
 
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/tiktok-monetization-requirements.html</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/tiktok-account-monetization.html</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://www.umairtiktokwala.com/tiktok-monetization-countries.html</loc>
+    <priority>0.9</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
 </urlset>
