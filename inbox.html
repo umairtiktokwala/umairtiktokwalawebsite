@@ -863,6 +863,22 @@ const PRESENCE_REFRESH_SEC = 45;
 // Presence itne second purani ho to samjho banda chala gaya
 const PRESENCE_STALE_SEC = 120;
 
+/* AUTO-RELEASE (26 Sept 2026)
+   Member itne second se offline ho (presence itni purani, ya logout /
+   tab band) to us ke naam lagi hui, JAWAB KI MUNTAZIR chats wapas
+   Unassigned mein chali jati hain — ya, agar us waqt sirf EK member
+   online ho, seedha us ke paas.
+   PRESENCE_STALE_SEC (2 min) se zyada rakha hai taake internet ka
+   chhota sa jhatka chats na chheen le. */
+const OFFLINE_RELEASE_SEC = 180;
+// Haath se assign ki gayi chat itne minute tak nahi chheeni jati —
+// "kal Sana dekhegi" jaisa faisla foran wapas na ho jaye.
+const RELEASE_GRACE_MIN = 10;
+// Paid students ki chats bhi release hon? (false = sirf free)
+const RELEASE_PAID_TOO = true;
+// Har itne second baad jaanch — chahe koi naya paigham na aaye
+const RELEASE_CHECK_SEC = 60;
+
 /* Chhota paigham neeche dikhana.
    bad = true ho to laal (nakami ke liye). */
 let toastTimer = null;
@@ -895,6 +911,7 @@ let currentFilter = "all";
 let savedReplies = [];
 let presence = {};        // convoId -> { uid, name, at }
 let presenceTimer = null;
+let releaseTimer = null;  // auto-release ki har-minute jaanch
 let editingSrId = null;
 let soundOn = true;
 let notifOn = false;
@@ -986,6 +1003,11 @@ onAuthStateChanged(auth, async (user) => {
     startPresenceLoop(null);   // login karte hi "online" dikhein
     watchComments();
 
+    // Auto-release ki jaanch har minute — koi naya paigham na bhi aaye
+    // tab bhi offline bande ki chats waqt par chhoot jayein.
+    if (releaseTimer) clearInterval(releaseTimer);
+    releaseTimer = setInterval(runAutoAssign, RELEASE_CHECK_SEC * 1000);
+
     // Team panel
     $("teamBtn").onclick = openTeamPanel;
     $("teamClose").onclick = closeTeamPanel;
@@ -1012,6 +1034,7 @@ onAuthStateChanged(auth, async (user) => {
     if (unsubMessages) { unsubMessages(); unsubMessages = null; }
     if (unsubPresence) { unsubPresence(); unsubPresence = null; }
     if (unsubComments) { unsubComments(); unsubComments = null; }
+    if (releaseTimer) { clearInterval(releaseTimer); releaseTimer = null; }
   }
 });
 
@@ -1059,24 +1082,30 @@ function notify(title, body) {
 async function loadTeam() {
   try {
     const snap = await getDocs(collection(db, "admins"));
-    team = snap.docs.map(d => ({ uid: d.id, name: d.data().name || d.id, role: d.data().role || "" }));
+    team = snap.docs.map(d => ({
+      uid: d.id, name: d.data().name || d.id, role: d.data().role || "",
+      reviewer: d.data().reviewer === true   // review account ko chats nahi di jatin
+    }));
   } catch (e) { team = []; }
 }
 
 // ---------- Presence (kaun kaunsi chat khole baitha hai) ----------
 let presenceAll = {};   // har member ki halat — chat khuli ho ya na ho
+let presenceLastAt = {}; // uid -> aakhri presence ka waqt (purani bhi) — auto-release ke liye
 
 function watchPresence() {
   if (unsubPresence) unsubPresence();
   unsubPresence = onSnapshot(collection(db, "presence"), (snap) => {
     presence = {};
     presenceAll = {};
+    presenceLastAt = {};
 
     // Pehle sab ki halat jama karein (team panel ke liye)
     snap.forEach(d => {
       const p = d.data();
       if (!p || !p.uid) return;
       const at = p.at?.toMillis ? p.at.toMillis() : 0;
+      presenceLastAt[p.uid] = at;
       if (Date.now() - at > PRESENCE_STALE_SEC * 1000) return;
       presenceAll[p.uid] = { uid: p.uid, name: p.name || "Team", convoId: p.convoId || null, at };
     });
@@ -1093,6 +1122,8 @@ function watchPresence() {
     updateTotalBadge();
     if (activeId) paintViewingBar();
     if ($("teamPanel") && $("teamPanel").classList.contains("show")) renderTeamPanel();
+    // Koi offline/online hua — chats ka bandobast dobara dekhein
+    runAutoAssign();
   });
 }
 
@@ -1358,6 +1389,81 @@ function isFreeChat(c) {
   return true;
 }
 
+/* Kya ye member OFFLINE_RELEASE_SEC se zyada der se ghayab hai?
+   - presence doc hi nahi (logout ya tab band)  -> offline
+   - presence hai magar bohat purani            -> offline
+   AHEM: presenceAll ki 2-minute wali hadd yahan istemal NAHI hoti —
+   yahan 3 minute hain, taake chhota sa network jhatka chats na chheene. */
+function isLongOffline(uid) {
+  if (!uid) return false;
+  if (presenceAll[uid]) return false;                 // saaf online
+  const at = presenceLastAt[uid] || 0;
+  return (Date.now() - at) > OFFLINE_RELEASE_SEC * 1000;
+}
+
+/* Review account ko chats nahi milti */
+function isReviewerUid(uid) {
+  const t = team.find(x => x.uid === uid);
+  return !!(t && t.reviewer);
+}
+
+/* ---- AUTO-RELEASE (26 Sept 2026) ----
+   Jis member ke naam chat lagi hai wo offline ho gaya, aur student
+   jawab ka muntazir hai — to chat wahan padi na rahe:
+     * sirf EK member online   -> seedha us ke paas
+     * kai online / koi nahi   -> Unassigned (free chats ko neeche wala
+                                  auto-assign phir kam-bojh wale ko de deta hai)
+   Ye bhi sirf sab se purana online member karta hai (amIAutoAssigner). */
+async function releaseOfflineChats(load) {
+  // Online members jo chats le sakte hain (reviewer nahi, hadd ke andar)
+  const online = Object.values(presenceAll || {})
+    .filter(p => !isReviewerUid(p.uid) && (load[p.uid] || 0) < AUTO_ASSIGN_MAX);
+  const solo = online.length === 1 ? online[0] : null;
+
+  const now = Date.now();
+  const toRelease = convos.filter(c => {
+    if (c.status === "resolved") return false;
+    if (!c.awaitingReply) return false;             // student muntazir nahi to rehne dein
+    if (!c.assignedUid) return false;
+    if (c.assignedUid === me.uid) return false;     // main to online hoon
+    if (!RELEASE_PAID_TOO && !isFreeChat(c)) return false;
+    if (presence[c.id]) return false;               // koi abhi ye chat khole baitha hai
+    if (!isLongOffline(c.assignedUid)) return false;
+    // Haath se abhi abhi assign ki gayi — grace ka waqt dein
+    const aAt = c.assignedAt?.toMillis ? c.assignedAt.toMillis() : 0;
+    if (aAt && c.autoAssigned !== true && (now - aAt) < RELEASE_GRACE_MIN * 60 * 1000) return false;
+    return true;
+  });
+
+  for (const c of toRelease) {
+    const patch = {
+      releasedFrom: c.assignedTo || null,
+      releasedFromUid: c.assignedUid || null,
+      releasedAt: serverTimestamp(),
+      autoReleased: true
+    };
+    if (solo && (load[solo.uid] || 0) < AUTO_ASSIGN_MAX) {
+      patch.assignedUid = solo.uid;
+      patch.assignedTo  = solo.name;
+      patch.autoAssigned = true;
+      patch.autoAssignedAt = serverTimestamp();
+      patch.assignedAt = serverTimestamp();
+      load[solo.uid] = (load[solo.uid] || 0) + 1;
+    } else {
+      patch.assignedUid = null;
+      patch.assignedTo  = null;
+    }
+    if (c.assignedUid) load[c.assignedUid] = Math.max(0, (load[c.assignedUid] || 1) - 1);
+    try {
+      await updateDoc(doc(db, "conversations", c.id), patch);
+      console.log("Auto-released", c.id, "from", c.assignedTo, "->", patch.assignedTo || "Unassigned");
+    } catch (e) {
+      console.log("Auto-release skipped:", c.id, e.message);
+    }
+  }
+  return toRelease.length;
+}
+
 async function runAutoAssign() {
   if (!AUTO_ASSIGN_ENABLED || autoAssignBusy) return;
   if (!me.uid || me.reviewer) return;
@@ -1372,9 +1478,15 @@ async function runAutoAssign() {
     load[c.assignedUid] = (load[c.assignedUid] || 0) + 1;
   });
 
-  // Jo abhi online hain aur hadd ke andar hain
+  // Pehle: offline bandon ki chats chhurwayein (26 Sept 2026)
+  autoAssignBusy = true;
+  try { await releaseOfflineChats(load); }
+  catch (e) { console.log("Auto-release error:", e.message); }
+  finally { autoAssignBusy = false; }
+
+  // Jo abhi online hain aur hadd ke andar hain (review account nahi)
   const avail = Object.values(presenceAll || {})
-    .filter(p => (load[p.uid] || 0) < AUTO_ASSIGN_MAX)
+    .filter(p => !isReviewerUid(p.uid) && (load[p.uid] || 0) < AUTO_ASSIGN_MAX)
     .sort((a, b) => (load[a.uid] || 0) - (load[b.uid] || 0));
 
   if (!avail.length) return;
@@ -1405,7 +1517,8 @@ async function runAutoAssign() {
           assignedUid: pick.uid,
           assignedTo: pick.name,
           autoAssigned: true,
-          autoAssignedAt: serverTimestamp()
+          autoAssignedAt: serverTimestamp(),
+          assignedAt: serverTimestamp()
         });
         load[pick.uid] = (load[pick.uid] || 0) + 1;
         console.log("Auto-assigned", c.id, "->", pick.name);
@@ -1688,7 +1801,7 @@ async function openConvo(id) {
   // Read mark + auto-assign agar khali hai
   const patch = {};
   if ((c.unread || 0) > 0) patch.unread = 0;
-  if (!c.assignedUid) { patch.assignedUid = me.uid; patch.assignedTo = me.name; }
+  if (!c.assignedUid) { patch.assignedUid = me.uid; patch.assignedTo = me.name; patch.assignedAt = serverTimestamp(); patch.autoAssigned = false; }
   patch.lastOpenedBy = me.name;
   patch.lastOpenedAt = serverTimestamp();
   try { await updateDoc(doc(db, "conversations", id), patch); } catch (e) {}
@@ -1797,7 +1910,7 @@ function paintChatHead() {
   if (take) take.onclick = async () => {
     try {
       await updateDoc(doc(db, "conversations", activeId),
-        { assignedUid: me.uid, assignedTo: me.name });
+        { assignedUid: me.uid, assignedTo: me.name, assignedAt: serverTimestamp(), autoAssigned: false });
     } catch (e) {}
   };
   const rel = $("releaseBtn");
@@ -1833,7 +1946,9 @@ function paintChatHead() {
           try {
             await updateDoc(doc(db, "conversations", convoId), {
               assignedUid: uid || null,
-              assignedTo: t ? t.name : null
+              assignedTo: t ? t.name : null,
+              assignedAt: serverTimestamp(),
+              autoAssigned: false   // haath se — 10 minute grace milta hai
             });
             // Pehle yahan khali catch tha — nakaam hone par kuch nahi dikhta tha
             // aur bande ko lagta tha ke us ne click hi nahi kiya.
@@ -2554,6 +2669,9 @@ function renderInfo() {
     rows += infoRow("Status", "Not in student records");
   }
   if (c.assignedTo) rows += infoRow("Assigned to", c.assignedUid === me.uid ? "You" : c.assignedTo);
+  // Offline hone par jis se chhooti thi (26 Sept 2026)
+  if (c.autoReleased && c.releasedFrom && c.releasedFromUid !== c.assignedUid)
+    rows += infoRow("Moved from", c.releasedFrom + " (went offline)");
   if (c.lastOpenedBy) rows += infoRow("Last opened by", c.lastOpenedBy);
   rows += infoRow("First message", c.createdAt ? fmtDate(c.createdAt) : "&mdash;", true);
 
